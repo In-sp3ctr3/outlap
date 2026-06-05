@@ -4,15 +4,15 @@ Use this as the release gate for v1.0.0.
 
 ## Product
 
-- [ ] Setup wizard works in demo mode.
-- [ ] Setup wizard works with manual team import.
-- [ ] Dashboard shows next event, team state, recommendation, and data health.
-- [ ] Market table supports sorting/filtering/comparison.
+- [x] Setup wizard works in demo mode.
+- [x] Setup wizard works with manual team import.
+- [x] Dashboard shows next event, team state, recommendation, and data health.
+- [x] Market table supports sorting/filtering/comparison.
 - [x] Optimizer returns safe/balanced/aggressive/budget/differential/chip modes.
-- [ ] Race Week page shows sessions, weather, race-control, news, and stale-data states.
+- [x] Race Week page shows sessions, weather, race-control, news, and stale-data states.
 - [ ] AI Strategist works with fake provider and at least one real configured provider.
-- [ ] League analysis works with imported demo league data.
-- [ ] Settings page manages providers, data sources, rules, privacy, import/export.
+- [x] League analysis works with imported demo league data.
+- [x] Settings page manages providers, data sources, rules, privacy, import/export.
 
 ## Data
 
@@ -90,3 +90,5 @@ Use this as the release gate for v1.0.0.
 - [x] UI-state pass covers responsive navigation, skip link, announced loading/empty/error states, working market/optimizer controls, dynamic provider selection, and disclaimer/no-official-asset checks.
 - [x] Release gate pass covers `make setup`, `make dev`, `make check`, CI workflow health, lockfiles, dependency audits, security policy, and Apache-2.0 license.
 - [x] Official SDK adapter pass covers OpenAI, Anthropic, Gemini, Mistral, and Ollama with mocked SDK-client tests.
+- [x] Product acceptance pass covers setup demo/manual import, dashboard, market sort/filter/lock/compare, race-week session/weather/race-control/news/stale data, league, settings provider test/import/export controls, and fake/failing AI provider browser flows.
+- [ ] Live configured-provider smoke remains environment-gated; no cloud provider keys are present locally and local Ollama has no installed chat model.

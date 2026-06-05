@@ -28,6 +28,7 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added UI-state and accessibility polish for loading/empty/error states, skip navigation, dynamic AI provider selection, and working market/optimizer controls.
 - Added release-gate verification for setup/dev/check commands, dependency audits, and CI workflow health.
 - Added official SDK provider adapters for OpenAI, Anthropic, Gemini, Mistral, and Ollama with mocked client tests.
+- Added product acceptance coverage for setup manual import, dashboard health, market sorting/locks/comparison, race-week race-control/news/stale states, league analysis, and settings provider/import/export controls.
 
 ### Security
 

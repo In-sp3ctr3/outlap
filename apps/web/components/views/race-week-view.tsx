@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { PageHead } from "@/components/page-head";
 import { StateNotice } from "@/components/state-notice";
+import { StatusBadge } from "@/components/status";
 import type { DashboardData, loadRaceIntelligence } from "@/lib/api";
 import { loadRaceIntelligence as fetchRaceIntelligence } from "@/lib/api";
 
@@ -31,6 +32,23 @@ export function RaceWeekView({ data }: { data: DashboardData }) {
       ) : null}
       {intelligence ? (
         <div className="grid two">
+          <section className="panel">
+            <h2>Data freshness</h2>
+            <div className="status-strip" style={{ marginTop: 12 }}>
+              {data.dataSources.map((source) => (
+                <StatusBadge
+                  key={source.source}
+                  status={source.status}
+                  label={`${source.source}: ${source.freshness}`}
+                />
+              ))}
+            </div>
+            {data.dataSources
+              .filter((source) => source.status !== "ok")
+              .map((source) => (
+                <p key={source.source}>{source.message}</p>
+              ))}
+          </section>
           <section className="panel">
             <h2>Event timeline</h2>
             {intelligence.sessions.map((session) => (
