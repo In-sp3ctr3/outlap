@@ -26,10 +26,12 @@ Completed on local branch `codex/raceweek-strategist-v1`.
 - `make check`: passed end to end.
 - Secret-pattern grep: no matches.
 - GitHub repository metadata/settings: description and topics set, Wiki/Projects disabled, delete-branch-on-merge enabled.
+- GitHub PR checks: API, Web, E2E, and gitleaks passed on PR #1.
+- `main` branch protection: API/Web/E2E/gitleaks required, linear history and conversation resolution required, force push/delete blocked, admin bypass enabled.
 
 ## Notes
 
 - Playwright runs with one worker because the current demo API state is in-memory and shared across desktop/mobile projects.
 - Python 3.12 is supported locally; the upstream spec's Python 3.13 target remains a release baseline.
 - A FastAPI/TestClient deprecation warning is present from Starlette/httpx compatibility; it does not fail tests.
-- `main` branch protection remains a follow-up after CI publishes stable check names.
+- Live provider adapters and external connectors remain follow-up hardening beyond the local demo slice.
