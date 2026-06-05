@@ -57,15 +57,15 @@ Use this as the release gate for v1.0.0.
 
 ## Engineering
 
-- [ ] `make setup` works from fresh clone.
-- [ ] `make dev` starts app.
-- [ ] `make check` passes.
-- [ ] CI runs lint/typecheck/tests/e2e.
-- [ ] Lockfiles committed.
-- [ ] Dependency audit reviewed.
-- [ ] Docs updated.
-- [ ] Security policy present.
-- [ ] License selected.
+- [x] `make setup` works from fresh clone.
+- [x] `make dev` starts app.
+- [x] `make check` passes.
+- [x] CI runs lint/typecheck/tests/e2e.
+- [x] Lockfiles committed.
+- [x] Dependency audit reviewed.
+- [x] Docs updated.
+- [x] Security policy present.
+- [x] License selected.
 
 ## Milestone Evidence
 
@@ -88,4 +88,5 @@ Use this as the release gate for v1.0.0.
 - [x] Chip scoring simulation covers regular boost, 3x Boost, Autopilot, No Negative, Wildcard, Limitless, and Final Fix.
 - [x] Provider registry, OpenAI-compatible adapter path, fake provider tests, agent refusal, recommendation ID citation, and fallback template are covered.
 - [x] UI-state pass covers responsive navigation, skip link, announced loading/empty/error states, working market/optimizer controls, dynamic provider selection, and disclaimer/no-official-asset checks.
-- [ ] Official SDK adapter and release gates remain open.
+- [x] Release gate pass covers `make setup`, `make dev`, `make check`, CI workflow health, lockfiles, dependency audits, security policy, and Apache-2.0 license.
+- [ ] Official SDK adapter remains open.
