@@ -64,3 +64,11 @@ Use this as the release gate for v1.0.0.
 - [ ] Docs updated.
 - [ ] Security policy present.
 - [ ] License selected.
+
+## Milestone Evidence
+
+- [x] Milestone 1 DuckDB migrations apply cleanly in API tests.
+- [x] Milestone 1 demo fixtures seed into DuckDB via `raceweek seed-demo`.
+- [x] Milestone 1 demo source snapshots are recorded with content hashes and raw JSON payloads.
+- [x] Milestone 1 projection and recommendation runs persist and reload with provenance.
+- [ ] Full v1 connector, provider, optimizer, projection, UI-state, and release gates remain open.
