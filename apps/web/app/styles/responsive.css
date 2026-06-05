@@ -1,0 +1,49 @@
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .nav a,
+  .nav button {
+    justify-content: center;
+  }
+
+  .content {
+    padding: 18px;
+  }
+
+  .grid.two,
+  .grid.three,
+  .step-list {
+    grid-template-columns: 1fr;
+  }
+
+  .page-head {
+    display: grid;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .metric-value {
+    font-size: 20px;
+  }
+}
