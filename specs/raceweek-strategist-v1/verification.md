@@ -64,6 +64,13 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `cd apps/api && uv run mypy src tests/test_fastf1_adapter.py`: passed for 29 files.
   - `make check`: passed; API collected 39 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `apps/api/tests/test_fastf1_adapter.py`: verifies configured cache-path enablement, aggregate session summary extraction, telemetry exclusion, and disabled status when the optional FastF1 dependency is absent.
+- Fantasy read-only connector slice, completed on June 5, 2026:
+  - `cd apps/api && uv run pytest tests/test_fantasy_readonly_connector.py tests/test_settings.py -q`: passed, 5 tests.
+  - `cd apps/api && uv run ruff check src tests`: passed.
+  - `cd apps/api && uv run mypy src tests/test_fantasy_readonly_connector.py tests/test_settings.py`: passed for 31 files.
+  - `make check`: passed; API collected 44 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_fantasy_readonly_connector.py`: verifies documented GET-only fantasy paths, bearer token use in request headers only, token redaction from request paths/status/raw snapshots, degraded upstream handling, source snapshot persistence, and absence of transfer mutation methods.
+  - `apps/api/tests/test_settings.py`: verifies both spec-style `FANTASY_*` and project-prefixed `RACEWEEK_FANTASY_*` settings names are supported.
 
 Earlier local demo slice:
 
