@@ -1,11 +1,20 @@
 import { MetricCard } from "@/components/metric-card";
 import { PageHead } from "@/components/page-head";
+import { StateNotice } from "@/components/state-notice";
 import { StatusBadge } from "@/components/status";
 import type { DashboardData } from "@/lib/api";
 import { formatBudget } from "@/lib/format";
 
 export function MyTeamsView({ data }: { data: DashboardData }) {
   const team = data.teams[0];
+  if (!team) {
+    return (
+      <>
+        <PageHead title="My Teams" detail="Current lineup, budget, free transfers, chips, and manual import controls." />
+        <StateNotice tone="empty" title="No team snapshot is loaded" />
+      </>
+    );
+  }
   return (
     <>
       <PageHead title="My Teams" detail="Current lineup, budget, free transfers, chips, and manual import controls." />

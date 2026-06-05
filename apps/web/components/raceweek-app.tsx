@@ -7,6 +7,7 @@ import { loadDashboard, resetDemo, runRecommendation } from "@/lib/api";
 
 import { SetupWizard } from "./setup-wizard";
 import { Sidebar, type View } from "./sidebar";
+import { StateNotice } from "./state-notice";
 import { AiStrategistView } from "./views/ai-strategist-view";
 import { DashboardView } from "./views/dashboard-view";
 import { DataHealthView } from "./views/data-health-view";
@@ -24,6 +25,7 @@ export function RaceweekApp({ initialView }: { initialView: View }) {
   const [recommendation, setRecommendation] = useState<RecommendationRun | null>(null);
   const [comparison, setComparison] = useState<RecommendationOption | null>(null);
   const [loadingRecommendation, setLoadingRecommendation] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("raceweek-setup-complete") === "true";
@@ -52,12 +54,26 @@ export function RaceweekApp({ initialView }: { initialView: View }) {
     await refresh();
   }
 
-  async function generateRecommendation(strategyMode = "balanced", allowedChips: string[] = []) {
+  async function generateRecommendation(
+    strategyMode = "balanced",
+    allowedChips: string[] = [],
+    lockedAssetIds: string[] = [],
+    bannedAssetIds: string[] = [],
+  ) {
     setLoadingRecommendation(true);
     try {
-      const result = await runRecommendation({ strategyMode, allowedChips, maxOptions: 5 });
+      setActionError(null);
+      const result = await runRecommendation({
+        strategyMode,
+        allowedChips,
+        lockedAssetIds,
+        bannedAssetIds,
+        maxOptions: 5,
+      });
       setRecommendation(result);
       setComparison(null);
+    } catch (caught) {
+      setActionError(caught instanceof Error ? caught.message : "Unable to run optimizer");
     } finally {
       setLoadingRecommendation(false);
     }
@@ -70,10 +86,16 @@ export function RaceweekApp({ initialView }: { initialView: View }) {
   const view = initialView === "setup" ? "dashboard" : initialView;
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
       <Sidebar active={view} />
-      <main className="content">
-        {error ? <div className="error">API unavailable: {error}</div> : null}
-        {!data ? <div className="loading">Loading race-week control room...</div> : null}
+      <main className="content" id="main-content" aria-busy={!data}>
+        {error ? <StateNotice tone="error" title="API unavailable">{error}</StateNotice> : null}
+        {actionError ? <StateNotice tone="error" title="Action failed">{actionError}</StateNotice> : null}
+        {!data ? (
+          <StateNotice tone="loading" title="Loading race-week control room" />
+        ) : null}
         {data ? (
           <ViewRouter
             view={view}
@@ -98,7 +120,12 @@ function ViewRouter(props: {
   comparison: RecommendationOption | null;
   loadingRecommendation: boolean;
   onRefresh: () => Promise<void>;
-  onRecommend: (strategyMode?: string, allowedChips?: string[]) => Promise<void>;
+  onRecommend: (
+    strategyMode?: string,
+    allowedChips?: string[],
+    lockedAssetIds?: string[],
+    bannedAssetIds?: string[],
+  ) => Promise<void>;
   onCompare: (option: RecommendationOption) => void;
 }) {
   switch (props.view) {
@@ -113,7 +140,7 @@ function ViewRouter(props: {
     case "league":
       return <LeagueView />;
     case "ai-strategist":
-      return <AiStrategistView recommendation={props.recommendation} />;
+      return <AiStrategistView providers={props.data.providers} recommendation={props.recommendation} />;
     case "data-health":
       return <DataHealthView data={props.data} onRefresh={props.onRefresh} />;
     case "settings":

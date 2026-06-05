@@ -48,12 +48,12 @@ Use this as the release gate for v1.0.0.
 
 ## UI/UX
 
-- [ ] Responsive desktop/tablet/mobile.
-- [ ] Dark mode.
-- [ ] Empty/loading/error states.
-- [ ] Accessibility basics.
-- [ ] No official logos/assets.
-- [ ] Unofficial disclaimer in footer/about.
+- [x] Responsive desktop/tablet/mobile.
+- [x] Dark mode.
+- [x] Empty/loading/error states.
+- [x] Accessibility basics.
+- [x] No official logos/assets.
+- [x] Unofficial disclaimer in footer/about.
 
 ## Engineering
 
@@ -87,4 +87,5 @@ Use this as the release gate for v1.0.0.
 - [x] Custom optimizer weights and request fingerprints persist with recommendation runs.
 - [x] Chip scoring simulation covers regular boost, 3x Boost, Autopilot, No Negative, Wildcard, Limitless, and Final Fix.
 - [x] Provider registry, OpenAI-compatible adapter path, fake provider tests, agent refusal, recommendation ID citation, and fallback template are covered.
-- [ ] UI-state, official SDK adapter, and release gates remain open.
+- [x] UI-state pass covers responsive navigation, skip link, announced loading/empty/error states, working market/optimizer controls, dynamic provider selection, and disclaimer/no-official-asset checks.
+- [ ] Official SDK adapter and release gates remain open.

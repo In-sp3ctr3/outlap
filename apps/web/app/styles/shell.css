@@ -4,6 +4,24 @@
   min-height: 100vh;
 }
 
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  z-index: 10;
+  transform: translateY(-150%);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--bg);
+  background: var(--accent);
+  font-weight: 800;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 .sidebar {
   border-right: 1px solid var(--line);
   background: rgba(8, 10, 15, 0.92);
