@@ -4,12 +4,15 @@ import { Ban, Lock } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PageHead } from "@/components/page-head";
+import { StateNotice } from "@/components/state-notice";
 import type { FantasyAsset } from "@/lib/api";
 import { formatBudget, formatPoints, riskLabel } from "@/lib/format";
 
 export function MarketView({ assets }: { assets: FantasyAsset[] }) {
   const [filter, setFilter] = useState("");
   const [sort, setSort] = useState<"points" | "price" | "risk">("points");
+  const [lockedAssetIds, setLockedAssetIds] = useState<string[]>([]);
+  const [bannedAssetIds, setBannedAssetIds] = useState<string[]>([]);
   const visible = useMemo(() => {
     return assets
       .filter((asset) => asset.displayName.toLowerCase().includes(filter.toLowerCase()))
@@ -19,6 +22,17 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
         return (b.fantasyPoints ?? 0) - (a.fantasyPoints ?? 0);
       });
   }, [assets, filter, sort]);
+
+  function toggleAsset(assetId: string, mode: "ban" | "lock") {
+    const setPrimary = mode === "lock" ? setLockedAssetIds : setBannedAssetIds;
+    const setOpposite = mode === "lock" ? setBannedAssetIds : setLockedAssetIds;
+    setPrimary((current) =>
+      current.includes(assetId)
+        ? current.filter((item) => item !== assetId)
+        : [...current, assetId],
+    );
+    setOpposite((current) => current.filter((item) => item !== assetId));
+  }
 
   return (
     <>
@@ -53,11 +67,29 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
                 <td>{formatBudget(asset.priceMillions)}</td>
                 <td>{formatPoints(asset.fantasyPoints ?? 0)}</td>
                 <td>{asset.ownershipPct ?? 0}%</td>
-                <td>{riskLabel(asset.riskScore ?? 0)}</td>
+                <td>
+                  {riskLabel(asset.riskScore ?? 0)}
+                  {lockedAssetIds.includes(asset.assetId) ? <span className="badge">Locked</span> : null}
+                  {bannedAssetIds.includes(asset.assetId) ? <span className="badge bad">Banned</span> : null}
+                </td>
                 <td>
                   <div className="button-row">
-                    <button className="button secondary" type="button"><Lock size={14} aria-hidden="true" />Lock</button>
-                    <button className="button secondary" type="button"><Ban size={14} aria-hidden="true" />Ban</button>
+                    <button
+                      aria-pressed={lockedAssetIds.includes(asset.assetId)}
+                      className="button secondary"
+                      type="button"
+                      onClick={() => toggleAsset(asset.assetId, "lock")}
+                    >
+                      <Lock size={14} aria-hidden="true" />Lock
+                    </button>
+                    <button
+                      aria-pressed={bannedAssetIds.includes(asset.assetId)}
+                      className="button secondary"
+                      type="button"
+                      onClick={() => toggleAsset(asset.assetId, "ban")}
+                    >
+                      <Ban size={14} aria-hidden="true" />Ban
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -65,6 +97,9 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
           </tbody>
         </table>
       </div>
+      {visible.length === 0 ? (
+        <StateNotice tone="empty" title="No assets match the current filter" />
+      ) : null}
     </>
   );
 }

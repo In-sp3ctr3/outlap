@@ -113,6 +113,13 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `make check`: passed; API collected 68 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `apps/api/tests/test_providers.py`: verifies required provider registry coverage, browser-safe key presence, mocked OpenAI-compatible request/response parsing, provider-test fake/failure/unknown behavior, and no raw provider key exposure from `/api/v1/providers`.
   - `apps/api/tests/test_agent_guardrails.py`: verifies transfer/chip mutation refusal, password/API-key disclosure refusal, recommendation-run citation for transfer advice, fallback without AI, and provider-output secret redaction.
+- UI-state and accessibility slice, completed on June 5, 2026:
+  - `pnpm --filter web lint`: passed.
+  - `pnpm --filter web typecheck`: passed.
+  - `pnpm --filter web e2e`: passed; Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `make check`: passed; API collected 68 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/web/tests/e2e/raceweek-strategist.spec.ts`: verifies dashboard/optimizer/AI flow, market filtering plus Lock state, optimizer Lock/Ban constraints, degraded data-health recovery, fake-provider fallback, and mobile primary navigation.
+  - UI files remain under the repository line-count targets after splitting state styles into `apps/web/app/styles/state.css`.
 
 Earlier local demo slice:
 

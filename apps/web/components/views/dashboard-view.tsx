@@ -5,6 +5,7 @@ import { BrainCircuit } from "lucide-react";
 import { MetricCard } from "@/components/metric-card";
 import { PageHead } from "@/components/page-head";
 import { RecommendationCard } from "@/components/recommendation-card";
+import { StateNotice } from "@/components/state-notice";
 import { StatusBadge } from "@/components/status";
 import type { DashboardData, RecommendationOption, RecommendationRun } from "@/lib/api";
 import { formatBudget, riskLabel } from "@/lib/format";
@@ -19,10 +20,26 @@ export function DashboardView({
   data: DashboardData;
   recommendation: RecommendationRun | null;
   loadingRecommendation: boolean;
-  onRecommend: (strategyMode?: string, allowedChips?: string[]) => Promise<void>;
+  onRecommend: (
+    strategyMode?: string,
+    allowedChips?: string[],
+    lockedAssetIds?: string[],
+    bannedAssetIds?: string[],
+  ) => Promise<void>;
   onCompare: (option: RecommendationOption) => void;
 }) {
   const team = data.teams[0];
+  if (!team) {
+    return (
+      <>
+        <PageHead
+          title="Dashboard"
+          detail="Next event, data freshness, team state, and the current recommendation."
+        />
+        <StateNotice tone="empty" title="No team snapshot is loaded" />
+      </>
+    );
+  }
   const biggestRisk = data.assets.reduce((max, asset) => Math.max(max, asset.riskScore ?? 0), 0);
   const topOption = recommendation?.options[0];
 
@@ -58,9 +75,7 @@ export function DashboardView({
             <RecommendationCard option={topOption} onCompare={onCompare} />
           </div>
         ) : (
-          <div className="empty" style={{ marginTop: 14 }}>
-            No recommendation generated yet.
-          </div>
+          <StateNotice tone="empty" title="No recommendation generated yet" />
         )}
       </section>
     </>
