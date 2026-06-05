@@ -1,0 +1,65 @@
+{
+  "items": [
+    {
+      "meetingKey": "meeting_demo_01",
+      "eventId": "event_demo_01",
+      "season": 2026,
+      "roundNumber": 1,
+      "meetingName": "Harbor Night Grand Prix",
+      "circuitName": "Harbor Park Circuit",
+      "countryName": "Demo Republic",
+      "location": "Harbor City",
+      "dateStart": "2026-06-12T14:00:00Z",
+      "dateEnd": "2026-06-14T20:00:00Z",
+      "locksAt": "2026-06-13T17:30:00Z",
+      "status": "scheduled"
+    }
+  ],
+  "sessions": [
+    {
+      "sessionKey": "session_demo_fp1",
+      "meetingKey": "meeting_demo_01",
+      "sessionName": "Practice 1",
+      "sessionType": "practice",
+      "startsAt": "2026-06-12T14:00:00Z",
+      "endsAt": "2026-06-12T15:00:00Z",
+      "status": "scheduled"
+    },
+    {
+      "sessionKey": "session_demo_quali",
+      "meetingKey": "meeting_demo_01",
+      "sessionName": "Qualifying",
+      "sessionType": "qualifying",
+      "startsAt": "2026-06-13T18:00:00Z",
+      "endsAt": "2026-06-13T19:00:00Z",
+      "status": "scheduled"
+    },
+    {
+      "sessionKey": "session_demo_race",
+      "meetingKey": "meeting_demo_01",
+      "sessionName": "Race",
+      "sessionType": "race",
+      "startsAt": "2026-06-14T18:00:00Z",
+      "endsAt": "2026-06-14T20:00:00Z",
+      "status": "scheduled"
+    }
+  ],
+  "weather": [
+    {
+      "sessionKey": "session_demo_race",
+      "summary": "Warm track with light wind; late-race shower risk is rising.",
+      "rainfallChancePct": 32,
+      "trackTemperatureC": 39,
+      "riskScore": 0.36
+    }
+  ],
+  "raceControl": [
+    {
+      "sessionKey": "session_demo_race",
+      "category": "notice",
+      "flag": "none",
+      "message": "No penalties pending in demo snapshot.",
+      "occurredAt": "2026-06-05T00:00:00Z"
+    }
+  ]
+}
