@@ -38,6 +38,14 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `ruby -e "require 'yaml'; ..."`: passed; OpenAPI parses and includes the fantasy score import/list schemas.
   - `apps/api/tests/test_manual_import.py`: verifies fantasy score CSV numeric validation, unknown-column warnings, persistence, and retrieval through `/api/v1/fantasy/scores`.
   - OpenAPI documents `/api/v1/fantasy/import/scores`, `/api/v1/fantasy/scores`, and the fantasy score import schemas.
+- OpenF1 connector slice, completed on June 5, 2026:
+  - `cd apps/api && uv run pytest tests/test_openf1_connector.py tests/test_data_source_status_contract.py tests/test_storage.py -q`: passed, 9 tests.
+  - `cd apps/api && uv run ruff check src tests`: passed.
+  - `cd apps/api && uv run mypy src tests/test_openf1_connector.py tests/test_data_source_status_contract.py tests/test_storage.py`: passed for 27 files.
+  - `make check`: passed; API collected 31 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_openf1_connector.py`: verifies documented OpenF1 paths, typed normalization, degraded handling for 503 and invalid JSON, 64-char response hashes, HTTP status metadata, sanitized request paths, and source snapshot persistence.
+  - `apps/api/tests/test_data_source_status_contract.py`: verifies API data-source statuses use the public `ok`/`stale`/`degraded`/`error`/`disabled`/`unknown` contract, not legacy `healthy`.
+  - `apps/api/tests/test_storage.py`: verifies old local DuckDB `healthy` status payloads are normalized to `ok` at load time.
 
 Earlier local demo slice:
 

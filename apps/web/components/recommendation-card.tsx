@@ -19,7 +19,7 @@ export function RecommendationCard({
           <h3>#{option.rank} Recommended move</h3>
           <p>{option.summary}</p>
         </div>
-        <StatusBadge status={option.chipAction ? "degraded" : "healthy"} label={`Chip ${option.chipAction ?? "none"}`} />
+        <StatusBadge status={option.chipAction ? "degraded" : "ok"} label={`Chip ${option.chipAction ?? "none"}`} />
       </div>
       <div className="grid three">
         <Metric label="Net" value={formatPoints(option.expectedNetPoints)} />

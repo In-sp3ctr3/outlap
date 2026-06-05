@@ -39,12 +39,12 @@ export function AiStrategistView({ recommendation }: { recommendation: Recommend
         </div>
         <div className="button-row" style={{ marginTop: 14 }}>
           <button className="button" type="button" onClick={send}><Bot size={16} aria-hidden="true" />Send</button>
-          <StatusBadge status="healthy" label="Read-only tools" />
+          <StatusBadge status="ok" label="Read-only tools" />
         </div>
       </section>
       {response ? (
         <section className="panel" style={{ marginTop: 16 }} aria-live="polite">
-          <StatusBadge status={status === "fallback" ? "degraded" : "healthy"} label={status ?? "ok"} />
+          <StatusBadge status={status === "fallback" ? "degraded" : "ok"} label={status ?? "ok"} />
           <p>{response}</p>
           <p>Fantasy account mutation: disabled.</p>
         </section>
