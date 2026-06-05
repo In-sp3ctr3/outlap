@@ -26,3 +26,8 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added deterministic chip scoring for regular boost, 3x Boost, Autopilot, No Negative, and Final Fix constraints.
 - Added a typed AI provider registry, OpenAI-compatible adapter path, fake provider tests, browser-safe provider config responses, and read-only agent guardrails.
 - Added UI-state and accessibility polish for loading/empty/error states, skip navigation, dynamic AI provider selection, and working market/optimizer controls.
+- Added release-gate verification for setup/dev/check commands, dependency audits, and CI workflow health.
+
+### Security
+
+- Forced the workspace to the patched `postcss@8.5.15` release through pnpm overrides.

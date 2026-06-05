@@ -120,6 +120,16 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `make check`: passed; API collected 68 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `apps/web/tests/e2e/raceweek-strategist.spec.ts`: verifies dashboard/optimizer/AI flow, market filtering plus Lock state, optimizer Lock/Ban constraints, degraded data-health recovery, fake-provider fallback, and mobile primary navigation.
   - UI files remain under the repository line-count targets after splitting state styles into `apps/web/app/styles/state.css`.
+- Release gate slice, completed on June 5, 2026:
+  - `ruby -e "require 'yaml'; YAML.load_file('.github/workflows/check.yml'); puts 'workflow yaml ok'"`: passed.
+  - `make setup`: passed; pnpm lockfile was current and `uv sync` resolved/audited Python packages.
+  - Bounded `make dev` smoke: passed; API `/health` and web `/` returned 200 before dev processes were shut down.
+  - `pnpm audit --audit-level moderate`: passed after forcing `postcss@8.5.15` through the workspace override.
+  - `cd apps/api && uvx pip-audit`: passed with no known vulnerabilities.
+  - `pnpm install --frozen-lockfile`: passed after lockfile refresh.
+  - `pnpm why postcss --recursive`: reports one installed version, `postcss@8.5.15`.
+  - `make check`: passed; API collected 68 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `pnpm peers check`: reports existing ESLint 10 peer-range warnings in ESLint plugins; lint/typecheck/tests pass and no vulnerability is associated with the warning.
 
 Earlier local demo slice:
 
