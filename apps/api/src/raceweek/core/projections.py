@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from raceweek.core.models import FantasyAsset, Projection, ProjectionRunResult, utc_now
+from raceweek.core.models import (
+    FantasyAsset,
+    Projection,
+    ProjectionBacktestResult,
+    ProjectionRunResult,
+    utc_now,
+)
 
 MODEL_NAME = "transparent_weighted_demo"
 MODEL_VERSION = "2026.1"
@@ -37,6 +43,47 @@ def run_projection(
         source_snapshot_ids=source_snapshot_ids or ["snapshot_demo_market_01"],
         projections=projections,
         status="degraded" if stale_sources else "ok",
+        warnings=warnings,
+    )
+
+
+def run_backtest(
+    assets: list[FantasyAsset],
+    *,
+    event_id: str,
+    stale_sources: bool = False,
+) -> ProjectionBacktestResult:
+    projection_run = run_projection(assets, event_id=event_id, stale_sources=stale_sources)
+    actual_by_asset = {
+        asset.asset_id: float(asset.fantasy_points)
+        for asset in assets
+        if asset.fantasy_points is not None
+    }
+    errors = [
+        (
+            projection.asset_id,
+            abs(projection.expected_points - actual_by_asset[projection.asset_id]),
+        )
+        for projection in projection_run.projections
+        if projection.asset_id in actual_by_asset
+    ]
+    warnings = []
+    if not errors:
+        warnings.append("No actual fantasy scores were available for backtesting.")
+    mean_absolute_error = (
+        round(sum(error for _, error in errors) / len(errors), 2)
+        if errors
+        else 0.0
+    )
+    worst_asset_id = max(errors, key=lambda item: item[1])[0] if errors else None
+    return ProjectionBacktestResult(
+        event_id=event_id,
+        model_name=MODEL_NAME,
+        model_version=MODEL_VERSION,
+        generated_at=utc_now(),
+        sample_count=len(errors),
+        mean_absolute_error=mean_absolute_error,
+        worst_asset_id=worst_asset_id,
         warnings=warnings,
     )
 

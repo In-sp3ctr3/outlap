@@ -4,7 +4,7 @@ import argparse
 import json
 
 from raceweek.core.optimizer import optimize_recommendations
-from raceweek.core.projections import run_projection
+from raceweek.core.projections import run_backtest, run_projection
 from raceweek.settings import settings
 from raceweek.storage.demo import get_state, reset_state
 
@@ -35,13 +35,24 @@ def main() -> None:
         return
 
     state = get_state()
+    if args.command == "backtest":
+        backtest_result = run_backtest(state.assets, event_id=state.current_event_id)
+        print(
+            json.dumps(
+                backtest_result.model_dump(by_alias=True),
+                indent=2,
+                default=str,
+            )
+        )
+        return
+
     projection_run = run_projection(state.assets, event_id=state.current_event_id)
     recommendation = optimize_recommendations(
         team=state.team,
         assets=state.assets,
         projections=projection_run.projections,
         event_id=state.current_event_id,
-        strategy_mode=args.strategy if args.command == "backtest" else "balanced",
+        strategy_mode="balanced",
         locked_asset_ids=[],
         banned_asset_ids=[],
         allowed_chips=[],
@@ -51,9 +62,6 @@ def main() -> None:
     )
     payload = {
         "command": args.command,
-        "season": getattr(args, "season", "2026"),
-        "strategy": getattr(args, "strategy", "balanced"),
-        "meanAbsoluteErrorDemo": 4.2,
         "topOptions": [
             option.model_dump(by_alias=True)
             for option in recommendation.options[:3]
