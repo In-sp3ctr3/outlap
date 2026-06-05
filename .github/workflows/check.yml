@@ -40,7 +40,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
-          cache: "pnpm"
       - name: Enable pnpm
         run: corepack enable
       - name: Install web dependencies
@@ -60,7 +59,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
-          cache: "pnpm"
       - name: Enable pnpm
         run: corepack enable
       - uses: astral-sh/setup-uv@v7
