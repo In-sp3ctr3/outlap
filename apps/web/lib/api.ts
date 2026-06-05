@@ -62,6 +62,7 @@ export type RecommendationOption = {
   expectedNetPoints: number;
   budgetUsedMillions: number;
   budgetRemainingMillions: number;
+  expectedBudgetDeltaMillions?: number | null;
   riskScore: number;
   confidence: number;
   summary: string;
@@ -77,7 +78,11 @@ export type RecommendationOption = {
 
 export type RecommendationRun = {
   recommendationRunId: string;
+  teamSnapshotId: string;
+  eventId: string;
   projectionRunId: string;
+  strategyMode: string;
+  generatedAt: string;
   status: string;
   warnings: string[];
   options: RecommendationOption[];

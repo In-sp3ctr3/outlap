@@ -745,19 +745,25 @@ components:
         idempotencyKey: { type: string }
     RecommendationRunResult:
       type: object
-      required: [recommendationRunId, options]
+      required: [recommendationRunId, teamSnapshotId, eventId, projectionRunId, strategyMode, generatedAt, status, options, warnings]
       properties:
         recommendationRunId: { type: string }
         teamSnapshotId: { type: string }
         eventId: { type: string }
+        projectionRunId: { type: string }
+        strategyMode: { type: string }
         generatedAt: { type: string, format: date-time }
+        status: { type: string, enum: [ok, degraded, error] }
         options:
           type: array
           items:
             $ref: '#/components/schemas/RecommendationOption'
+        warnings:
+          type: array
+          items: { type: string }
     RecommendationOption:
       type: object
-      required: [optionId, rank, expectedNetPoints, transfers, riskScore, confidence, summary]
+      required: [optionId, rank, strategyMode, expectedGrossPoints, transferPenaltyPoints, expectedNetPoints, budgetUsedMillions, budgetRemainingMillions, transfers, riskScore, confidence, summary, selectedAssetIds, sourceSnapshotIds, projectionRunId, rulesetVersion, optimizerVersion]
       properties:
         optionId: { type: string }
         rank: { type: integer }
@@ -785,6 +791,15 @@ components:
         warnings:
           type: array
           items: { type: string }
+        selectedAssetIds:
+          type: array
+          items: { type: string }
+        sourceSnapshotIds:
+          type: array
+          items: { type: string }
+        projectionRunId: { type: string }
+        rulesetVersion: { type: string }
+        optimizerVersion: { type: string }
     RecommendedTransfer:
       type: object
       properties:
