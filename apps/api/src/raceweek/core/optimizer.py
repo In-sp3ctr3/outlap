@@ -22,8 +22,10 @@ from raceweek.core.optimizer_requests import (
 from raceweek.core.optimizer_scoring import rank_options
 from raceweek.core.rules import (
     InvalidLineup,
+    InvalidLineupTransition,
     calculate_net_transfers,
     calculate_transfer_penalty,
+    validate_final_fix,
     validate_lineup,
 )
 
@@ -236,6 +238,14 @@ def _option_from_selected_ids(
         )
     except InvalidLineup:
         return None
+    if chip_action == "final_fix":
+        driver_asset_ids = {
+            asset.asset_id for asset in asset_by_id.values() if asset.asset_type == "driver"
+        }
+        try:
+            validate_final_fix(team.asset_ids, set(selected_ids), driver_asset_ids)
+        except InvalidLineupTransition:
+            return None
     penalty = calculate_transfer_penalty(
         calculate_net_transfers(team.asset_ids, set(selected_ids)),
         free_transfers=team.free_transfers,
@@ -257,4 +267,7 @@ def _option_from_selected_ids(
         source_snapshot_ids=source_snapshot_ids,
         degraded_sources=degraded_sources,
         optimizer_version=optimizer_version,
+        team_asset_boosts={
+            asset.asset_id: asset.boost_multiplier for asset in team.assets
+        },
     )

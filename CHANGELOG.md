@@ -23,3 +23,4 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added deterministic projection backtesting with real fixture error metrics in the CLI.
 - Added a pinned OR-Tools optimizer path with brute-force fallback and optimizer provenance in contracts.
 - Added custom optimizer weights with request-specific recommendation fingerprints and persisted request context.
+- Added deterministic chip scoring for regular boost, 3x Boost, Autopilot, No Negative, and Final Fix constraints.
