@@ -11,9 +11,9 @@
 - GitHub workflows include main checks and a Gitleaks secret-scan workflow.
 - Local `git grep` secret-pattern scan returned no matches.
 - GitHub repository metadata was set, unused Wiki/Projects were disabled, topics were added, and automatic branch deletion after merge was enabled.
+- `main` branch protection requires API, Web, E2E, and gitleaks checks; force pushes/deletion are blocked; linear history and conversation resolution are required; admin bypass remains available for solo-maintainer safety.
 
 ## Accepted Risks
 
 - Real provider adapters and live connectors are not fully implemented in this demo slice; they must pass provider/connector-specific negative tests before public release.
 - The current API stores demo state in memory for E2E speed. Persistent DuckDB repositories are scaffolded but not yet the default runtime store.
-- Branch protection/rulesets were not changed yet; configure solo-safe `main` protection after the first CI run exposes stable status-check names.
