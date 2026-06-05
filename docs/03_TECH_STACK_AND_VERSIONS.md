@@ -41,13 +41,21 @@ Pin these in `apps/web/package.json`.
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
     "@playwright/test": "1.60.0",
     "@tailwindcss/postcss": "4.3.0",
+    "@types/node": "25.9.1",
+    "@types/react": "19.2.16",
+    "@types/react-dom": "19.2.3",
     "eslint": "10.4.1",
     "eslint-config-next": "16.2.7",
+    "globals": "17.6.0",
+    "jsdom": "29.1.1",
     "prettier": "3.8.3",
     "tailwindcss": "4.3.0",
+    "typescript-eslint": "8.60.1",
     "typescript": "6.0.3",
+    "vite": "8.0.16",
     "vitest": "4.1.8"
   }
 }
