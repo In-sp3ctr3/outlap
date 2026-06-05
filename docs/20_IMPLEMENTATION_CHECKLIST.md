@@ -19,7 +19,7 @@ Use this as the release gate for v1.0.0.
 - [x] Manual import validates JSON and CSV.
 - [ ] Fantasy connector is optional and read-only.
 - [x] OpenF1 connector works with fixture/mocked tests.
-- [ ] Jolpica connector works with fixture/mocked tests.
+- [x] Jolpica connector works with fixture/mocked tests.
 - [ ] FastF1 adapter works with cache path.
 - [ ] News connector stores metadata/summary only.
 - [x] Source snapshots are recorded.
@@ -76,4 +76,5 @@ Use this as the release gate for v1.0.0.
 - [x] Manual import rejects duplicate lineup assets and non-numeric market prices.
 - [x] Fantasy score CSV import validates numeric fields and persists score snapshots.
 - [x] OpenF1 mocked session-context connector degrades gracefully and persists sanitized source snapshots.
+- [x] Jolpica mocked season-context connector normalizes schedule/results/standings and persists sanitized source snapshots.
 - [ ] Full v1 connector, provider, optimizer, projection, UI-state, and release gates remain open.
