@@ -80,4 +80,5 @@ Use this as the release gate for v1.0.0.
 - [x] RSS/news connector stores metadata and feed summaries without full article bodies.
 - [x] FastF1 adapter enables the configured cache path and stores aggregate session summaries only.
 - [x] Optional fantasy connector uses documented GET endpoints and redacts session tokens from persisted metadata.
-- [ ] Full v1 connector, provider, optimizer, projection, UI-state, and release gates remain open.
+- [x] Projection contribution breakdowns and CLI backtests use deterministic fixture error metrics.
+- [ ] Full v1 provider, optimizer, projection hardening, UI-state, and release gates remain open.

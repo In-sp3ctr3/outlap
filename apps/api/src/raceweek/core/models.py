@@ -131,6 +131,17 @@ class ProjectionRunResult(RaceweekModel):
     warnings: list[str] = Field(default_factory=list)
 
 
+class ProjectionBacktestResult(RaceweekModel):
+    event_id: str
+    model_name: str
+    model_version: str
+    generated_at: datetime
+    sample_count: int = Field(ge=0)
+    mean_absolute_error: float
+    worst_asset_id: str | None = None
+    warnings: list[str] = Field(default_factory=list)
+
+
 class OptimizerRequest(RaceweekModel):
     team_snapshot_id: str
     event_id: str

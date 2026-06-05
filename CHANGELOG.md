@@ -20,3 +20,4 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added a metadata-only RSS/news connector that drops full article bodies from persisted snapshots.
 - Added a FastF1 cache adapter that returns aggregate session summaries without raw telemetry.
 - Added an optional read-only fantasy connector using documented GET endpoints with token redaction.
+- Added deterministic projection backtesting with real fixture error metrics in the CLI.
