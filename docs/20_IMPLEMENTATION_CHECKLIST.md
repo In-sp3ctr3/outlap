@@ -8,7 +8,7 @@ Use this as the release gate for v1.0.0.
 - [ ] Setup wizard works with manual team import.
 - [ ] Dashboard shows next event, team state, recommendation, and data health.
 - [ ] Market table supports sorting/filtering/comparison.
-- [ ] Optimizer returns safe/balanced/aggressive/budget/differential/chip modes.
+- [x] Optimizer returns safe/balanced/aggressive/budget/differential/chip modes.
 - [ ] Race Week page shows sessions, weather, race-control, news, and stale-data states.
 - [ ] AI Strategist works with fake provider and at least one real configured provider.
 - [ ] League analysis works with imported demo league data.
@@ -27,13 +27,13 @@ Use this as the release gate for v1.0.0.
 
 ## Rules/optimizer
 
-- [ ] 5-driver/2-constructor constraints tested.
-- [ ] Budget cap tested.
-- [ ] Transfer penalties tested.
-- [ ] Net-transfer counting tested.
+- [x] 5-driver/2-constructor constraints tested.
+- [x] Budget cap tested.
+- [x] Transfer penalties tested.
+- [x] Net-transfer counting tested.
 - [ ] All chips tested.
-- [ ] Optimizer deterministic ordering tested.
-- [ ] Recommendations include provenance.
+- [x] Optimizer deterministic ordering tested.
+- [x] Recommendations include provenance.
 
 ## AI
 
@@ -81,4 +81,5 @@ Use this as the release gate for v1.0.0.
 - [x] FastF1 adapter enables the configured cache path and stores aggregate session summaries only.
 - [x] Optional fantasy connector uses documented GET endpoints and redacts session tokens from persisted metadata.
 - [x] Projection contribution breakdowns and CLI backtests use deterministic fixture error metrics.
-- [ ] Full v1 provider, optimizer, projection hardening, UI-state, and release gates remain open.
+- [x] Optimizer uses the pinned OR-Tools CP-SAT path when available and falls back to brute force deterministically.
+- [ ] Custom optimizer weights, full chip scoring simulation, provider, UI-state, and release gates remain open.

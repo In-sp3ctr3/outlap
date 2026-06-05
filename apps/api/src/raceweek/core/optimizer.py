@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from itertools import combinations
-
 from raceweek.core.models import (
     FantasyAsset,
     FantasyTeamSnapshot,
@@ -12,13 +10,20 @@ from raceweek.core.models import (
     StrategyMode,
     utc_now,
 )
+from raceweek.core.optimizer_bruteforce import solve_lineups_with_bruteforce
+from raceweek.core.optimizer_ortools import (
+    ORTOOLS_OPTIMIZER_VERSION,
+    solve_lineups_with_ortools,
+)
+from raceweek.core.optimizer_scoring import rank_options
 from raceweek.core.rules import (
     InvalidLineup,
     calculate_net_transfers,
     calculate_transfer_penalty,
     validate_lineup,
 )
-from raceweek.core.strategy import weights_for
+
+BRUTEFORCE_OPTIMIZER_VERSION = "bruteforce_demo_v1"
 
 
 def optimize_recommendations(
@@ -55,7 +60,7 @@ def optimize_recommendations(
             )
     )
 
-    options = _rank_options(options)[:max_options]
+    options = rank_options(options)[:max_options]
     ranked = [
         option.model_copy(update={"rank": rank})
         for rank, option in enumerate(options, start=1)
@@ -100,7 +105,7 @@ def _optimize_for_chip(
     source_snapshot_ids: list[str],
     chip_action: str | None,
     degraded_sources: bool,
-    ) -> list[RecommendationOption]:
+) -> list[RecommendationOption]:
     projection_by_asset = {projection.asset_id: projection for projection in projections}
     asset_by_id = {asset.asset_id: asset for asset in assets}
     locked_assets = [
@@ -113,61 +118,115 @@ def _optimize_for_chip(
         for asset in assets
         if asset.asset_id not in banned_asset_ids and asset.asset_id in projection_by_asset
     ]
-    drivers = [asset for asset in candidates if asset.asset_type == "driver"]
-    constructors = [asset for asset in candidates if asset.asset_type == "constructor"]
     options: list[RecommendationOption] = []
     current_ids = team.asset_ids
 
-    locked_driver_ids = {asset.asset_id for asset in locked_assets if asset.asset_type == "driver"}
-    locked_constructor_ids = {
-        asset.asset_id
-        for asset in locked_assets
-        if asset.asset_type == "constructor"
-    }
-
-    for driver_combo in combinations(drivers, 5):
-        driver_ids = {asset.asset_id for asset in driver_combo}
-        if not locked_driver_ids <= driver_ids:
-            continue
-        for constructor_combo in combinations(constructors, 2):
-            constructor_ids = {asset.asset_id for asset in constructor_combo}
-            if not locked_constructor_ids <= constructor_ids:
-                continue
-            lineup = [*driver_combo, *constructor_combo]
-            try:
-                validation = validate_lineup(
-                    lineup,
-                    cost_cap_millions=team.cost_cap_millions,
-                    chip_action=chip_action,
-                )
-            except InvalidLineup:
-                continue
-            selected_ids = tuple(sorted(asset.asset_id for asset in lineup))
-            net_transfers = calculate_net_transfers(current_ids, set(selected_ids))
-            penalty = calculate_transfer_penalty(
-                net_transfers,
-                free_transfers=team.free_transfers,
-                penalty_points=team.transfer_penalty_points,
-                chip_action=chip_action,
-            )
-            option = _build_option(
-                option_id=f"recopt_{strategy_mode}_{chip_action or 'none'}_{len(options) + 1}",
-                strategy_mode=strategy_mode,
-                lineup=lineup,
-                selected_ids=selected_ids,
-                projections=projection_by_asset,
-                current_ids=current_ids,
-                penalty=penalty,
-                budget_used=validation.budget_used_millions,
-                budget_remaining=validation.budget_remaining_millions,
-                chip_action=chip_action,
-                projection_run_id=projection_run_id,
-                source_snapshot_ids=source_snapshot_ids,
-                degraded_sources=degraded_sources,
-            )
+    locked_candidate_ids = {asset.asset_id for asset in locked_assets}
+    solver_lineups = solve_lineups_with_ortools(
+        assets=candidates,
+        projections=projection_by_asset,
+        current_asset_ids=current_ids,
+        locked_asset_ids=locked_candidate_ids,
+        strategy_mode=strategy_mode,
+        cost_cap_millions=team.cost_cap_millions,
+        free_transfers=team.free_transfers,
+        penalty_points=team.transfer_penalty_points,
+        chip_action=chip_action,
+        max_options=max_options,
+    )
+    for selected_ids in solver_lineups:
+        option = _option_from_selected_ids(
+            option_id=(
+                f"recopt_{strategy_mode}_{chip_action or 'none'}_"
+                f"{ORTOOLS_OPTIMIZER_VERSION}_{len(options) + 1}"
+            ),
+            team=team,
+            asset_by_id=asset_by_id,
+            projections=projection_by_asset,
+            selected_ids=selected_ids,
+            strategy_mode=strategy_mode,
+            chip_action=chip_action,
+            projection_run_id=projection_run_id,
+            source_snapshot_ids=source_snapshot_ids,
+            degraded_sources=degraded_sources,
+            optimizer_version=ORTOOLS_OPTIMIZER_VERSION,
+        )
+        if option is not None:
             options.append(option)
 
-    return _rank_options(options)[: max(max_options, 10)]
+    if options:
+        return rank_options(options)[:max_options]
+
+    for selected_ids in solve_lineups_with_bruteforce(
+        assets=candidates,
+        locked_asset_ids=locked_candidate_ids,
+        cost_cap_millions=team.cost_cap_millions,
+        chip_action=chip_action,
+    ):
+        option = _option_from_selected_ids(
+            option_id=f"recopt_{strategy_mode}_{chip_action or 'none'}_{len(options) + 1}",
+            team=team,
+            asset_by_id=asset_by_id,
+            projections=projection_by_asset,
+            selected_ids=selected_ids,
+            strategy_mode=strategy_mode,
+            chip_action=chip_action,
+            projection_run_id=projection_run_id,
+            source_snapshot_ids=source_snapshot_ids,
+            degraded_sources=degraded_sources,
+            optimizer_version=BRUTEFORCE_OPTIMIZER_VERSION,
+        )
+        if option is not None:
+            options.append(option)
+
+    return rank_options(options)[: max(max_options, 10)]
+
+
+def _option_from_selected_ids(
+    *,
+    option_id: str,
+    team: FantasyTeamSnapshot,
+    asset_by_id: dict[str, FantasyAsset],
+    projections: dict[str, Projection],
+    selected_ids: tuple[str, ...],
+    strategy_mode: StrategyMode,
+    chip_action: str | None,
+    projection_run_id: str,
+    source_snapshot_ids: list[str],
+    degraded_sources: bool,
+    optimizer_version: str,
+) -> RecommendationOption | None:
+    lineup = [asset_by_id[asset_id] for asset_id in selected_ids]
+    try:
+        validation = validate_lineup(
+            lineup,
+            cost_cap_millions=team.cost_cap_millions,
+            chip_action=chip_action,
+        )
+    except InvalidLineup:
+        return None
+    penalty = calculate_transfer_penalty(
+        calculate_net_transfers(team.asset_ids, set(selected_ids)),
+        free_transfers=team.free_transfers,
+        penalty_points=team.transfer_penalty_points,
+        chip_action=chip_action,
+    )
+    return _build_option(
+        option_id=option_id,
+        strategy_mode=strategy_mode,
+        lineup=lineup,
+        selected_ids=selected_ids,
+        projections=projections,
+        current_ids=team.asset_ids,
+        penalty=penalty,
+        budget_used=validation.budget_used_millions,
+        budget_remaining=validation.budget_remaining_millions,
+        chip_action=chip_action,
+        projection_run_id=projection_run_id,
+        source_snapshot_ids=source_snapshot_ids,
+        degraded_sources=degraded_sources,
+        optimizer_version=optimizer_version,
+    )
 
 
 def _build_option(
@@ -185,7 +244,8 @@ def _build_option(
     projection_run_id: str,
     source_snapshot_ids: list[str],
     degraded_sources: bool,
-    ) -> RecommendationOption:
+    optimizer_version: str,
+) -> RecommendationOption:
     selected_projections = [projections[asset.asset_id] for asset in lineup]
     gross = round(sum(projection.expected_points for projection in selected_projections), 2)
     risk = round(
@@ -259,6 +319,7 @@ def _build_option(
         selected_asset_ids=list(selected_ids),
         source_snapshot_ids=source_snapshot_ids,
         projection_run_id=projection_run_id,
+        optimizer_version=optimizer_version,
     )
 
 
@@ -269,37 +330,3 @@ def _summary(top_in: str | None, chip_label: str, net_points: float) -> str:
             f"net {net_points:.1f} pts."
         )
     return f"Hold lineup with chip scenario {chip_label}; net {net_points:.1f} pts."
-
-
-def _rank_options(options: list[RecommendationOption]) -> list[RecommendationOption]:
-    return sorted(
-        options,
-        key=lambda option: (
-            -_objective_score(option),
-            -option.expected_net_points,
-            option.risk_score,
-            -option.confidence,
-            -option.budget_remaining_millions,
-            len([transfer for transfer in option.transfers if transfer.asset_in_id]),
-            ",".join(option.selected_asset_ids),
-        ),
-    )
-
-
-def _objective_score(option: RecommendationOption) -> float:
-    weights = weights_for(option.strategy_mode)
-    ceiling_proxy = option.expected_gross_points * (1.15 - option.risk_score * 0.1)
-    floor_proxy = option.expected_gross_points * (0.72 - option.risk_score * 0.12)
-    differential_proxy = sum(
-        1
-        for asset_id in option.selected_asset_ids
-        if asset_id.endswith(("foxtrot", "juliet", "four"))
-    )
-    return (
-        option.expected_net_points * weights["expected"]
-        + floor_proxy * weights["floor"]
-        + ceiling_proxy * weights["ceiling"]
-        - option.risk_score * 20 * weights["riskPenalty"]
-        + (option.expected_budget_delta_millions or 0) * 10 * weights["budgetGrowth"]
-        + differential_proxy * weights["differential"]
-    )

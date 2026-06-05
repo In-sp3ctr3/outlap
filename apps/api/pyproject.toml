@@ -12,7 +12,8 @@ dependencies = [
   "httpx==0.28.1",
   "orjson==3.11.9",
   "duckdb==1.5.3",
-  "python-dotenv==1.2.2"
+  "python-dotenv==1.2.2",
+  "ortools==9.15.6755",
 ]
 
 [project.scripts]
