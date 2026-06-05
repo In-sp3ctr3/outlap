@@ -23,6 +23,7 @@
 | Frontend | UI-state and accessibility slice | State notices, skip link, working local controls, dynamic provider selection | Loading/empty/error states are announced, keyboard skip path exists, market Lock/Ban controls and optimizer constraints are interactive, all implemented chip options are selectable, provider choices come from API config, and desktop/mobile Playwright flows pass | `apps/web/components/state-notice.tsx`, `apps/web/components/raceweek-app.tsx`, `apps/web/components/views/*`, `apps/web/tests/e2e/raceweek-strategist.spec.ts` | complete |
 | SEO | Public app basics | Metadata and disclaimer | App has descriptive metadata and legal text | `apps/web/app/layout.tsx` | complete |
 | Repo Hygiene | Public-ready baseline | README, license/security/contributing, CI, templates, changelog, standards | Existing docs preserved; CI skeleton added; commit cadence defined | `.github/workflows/check.yml`, `CHANGELOG.md`, `docs/engineering/coding-standards.md` | complete |
+| Repo Hygiene | Release gate slice | Setup/dev/check/audit evidence and CI cleanup | `make setup`, `make dev`, `make check`, JS/Python audits, workflow YAML, lockfiles, license, and security policy are verified; deprecated pnpm setup action warning is removed from workflow | `Makefile`, `.github/workflows/check.yml`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `docs/20_IMPLEMENTATION_CHECKLIST.md` | complete locally |
 
 ## Current Implemented Scope
 

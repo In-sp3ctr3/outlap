@@ -37,13 +37,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.5.2
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
           cache: "pnpm"
+      - name: Enable pnpm
+        run: corepack enable
       - name: Install web dependencies
         run: pnpm install --frozen-lockfile
       - name: Lint web
@@ -58,13 +57,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.5.2
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
           cache: "pnpm"
+      - name: Enable pnpm
+        run: corepack enable
       - uses: astral-sh/setup-uv@v7
       - uses: actions/setup-python@v6
         with:
