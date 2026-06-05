@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from raceweek.core.chip_simulator import simulate_chip_scores
 from raceweek.core.models import (
     FantasyAsset,
     Projection,
@@ -25,9 +26,16 @@ def build_recommendation_option(
     source_snapshot_ids: list[str],
     degraded_sources: bool,
     optimizer_version: str,
+    team_asset_boosts: dict[str, float],
 ) -> RecommendationOption:
     selected_projections = [projections[asset.asset_id] for asset in lineup]
-    gross = round(sum(projection.expected_points for projection in selected_projections), 2)
+    simulated_scores = simulate_chip_scores(
+        lineup=lineup,
+        projections=projections,
+        team_asset_boosts=team_asset_boosts,
+        chip_action=chip_action,
+    )
+    gross = round(sum(simulated_scores.values()), 2)
     risk = round(
         sum(projection.risk_score for projection in selected_projections)
         / len(selected_projections),

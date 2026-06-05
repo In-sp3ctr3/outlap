@@ -99,6 +99,12 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `apps/api/tests/test_optimizer_custom.py`: verifies custom weights change deterministic ranking and stable idempotency context repeats the same recommendation run ID.
   - `apps/api/tests/test_api.py`: verifies API custom-weight requests are reproducible and changed weights produce distinct run IDs.
   - `apps/api/tests/test_storage.py`: verifies request context JSON and actual optimizer version are persisted with recommendation runs.
+- Chip simulation slice, completed on June 5, 2026:
+  - `cd apps/api && uv run pytest tests/test_optimizer_chips.py tests/test_optimizer.py -q`: passed, 12 tests.
+  - `cd apps/api && uv run ruff check src tests/test_optimizer_chips.py tests/test_optimizer.py`: passed.
+  - `cd apps/api && uv run mypy src tests/test_optimizer_chips.py tests/test_optimizer.py`: passed for 37 files.
+  - `make check`: passed; API collected 59 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_optimizer_chips.py`: verifies regular boost multipliers affect gross points, 3x Boost replaces the regular boost for the top projected driver, Autopilot boosts the top projected driver, No Negative floors negative expected scores, and Final Fix returns only one-driver-change scenarios.
 
 Earlier local demo slice:
 
@@ -122,4 +128,4 @@ Earlier local demo slice:
 - Python 3.12 is supported locally; the upstream spec's Python 3.13 target remains a release baseline.
 - A FastAPI/TestClient deprecation warning is present from Starlette/httpx compatibility; it does not fail tests.
 - Live provider adapters and external connectors remain follow-up hardening beyond the local demo slice.
-- Full live connector, provider adapter, projection hardening, full chip scoring simulation, UI-state, and release gates remain open beyond the local demo and completed connector/backtest/optimizer slices.
+- Full live connector, provider adapter, projection hardening, UI-state, and release gates remain open beyond the local demo and completed connector/backtest/optimizer/chip slices.

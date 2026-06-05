@@ -31,7 +31,7 @@ Use this as the release gate for v1.0.0.
 - [x] Budget cap tested.
 - [x] Transfer penalties tested.
 - [x] Net-transfer counting tested.
-- [ ] All chips tested.
+- [x] All chips tested.
 - [x] Optimizer deterministic ordering tested.
 - [x] Recommendations include provenance.
 - [x] Custom optimizer weights affect deterministic ranking.
@@ -85,4 +85,5 @@ Use this as the release gate for v1.0.0.
 - [x] Projection contribution breakdowns and CLI backtests use deterministic fixture error metrics.
 - [x] Optimizer uses the pinned OR-Tools CP-SAT path when available and falls back to brute force deterministically.
 - [x] Custom optimizer weights and request fingerprints persist with recommendation runs.
-- [ ] Full chip scoring simulation, provider, UI-state, and release gates remain open.
+- [x] Chip scoring simulation covers regular boost, 3x Boost, Autopilot, No Negative, Wildcard, Limitless, and Final Fix.
+- [ ] Provider, UI-state, and release gates remain open.
