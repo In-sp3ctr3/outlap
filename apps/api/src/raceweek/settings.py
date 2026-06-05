@@ -89,6 +89,14 @@ class Settings(BaseSettings):
         default="gpt-5.4",
         validation_alias=AliasChoices("RACEWEEK_OPENAI_MODEL", "OPENAI_MODEL"),
     )
+    anthropic_model: str = Field(
+        default="claude-sonnet-4-5",
+        validation_alias=AliasChoices("RACEWEEK_ANTHROPIC_MODEL", "ANTHROPIC_MODEL"),
+    )
+    gemini_model: str = Field(
+        default="gemini-2.5-pro",
+        validation_alias=AliasChoices("RACEWEEK_GEMINI_MODEL", "GEMINI_MODEL"),
+    )
     ollama_model: str = Field(
         default="llama3.1",
         validation_alias=AliasChoices("RACEWEEK_OLLAMA_MODEL", "OLLAMA_MODEL"),

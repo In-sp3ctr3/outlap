@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from raceweek.core.models import ProviderConfig, ProviderTestResponse
 from raceweek.providers.adapters import (
     ChatMessage,
@@ -12,93 +10,21 @@ from raceweek.providers.adapters import (
     ProviderError,
     ProviderRequest,
 )
+from raceweek.providers.official import (
+    AnthropicSdkProvider,
+    GeminiSdkProvider,
+    MistralSdkProvider,
+    OllamaSdkProvider,
+    OpenAISdkProvider,
+)
+from raceweek.providers.specs import PROVIDER_SPECS, ProviderSpec
 from raceweek.settings import Settings
-
-
-@dataclass(frozen=True)
-class ProviderSpec:
-    provider_name: str
-    display_name: str
-    default_model: str | None = None
-    supports_streaming: bool = True
-    supports_tools: bool = False
-    api_key_env_var: str | None = None
-    adapter_family: str = "registered"
-
-
-_SPECS = [
-    ProviderSpec(
-        "fake",
-        "Fake deterministic provider",
-        default_model="fake-strategist",
-        supports_tools=True,
-        adapter_family="fake",
-    ),
-    ProviderSpec(
-        "fake-fail",
-        "Fake failing provider",
-        default_model="fake-failure",
-        adapter_family="fake",
-    ),
-    ProviderSpec(
-        "ollama",
-        "Ollama local",
-        default_model="llama3.1",
-        supports_tools=True,
-        adapter_family="openai-compatible",
-    ),
-    ProviderSpec(
-        "openai",
-        "OpenAI",
-        default_model="gpt-5.4",
-        supports_tools=True,
-        api_key_env_var="OPENAI_API_KEY",
-        adapter_family="openai-compatible",
-    ),
-    ProviderSpec("anthropic", "Anthropic Claude", api_key_env_var="ANTHROPIC_API_KEY"),
-    ProviderSpec("gemini", "Google Gemini", api_key_env_var="GEMINI_API_KEY"),
-    ProviderSpec(
-        "mistral",
-        "Mistral",
-        default_model="mistral-large-latest",
-        api_key_env_var="MISTRAL_API_KEY",
-        adapter_family="openai-compatible",
-    ),
-    ProviderSpec(
-        "openrouter",
-        "OpenRouter",
-        default_model="openrouter/auto",
-        api_key_env_var="OPENROUTER_API_KEY",
-        adapter_family="openai-compatible",
-    ),
-    ProviderSpec(
-        "groq",
-        "Groq",
-        default_model="llama-3.3-70b-versatile",
-        api_key_env_var="GROQ_API_KEY",
-        adapter_family="openai-compatible",
-    ),
-    ProviderSpec(
-        "xai",
-        "xAI",
-        default_model="grok-4",
-        api_key_env_var="XAI_API_KEY",
-        adapter_family="openai-compatible",
-    ),
-    ProviderSpec(
-        "custom-openai",
-        "Custom OpenAI-compatible",
-        supports_tools=True,
-        api_key_env_var="CUSTOM_OPENAI_API_KEY",
-        adapter_family="openai-compatible",
-    ),
-]
 
 
 class ProviderRegistry:
     def __init__(self, settings: Settings | None = None) -> None:
         self._settings = settings or Settings()
-        self._specs = {spec.provider_name: spec for spec in _SPECS}
+        self._specs = {spec.provider_name: spec for spec in PROVIDER_SPECS}
 
     def browser_configs(self) -> list[ProviderConfig]:
         return [self._browser_config(spec) for spec in self._specs.values()]
@@ -109,6 +35,8 @@ class ProviderRegistry:
             return FakeProvider()
         if spec.provider_name == "fake-fail":
             return FailingProvider()
+        if spec.adapter_family.startswith("official-"):
+            return self._official_provider(spec)
         if spec.adapter_family == "openai-compatible":
             return self._openai_compatible_provider(spec)
         raise ProviderError(
@@ -129,7 +57,9 @@ class ProviderRegistry:
                 provider_name=provider_name,
                 message="Fake provider is available for deterministic tests.",
             )
-        if spec.adapter_family != "openai-compatible":
+        if spec.adapter_family not in {"openai-compatible"} and not spec.adapter_family.startswith(
+            "official-"
+        ):
             return ProviderTestResponse(
                 ok=False,
                 provider_name=provider_name,
@@ -220,6 +150,45 @@ class ProviderRegistry:
             api_key=self._api_key(spec),
         )
 
+    def _official_provider(self, spec: ProviderSpec) -> ProviderAdapter:
+        api_key = self._api_key(spec)
+        model = self._default_model(spec) or spec.provider_name
+        if spec.provider_name == "ollama":
+            return OllamaSdkProvider(
+                provider_name=spec.provider_name,
+                default_model=model,
+                host=self._settings.ollama_base_url,
+            )
+        if not api_key:
+            raise ProviderError(f"{spec.display_name} API key is not configured.")
+        if spec.provider_name == "openai":
+            return OpenAISdkProvider(
+                provider_name=spec.provider_name,
+                default_model=model,
+                api_key=api_key,
+                base_url=self._settings.openai_base_url,
+            )
+        if spec.provider_name == "anthropic":
+            return AnthropicSdkProvider(
+                provider_name=spec.provider_name,
+                default_model=model,
+                api_key=api_key,
+            )
+        if spec.provider_name == "gemini":
+            return GeminiSdkProvider(
+                provider_name=spec.provider_name,
+                default_model=model,
+                api_key=api_key,
+            )
+        if spec.provider_name == "mistral":
+            return MistralSdkProvider(
+                provider_name=spec.provider_name,
+                default_model=model,
+                api_key=api_key,
+                server_url=self._settings.mistral_base_url,
+            )
+        raise ProviderError(f"{spec.display_name} official SDK adapter is not implemented.")
+
     def _base_url(self, spec: ProviderSpec) -> str | None:
         return {
             "openai": self._settings.openai_base_url,
@@ -235,6 +204,8 @@ class ProviderRegistry:
         return {
             "openai": self._settings.openai_model,
             "ollama": self._settings.ollama_model,
+            "anthropic": self._settings.anthropic_model,
+            "gemini": self._settings.gemini_model,
             "mistral": self._settings.mistral_model,
             "openrouter": self._settings.openrouter_model,
             "groq": self._settings.groq_model,
