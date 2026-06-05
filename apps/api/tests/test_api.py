@@ -1,8 +1,14 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from raceweek.main import app
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def reset_demo_state() -> None:
+    client.post("/api/v1/demo/reset")
 
 
 def test_health_and_status() -> None:
@@ -33,6 +39,16 @@ def test_projection_and_recommendation_api() -> None:
     assert recommendation["recommendationRunId"].startswith("recrun_")
     assert len(recommendation["options"]) == 3
     assert recommendation["options"][0]["sourceSnapshotIds"]
+    assert (
+        client.get(f"/api/v1/projections/runs/{projection['projectionRunId']}")
+        .json()["projectionRunId"]
+        == projection["projectionRunId"]
+    )
+    assert (
+        client.get(f"/api/v1/recommendations/runs/{recommendation['recommendationRunId']}")
+        .json()["recommendationRunId"]
+        == recommendation["recommendationRunId"]
+    )
 
 
 def test_data_source_failure_degrades_without_breaking_optimizer() -> None:

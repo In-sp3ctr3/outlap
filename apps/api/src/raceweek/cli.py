@@ -5,19 +5,36 @@ import json
 
 from raceweek.core.optimizer import optimize_recommendations
 from raceweek.core.projections import run_projection
-from raceweek.storage.demo import seed_demo_state
+from raceweek.settings import settings
+from raceweek.storage.demo import get_state, reset_state
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="raceweek")
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("demo")
+    subparsers.add_parser("seed-demo")
     backtest = subparsers.add_parser("backtest")
     backtest.add_argument("--season", default="2026")
     backtest.add_argument("--strategy", default="balanced")
     args = parser.parse_args()
 
-    state = seed_demo_state()
+    if args.command == "seed-demo":
+        state = reset_state()
+        print(
+            json.dumps(
+                {
+                    "status": "seeded",
+                    "databasePath": settings.database_path,
+                    "assets": len(state.assets),
+                    "sourceSnapshotIds": sorted(state.source_snapshot_ids),
+                },
+                indent=2,
+            )
+        )
+        return
+
+    state = get_state()
     projection_run = run_projection(state.assets, event_id=state.current_event_id)
     recommendation = optimize_recommendations(
         team=state.team,

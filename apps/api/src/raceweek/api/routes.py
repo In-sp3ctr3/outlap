@@ -27,11 +27,16 @@ from raceweek.core.optimizer import optimize_recommendations
 from raceweek.core.projections import run_projection
 from raceweek.storage.demo import (
     analyze_league,
+    find_projection_run,
+    find_recommendation_run,
     get_state,
     provider_configs,
     replace_assets,
+    replace_league,
     replace_team,
     reset_state,
+    save_projection_result,
+    save_recommendation_result,
     simulate_openf1_failure,
 )
 
@@ -187,23 +192,23 @@ def projections_run(payload: dict[str, object]) -> ProjectionRunResult:
     event_id = str(payload.get("eventId") or get_state().current_event_id)
     state = get_state()
     result = run_projection(state.assets, event_id=event_id, stale_sources=state.is_degraded())
-    state.projection_runs[result.projection_run_id] = result
+    save_projection_result(result)
     return result
 
 
 @router.get("/api/v1/projections/runs/{projection_run_id}")
 def projection_run(projection_run_id: str) -> ProjectionRunResult:
-    state = get_state()
-    if projection_run_id not in state.projection_runs:
+    result = find_projection_run(projection_run_id)
+    if result is None:
         raise HTTPException(status_code=404, detail="Projection run not found")
-    return state.projection_runs[projection_run_id]
+    return result
 
 
 @router.post("/api/v1/optimizer/recommendations", status_code=status.HTTP_201_CREATED)
 def recommendations(request: OptimizerRequest) -> RecommendationRunResult:
     state = get_state()
     projection_run = (
-        state.projection_runs.get(request.projection_run_id)
+        find_projection_run(request.projection_run_id)
         if request.projection_run_id
         else run_projection(
             state.assets,
@@ -213,7 +218,7 @@ def recommendations(request: OptimizerRequest) -> RecommendationRunResult:
     )
     if projection_run is None:
         raise HTTPException(status_code=404, detail="Projection run not found")
-    state.projection_runs[projection_run.projection_run_id] = projection_run
+    save_projection_result(projection_run)
     result = optimize_recommendations(
         team=state.team,
         assets=state.assets,
@@ -228,22 +233,21 @@ def recommendations(request: OptimizerRequest) -> RecommendationRunResult:
         source_snapshot_ids=projection_run.source_snapshot_ids,
         degraded_sources=state.is_degraded(),
     )
-    state.recommendation_runs[result.recommendation_run_id] = result
+    save_recommendation_result(result)
     return result
 
 
 @router.get("/api/v1/recommendations/runs/{recommendation_run_id}")
 def recommendation_run(recommendation_run_id: str) -> RecommendationRunResult:
-    state = get_state()
-    if recommendation_run_id not in state.recommendation_runs:
+    result = find_recommendation_run(recommendation_run_id)
+    if result is None:
         raise HTTPException(status_code=404, detail="Recommendation run not found")
-    return state.recommendation_runs[recommendation_run_id]
+    return result
 
 
 @router.post("/api/v1/leagues/import", status_code=status.HTTP_201_CREATED)
 def import_league(request: LeagueImportRequest) -> ImportResult:
-    state = get_state()
-    state.league = request.model_dump(by_alias=True)
+    replace_league(request.model_dump(by_alias=True))
     return ImportResult(
         status="imported",
         item_count=len(request.rivals),
