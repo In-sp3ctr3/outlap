@@ -18,3 +18,4 @@ This project follows Semantic Versioning once the first public release is tagged
 - Aligned data-source health statuses with the public `ok`/`degraded` API contract.
 - Added a mocked Jolpica season-context connector for schedule, results, qualifying, sprint, and standings data.
 - Added a metadata-only RSS/news connector that drops full article bodies from persisted snapshots.
+- Added a FastF1 cache adapter that returns aggregate session summaries without raw telemetry.
