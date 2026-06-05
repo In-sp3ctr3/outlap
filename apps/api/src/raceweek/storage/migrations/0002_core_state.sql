@@ -8,6 +8,18 @@ CREATE TABLE IF NOT EXISTS fantasy_assets (
   payload_json JSON NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS fantasy_asset_scores (
+  score_id TEXT PRIMARY KEY,
+  asset_id TEXT NOT NULL,
+  event_id TEXT NOT NULL,
+  fantasy_points DOUBLE,
+  ownership_pct DOUBLE,
+  selected_by_pct DOUBLE,
+  captured_at TIMESTAMP NOT NULL,
+  source_snapshot_id TEXT,
+  payload_json JSON NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS user_fantasy_teams (
   team_snapshot_id TEXT PRIMARY KEY,
   team_name TEXT NOT NULL,

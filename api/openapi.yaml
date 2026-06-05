@@ -110,6 +110,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImportResult'
+  /api/v1/fantasy/import/scores:
+    post:
+      summary: Import fantasy score snapshots manually
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/FantasyScoresImportRequest'
+                - $ref: '#/components/schemas/CsvScoresImportRequest'
+      responses:
+        '201':
+          description: Imported score snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResult'
   /api/v1/fantasy/sync:
     post:
       summary: Sync configured fantasy data sources
@@ -149,6 +167,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FantasyAsset'
+  /api/v1/fantasy/scores:
+    get:
+      summary: List fantasy asset scores for an event
+      parameters:
+        - in: query
+          name: eventId
+          schema: { type: string }
+        - in: query
+          name: assetId
+          schema: { type: string }
+      responses:
+        '200':
+          description: Fantasy score snapshots
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FantasyAssetScore'
   /api/v1/fantasy/teams/current:
     get:
       summary: Get current user fantasy teams
@@ -442,6 +483,17 @@ components:
         pointsPerMillion: { type: number }
         riskScore: { type: number }
         sourceSnapshotId: { type: string }
+    FantasyAssetScore:
+      type: object
+      required: [assetId, eventId, capturedAt]
+      properties:
+        assetId: { type: string }
+        eventId: { type: string }
+        fantasyPoints: { type: number }
+        ownershipPct: { type: number }
+        selectedByPct: { type: number }
+        capturedAt: { type: string, format: date-time }
+        sourceSnapshotId: { type: string }
     FantasyTeamSnapshot:
       type: object
       required: [teamSnapshotId, teamName, eventId, costCapMillions, freeTransfers, assets, chips]
@@ -499,6 +551,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FantasyAsset'
+    FantasyScoresImportRequest:
+      type: object
+      required: [eventId, scores]
+      properties:
+        eventId: { type: string }
+        sourceSnapshotId: { type: string }
+        scores:
+          type: array
+          items:
+            $ref: '#/components/schemas/FantasyAssetScore'
     CsvTeamImportRequest:
       type: object
       required: [format, teamSnapshotId, teamName, eventId, costCapMillions, freeTransfers, capturedAt, content]
@@ -524,6 +586,16 @@ components:
         content:
           type: string
           description: CSV with assetId, assetType, displayName, and priceMillions columns.
+    CsvScoresImportRequest:
+      type: object
+      required: [format, eventId, content]
+      properties:
+        format: { type: string, enum: [csv] }
+        eventId: { type: string }
+        sourceSnapshotId: { type: string }
+        content:
+          type: string
+          description: CSV with assetId, eventId, fantasyPoints, ownershipPct, and selectedByPct columns.
     CsvLeagueImportRequest:
       type: object
       required: [format, leagueId, eventId, content]

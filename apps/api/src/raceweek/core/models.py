@@ -57,6 +57,16 @@ class FantasyAsset(RaceweekModel):
     source_snapshot_id: str | None = None
 
 
+class FantasyAssetScore(RaceweekModel):
+    asset_id: str
+    event_id: str
+    fantasy_points: float | None = None
+    ownership_pct: float | None = Field(default=None, ge=0, le=100)
+    selected_by_pct: float | None = Field(default=None, ge=0, le=100)
+    captured_at: datetime
+    source_snapshot_id: str | None = None
+
+
 class TeamAsset(RaceweekModel):
     asset_id: str
     asset_type: AssetType
