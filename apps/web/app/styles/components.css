@@ -65,6 +65,19 @@
   align-items: center;
 }
 
+.provider-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.provider-row:last-of-type {
+  border-bottom: 0;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -202,6 +215,20 @@ td {
   color: #dbeafe;
   background: rgba(96, 165, 250, 0.07);
   font-size: 13px;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.comparison-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .setup {
