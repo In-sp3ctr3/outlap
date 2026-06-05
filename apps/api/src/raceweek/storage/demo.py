@@ -57,6 +57,19 @@ def replace_league(league: dict[str, object]) -> None:
     _reload_state()
 
 
+def record_source_snapshot(
+    snapshot_id: str,
+    payload: dict[str, object],
+    *,
+    request_url_template: str,
+) -> None:
+    REPOSITORY.save_source_snapshot(
+        snapshot_id,
+        payload,
+        request_url_template=request_url_template,
+    )
+
+
 def simulate_openf1_failure() -> None:
     previous = get_state().data_sources["openf1"]
     status = previous.model_copy(

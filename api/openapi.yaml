@@ -82,7 +82,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FantasyTeamSnapshot'
+              oneOf:
+                - $ref: '#/components/schemas/FantasyTeamSnapshot'
+                - $ref: '#/components/schemas/CsvTeamImportRequest'
       responses:
         '201':
           description: Imported team snapshot
@@ -98,15 +100,9 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [eventId, assets]
-              properties:
-                eventId:
-                  type: string
-                assets:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/FantasyAsset'
+              oneOf:
+                - $ref: '#/components/schemas/FantasyMarketImportRequest'
+                - $ref: '#/components/schemas/CsvMarketImportRequest'
       responses:
         '201':
           description: Imported market snapshot
@@ -305,7 +301,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LeagueImportRequest'
+              oneOf:
+                - $ref: '#/components/schemas/LeagueImportRequest'
+                - $ref: '#/components/schemas/CsvLeagueImportRequest'
       responses:
         '201':
           description: Import result
@@ -482,13 +480,61 @@ components:
         usedEventId: { type: string }
     ImportResult:
       type: object
-      required: [ok, importedId]
+      required: [status, itemCount, sourceSnapshotId, message]
       properties:
-        ok: { type: boolean }
-        importedId: { type: string }
+        status: { type: string, enum: [imported, updated] }
+        itemCount: { type: integer }
+        sourceSnapshotId: { type: string }
+        message: { type: string }
         warnings:
           type: array
           items: { type: string }
+    FantasyMarketImportRequest:
+      type: object
+      required: [eventId, assets]
+      properties:
+        eventId: { type: string }
+        sourceSnapshotId: { type: string }
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/FantasyAsset'
+    CsvTeamImportRequest:
+      type: object
+      required: [format, teamSnapshotId, teamName, eventId, costCapMillions, freeTransfers, capturedAt, content]
+      properties:
+        format: { type: string, enum: [csv] }
+        teamSnapshotId: { type: string }
+        teamName: { type: string }
+        eventId: { type: string }
+        costCapMillions: { type: number }
+        freeTransfers: { type: integer }
+        capturedAt: { type: string, format: date-time }
+        sourceSnapshotId: { type: string }
+        content:
+          type: string
+          description: CSV with assetId, assetType, and optional boostMultiplier columns.
+    CsvMarketImportRequest:
+      type: object
+      required: [format, eventId, content]
+      properties:
+        format: { type: string, enum: [csv] }
+        eventId: { type: string }
+        sourceSnapshotId: { type: string }
+        content:
+          type: string
+          description: CSV with assetId, assetType, displayName, and priceMillions columns.
+    CsvLeagueImportRequest:
+      type: object
+      required: [format, leagueId, eventId, content]
+      properties:
+        format: { type: string, enum: [csv] }
+        leagueId: { type: string }
+        eventId: { type: string }
+        name: { type: string }
+        content:
+          type: string
+          description: CSV with teamName, points, and semicolon-delimited assetIds columns.
     SyncRequest:
       type: object
       properties:

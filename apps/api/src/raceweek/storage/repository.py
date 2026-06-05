@@ -39,6 +39,7 @@ from raceweek.storage.seed import (
     save_provider_configs,
     save_team,
 )
+from raceweek.storage.seed import save_source_snapshot as write_source_snapshot
 
 MIGRATIONS = Path(__file__).resolve().parent / "migrations"
 
@@ -156,6 +157,29 @@ class DuckDbRepository:
             self.apply_migrations()
             with self.connect() as connection:
                 save_json_setting(connection, "league", league)
+
+    def save_source_snapshot(
+        self,
+        snapshot_id: str,
+        payload: dict[str, object],
+        *,
+        source_name: str = "manual_import",
+        connector_version: str = "manual-import-v1",
+        request_url_template: str = "manual://import",
+    ) -> None:
+        with self._lock:
+            self.apply_migrations()
+            with self.connect() as connection:
+                write_source_snapshot(
+                    connection=connection,
+                    snapshot_id=snapshot_id,
+                    source_name=source_name,
+                    connector_version=connector_version,
+                    request_method="MANUAL",
+                    request_url_template=request_url_template,
+                    payload=payload,
+                    license_note="User-provided local manual import",
+                )
 
     def load_provider_configs(self) -> list[ProviderConfig]:
         with self._lock:

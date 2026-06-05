@@ -103,7 +103,7 @@ def save_assets(
     event_id: str,
     assets: list[FantasyAsset],
 ) -> None:
-    connection.execute("DELETE FROM fantasy_assets WHERE event_id = ?", [event_id])
+    connection.execute("DELETE FROM fantasy_assets")
     for asset in assets:
         connection.execute(
             """
@@ -125,18 +125,9 @@ def save_assets(
 
 
 def save_team(connection: duckdb.DuckDBPyConnection, team: FantasyTeamSnapshot) -> None:
-    connection.execute(
-        "DELETE FROM chip_states WHERE team_snapshot_id = ?",
-        [team.team_snapshot_id],
-    )
-    connection.execute(
-        "DELETE FROM user_team_assets WHERE team_snapshot_id = ?",
-        [team.team_snapshot_id],
-    )
-    connection.execute(
-        "DELETE FROM user_fantasy_teams WHERE team_snapshot_id = ?",
-        [team.team_snapshot_id],
-    )
+    connection.execute("DELETE FROM chip_states")
+    connection.execute("DELETE FROM user_team_assets")
+    connection.execute("DELETE FROM user_fantasy_teams")
     connection.execute(
         """
         INSERT INTO user_fantasy_teams (
