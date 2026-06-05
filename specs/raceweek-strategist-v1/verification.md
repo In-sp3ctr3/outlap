@@ -143,7 +143,7 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `pnpm --filter web typecheck`: passed.
   - `pnpm --filter web e2e`: passed; Playwright passed 15 tests with 1 intentional mobile-only skip.
   - `apps/web/tests/e2e/raceweek-strategist.spec.ts`: verifies setup demo mode, setup manual team import, dashboard next-event/team/data-health states, market filtering/sorting/lock/asset comparison controls, optimizer constraints and comparison drawer, race-week session/weather/race-control/news/stale-data states, league catch-up plan, settings provider test/import/export controls, fake AI provider response, and provider failure fallback across desktop/mobile projects.
-  - Local live-provider availability check: no cloud provider keys are present in the environment, Ollama is reachable at `127.0.0.1:11434`, and Ollama reports no installed chat models; live configured-provider smoke is therefore environment-gated.
+  - Local live-provider smoke: `ollama pull smollm2:135m` completed, then `provider_registry().test_provider("ollama", model="smollm2:135m")` returned `{"ok":true,"providerName":"ollama","message":"Ollama local responded with smollm2:135m.","latencyMs":null}`.
 
 Earlier local demo slice:
 
@@ -166,4 +166,4 @@ Earlier local demo slice:
 - Playwright runs with one worker because the demo API mutates shared local state during reset/import/failure flows.
 - Python 3.12 is supported locally; the upstream spec's Python 3.13 target remains a release baseline.
 - A FastAPI/TestClient deprecation warning is present from Starlette/httpx compatibility; it does not fail tests.
-- Live cloud AI-provider smoke requires user-owned credentials; local Ollama smoke requires an installed chat model. Official SDK adapter behavior is covered by injected-client tests.
+- Live cloud AI-provider smoke requires user-owned credentials. Local Ollama smoke passed with `smollm2:135m`, and official SDK adapter behavior is covered by injected-client tests.

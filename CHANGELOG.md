@@ -29,6 +29,7 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added release-gate verification for setup/dev/check commands, dependency audits, and CI workflow health.
 - Added official SDK provider adapters for OpenAI, Anthropic, Gemini, Mistral, and Ollama with mocked client tests.
 - Added product acceptance coverage for setup manual import, dashboard health, market sorting/locks/comparison, race-week race-control/news/stale states, league analysis, and settings provider/import/export controls.
+- Verified live configured-provider smoke against local Ollama using `smollm2:135m`.
 
 ### Security
 
