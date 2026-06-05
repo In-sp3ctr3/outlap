@@ -1,6 +1,6 @@
 "use client";
 
-import { Ban, Lock } from "lucide-react";
+import { Ban, Lock, Scale } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PageHead } from "@/components/page-head";
@@ -13,6 +13,7 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
   const [sort, setSort] = useState<"points" | "price" | "risk">("points");
   const [lockedAssetIds, setLockedAssetIds] = useState<string[]>([]);
   const [bannedAssetIds, setBannedAssetIds] = useState<string[]>([]);
+  const [comparedAssetIds, setComparedAssetIds] = useState<string[]>([]);
   const visible = useMemo(() => {
     return assets
       .filter((asset) => asset.displayName.toLowerCase().includes(filter.toLowerCase()))
@@ -22,6 +23,13 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
         return (b.fantasyPoints ?? 0) - (a.fantasyPoints ?? 0);
       });
   }, [assets, filter, sort]);
+  const comparedAssets = useMemo(
+    () =>
+      comparedAssetIds
+        .map((assetId) => assets.find((asset) => asset.assetId === assetId))
+        .filter((asset): asset is FantasyAsset => Boolean(asset)),
+    [assets, comparedAssetIds],
+  );
 
   function toggleAsset(assetId: string, mode: "ban" | "lock") {
     const setPrimary = mode === "lock" ? setLockedAssetIds : setBannedAssetIds;
@@ -32,6 +40,13 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
         : [...current, assetId],
     );
     setOpposite((current) => current.filter((item) => item !== assetId));
+  }
+
+  function toggleComparison(assetId: string) {
+    setComparedAssetIds((current) => {
+      if (current.includes(assetId)) return current.filter((item) => item !== assetId);
+      return [...current.slice(-1), assetId];
+    });
   }
 
   return (
@@ -90,6 +105,14 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
                     >
                       <Ban size={14} aria-hidden="true" />Ban
                     </button>
+                    <button
+                      aria-pressed={comparedAssetIds.includes(asset.assetId)}
+                      className="button secondary"
+                      type="button"
+                      onClick={() => toggleComparison(asset.assetId)}
+                    >
+                      <Scale size={14} aria-hidden="true" />Compare
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -100,6 +123,24 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
       {visible.length === 0 ? (
         <StateNotice tone="empty" title="No assets match the current filter" />
       ) : null}
+      <section className="panel" aria-label="Asset comparison" style={{ marginTop: 16 }}>
+        <h2>Asset comparison</h2>
+        {comparedAssets.length === 0 ? (
+          <StateNotice tone="empty" title="Select up to two market assets to compare" />
+        ) : (
+          <div className="comparison-grid">
+            {comparedAssets.map((asset) => (
+              <article className="comparison-item" key={asset.assetId}>
+                <h3>{asset.displayName}</h3>
+                <p>Price {formatBudget(asset.priceMillions)}</p>
+                <p>Recent points {formatPoints(asset.fantasyPoints ?? 0)}</p>
+                <p>Ownership {asset.ownershipPct ?? 0}%</p>
+                <p>Risk {riskLabel(asset.riskScore ?? 0)}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </>
   );
 }
