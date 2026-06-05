@@ -6,14 +6,18 @@ from raceweek.core.models import (
     Projection,
     RecommendationOption,
     RecommendationRunResult,
-    RecommendationTransfer,
     StrategyMode,
     utc_now,
 )
 from raceweek.core.optimizer_bruteforce import solve_lineups_with_bruteforce
+from raceweek.core.optimizer_options import build_recommendation_option
 from raceweek.core.optimizer_ortools import (
     ORTOOLS_OPTIMIZER_VERSION,
     solve_lineups_with_ortools,
+)
+from raceweek.core.optimizer_requests import (
+    build_request_context,
+    fingerprint_request_context,
 )
 from raceweek.core.optimizer_scoring import rank_options
 from raceweek.core.rules import (
@@ -36,13 +40,28 @@ def optimize_recommendations(
     locked_asset_ids: list[str],
     banned_asset_ids: list[str],
     allowed_chips: list[str],
+    custom_weights: dict[str, float] | None = None,
+    idempotency_key: str | None = None,
     max_options: int,
     projection_run_id: str,
     source_snapshot_ids: list[str],
     degraded_sources: bool = False,
 ) -> RecommendationRunResult:
+    request_context = build_request_context(
+        team_snapshot_id=team.team_snapshot_id,
+        event_id=event_id,
+        projection_run_id=projection_run_id,
+        strategy_mode=strategy_mode,
+        locked_asset_ids=locked_asset_ids,
+        banned_asset_ids=banned_asset_ids,
+        allowed_chips=allowed_chips,
+        custom_weights=custom_weights,
+        max_options=max_options,
+        idempotency_key=idempotency_key,
+    )
+    request_fingerprint = fingerprint_request_context(request_context)
     options: list[RecommendationOption] = []
-    chip_actions = _chip_actions(strategy_mode, allowed_chips)
+    chip_actions = _chip_actions(strategy_mode, request_context.allowed_chips)
     for chip_action in chip_actions:
         options.extend(
             _optimize_for_chip(
@@ -50,8 +69,10 @@ def optimize_recommendations(
                 assets=assets,
                 projections=projections,
                 strategy_mode=strategy_mode,
-                locked_asset_ids=set(locked_asset_ids),
-                banned_asset_ids=set(banned_asset_ids),
+                locked_asset_ids=set(request_context.locked_asset_ids),
+                banned_asset_ids=set(request_context.banned_asset_ids),
+                custom_weights=request_context.custom_weights,
+                request_fingerprint=request_fingerprint,
                 max_options=max_options,
                 projection_run_id=projection_run_id,
                 source_snapshot_ids=source_snapshot_ids,
@@ -60,7 +81,7 @@ def optimize_recommendations(
             )
     )
 
-    options = rank_options(options)[:max_options]
+    options = rank_options(options, custom_weights=request_context.custom_weights)[:max_options]
     ranked = [
         option.model_copy(update={"rank": rank})
         for rank, option in enumerate(options, start=1)
@@ -74,7 +95,9 @@ def optimize_recommendations(
         warnings.append("No legal lineup matched the selected constraints.")
 
     return RecommendationRunResult(
-        recommendation_run_id=f"recrun_{event_id}_{strategy_mode}_demo",
+        recommendation_run_id=(
+            f"recrun_{event_id}_{strategy_mode}_{request_fingerprint[:12]}"
+        ),
         team_snapshot_id=team.team_snapshot_id,
         event_id=event_id,
         projection_run_id=projection_run_id,
@@ -83,6 +106,8 @@ def optimize_recommendations(
         status="degraded" if degraded_sources else "ok",
         options=ranked,
         warnings=warnings,
+        request_fingerprint=request_fingerprint,
+        request_context=request_context,
     )
 
 
@@ -100,6 +125,8 @@ def _optimize_for_chip(
     strategy_mode: StrategyMode,
     locked_asset_ids: set[str],
     banned_asset_ids: set[str],
+    custom_weights: dict[str, float],
+    request_fingerprint: str,
     max_options: int,
     projection_run_id: str,
     source_snapshot_ids: list[str],
@@ -128,6 +155,7 @@ def _optimize_for_chip(
         current_asset_ids=current_ids,
         locked_asset_ids=locked_candidate_ids,
         strategy_mode=strategy_mode,
+        custom_weights=custom_weights,
         cost_cap_millions=team.cost_cap_millions,
         free_transfers=team.free_transfers,
         penalty_points=team.transfer_penalty_points,
@@ -137,7 +165,7 @@ def _optimize_for_chip(
     for selected_ids in solver_lineups:
         option = _option_from_selected_ids(
             option_id=(
-                f"recopt_{strategy_mode}_{chip_action or 'none'}_"
+                f"recopt_{request_fingerprint[:8]}_{strategy_mode}_{chip_action or 'none'}_"
                 f"{ORTOOLS_OPTIMIZER_VERSION}_{len(options) + 1}"
             ),
             team=team,
@@ -155,7 +183,7 @@ def _optimize_for_chip(
             options.append(option)
 
     if options:
-        return rank_options(options)[:max_options]
+        return rank_options(options, custom_weights=custom_weights)[:max_options]
 
     for selected_ids in solve_lineups_with_bruteforce(
         assets=candidates,
@@ -164,7 +192,10 @@ def _optimize_for_chip(
         chip_action=chip_action,
     ):
         option = _option_from_selected_ids(
-            option_id=f"recopt_{strategy_mode}_{chip_action or 'none'}_{len(options) + 1}",
+            option_id=(
+                f"recopt_{request_fingerprint[:8]}_{strategy_mode}_"
+                f"{chip_action or 'none'}_{len(options) + 1}"
+            ),
             team=team,
             asset_by_id=asset_by_id,
             projections=projection_by_asset,
@@ -179,7 +210,7 @@ def _optimize_for_chip(
         if option is not None:
             options.append(option)
 
-    return rank_options(options)[: max(max_options, 10)]
+    return rank_options(options, custom_weights=custom_weights)[: max(max_options, 10)]
 
 
 def _option_from_selected_ids(
@@ -211,7 +242,7 @@ def _option_from_selected_ids(
         penalty_points=team.transfer_penalty_points,
         chip_action=chip_action,
     )
-    return _build_option(
+    return build_recommendation_option(
         option_id=option_id,
         strategy_mode=strategy_mode,
         lineup=lineup,
@@ -227,106 +258,3 @@ def _option_from_selected_ids(
         degraded_sources=degraded_sources,
         optimizer_version=optimizer_version,
     )
-
-
-def _build_option(
-    *,
-    option_id: str,
-    strategy_mode: StrategyMode,
-    lineup: list[FantasyAsset],
-    selected_ids: tuple[str, ...],
-    projections: dict[str, Projection],
-    current_ids: set[str],
-    penalty: float,
-    budget_used: float,
-    budget_remaining: float,
-    chip_action: str | None,
-    projection_run_id: str,
-    source_snapshot_ids: list[str],
-    degraded_sources: bool,
-    optimizer_version: str,
-) -> RecommendationOption:
-    selected_projections = [projections[asset.asset_id] for asset in lineup]
-    gross = round(sum(projection.expected_points for projection in selected_projections), 2)
-    risk = round(
-        sum(projection.risk_score for projection in selected_projections)
-        / len(selected_projections),
-        2,
-    )
-    confidence = round(
-        sum(projection.confidence for projection in selected_projections)
-        / len(selected_projections),
-        2,
-    )
-    net = round(gross - penalty, 2)
-    removed = sorted(current_ids - set(selected_ids))
-    added = sorted(set(selected_ids) - current_ids)
-    transfers = [
-        RecommendationTransfer(
-            asset_out_id=out_id,
-            asset_in_id=in_id,
-            reason="Higher deterministic net score under selected strategy.",
-        )
-        for out_id, in_id in zip(removed, added, strict=True)
-    ]
-    if not transfers:
-        transfers = [RecommendationTransfer(reason="Hold current lineup; no transfer required.")]
-    budget_delta = round(
-        sum(
-            projections[asset_id].projected_price_delta_millions or 0
-            for asset_id in selected_ids
-        ),
-        2,
-    )
-    top_in = next((transfer.asset_in_id for transfer in transfers if transfer.asset_in_id), None)
-    chip_label = chip_action or "none"
-    warnings = []
-    if degraded_sources:
-        warnings.append("Data source degraded; recommendation uses latest local snapshot.")
-    if chip_action == "limitless":
-        warnings.append(
-            "Limitless ignores this event budget cap; future team reversion remains manual."
-        )
-
-    return RecommendationOption(
-        option_id=option_id,
-        rank=1,
-        strategy_mode=strategy_mode,
-        chip_action=chip_action,
-        expected_gross_points=gross,
-        transfer_penalty_points=penalty,
-        expected_net_points=net,
-        budget_used_millions=budget_used,
-        budget_remaining_millions=budget_remaining,
-        expected_budget_delta_millions=budget_delta,
-        risk_score=risk,
-        confidence=confidence,
-        summary=_summary(top_in, chip_label, net),
-        transfers=transfers,
-        rationale=[
-            (
-                "Rules engine validated 5 drivers, 2 constructors, duplicate prevention, "
-                "and budget constraints."
-            ),
-            "Net score subtracts transfer penalties before ranking.",
-            "The AI layer receives this option only as explanation context.",
-        ],
-        assumptions=[
-            "Manual application required on the fantasy platform.",
-            "Synthetic demo projections stand in for live connector snapshots.",
-        ],
-        warnings=warnings,
-        selected_asset_ids=list(selected_ids),
-        source_snapshot_ids=source_snapshot_ids,
-        projection_run_id=projection_run_id,
-        optimizer_version=optimizer_version,
-    )
-
-
-def _summary(top_in: str | None, chip_label: str, net_points: float) -> str:
-    if top_in:
-        return (
-            f"Recommend bringing in {top_in} with chip scenario {chip_label}; "
-            f"net {net_points:.1f} pts."
-        )
-    return f"Hold lineup with chip scenario {chip_label}; net {net_points:.1f} pts."

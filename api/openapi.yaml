@@ -745,7 +745,7 @@ components:
         idempotencyKey: { type: string }
     RecommendationRunResult:
       type: object
-      required: [recommendationRunId, teamSnapshotId, eventId, projectionRunId, strategyMode, generatedAt, status, options, warnings]
+      required: [recommendationRunId, teamSnapshotId, eventId, projectionRunId, strategyMode, generatedAt, status, options, warnings, requestFingerprint, requestContext]
       properties:
         recommendationRunId: { type: string }
         teamSnapshotId: { type: string }
@@ -761,6 +761,31 @@ components:
         warnings:
           type: array
           items: { type: string }
+        requestFingerprint: { type: string }
+        requestContext:
+          $ref: '#/components/schemas/OptimizerRequestContext'
+    OptimizerRequestContext:
+      type: object
+      required: [teamSnapshotId, eventId, projectionRunId, strategyMode, lockedAssetIds, bannedAssetIds, allowedChips, customWeights, maxOptions]
+      properties:
+        teamSnapshotId: { type: string }
+        eventId: { type: string }
+        projectionRunId: { type: string }
+        strategyMode: { type: string }
+        lockedAssetIds:
+          type: array
+          items: { type: string }
+        bannedAssetIds:
+          type: array
+          items: { type: string }
+        allowedChips:
+          type: array
+          items: { type: string }
+        customWeights:
+          type: object
+          additionalProperties: { type: number }
+        maxOptions: { type: integer }
+        idempotencyKeyHash: { type: string }
     RecommendationOption:
       type: object
       required: [optionId, rank, strategyMode, expectedGrossPoints, transferPenaltyPoints, expectedNetPoints, budgetUsedMillions, budgetRemainingMillions, transfers, riskScore, confidence, summary, selectedAssetIds, sourceSnapshotIds, projectionRunId, rulesetVersion, optimizerVersion]

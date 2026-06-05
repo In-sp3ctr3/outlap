@@ -16,6 +16,7 @@ def solve_lineups_with_ortools(
     current_asset_ids: set[str],
     locked_asset_ids: set[str],
     strategy_mode: StrategyMode,
+    custom_weights: dict[str, float],
     cost_cap_millions: float,
     free_transfers: int,
     penalty_points: float,
@@ -73,13 +74,20 @@ def solve_lineups_with_ortools(
     model.Add(excess_transfers <= transfer_count)
 
     objective_terms = [
-        _score_units(asset, projections[asset.asset_id], strategy_mode)
+        _score_units(
+            asset,
+            projections[asset.asset_id],
+            strategy_mode,
+            custom_weights,
+        )
         * decision_vars[asset.asset_id]
         for asset in candidates
     ]
     if chip_action not in {"wildcard", "limitless"}:
         objective_terms.append(
-            -_score_units_from_float(penalty_points * weights_for(strategy_mode)["expected"])
+            -_score_units_from_float(
+                penalty_points * weights_for(strategy_mode, custom_weights)["expected"]
+            )
             * excess_transfers
         )
     model.Maximize(sum(objective_terms))
@@ -121,8 +129,9 @@ def _score_units(
     asset: FantasyAsset,
     projection: Projection,
     strategy_mode: StrategyMode,
+    custom_weights: dict[str, float],
 ) -> int:
-    weights = weights_for(strategy_mode)
+    weights = weights_for(strategy_mode, custom_weights)
     expected = projection.expected_points
     risk = projection.risk_score
     floor = expected * (0.72 - risk * 0.12)

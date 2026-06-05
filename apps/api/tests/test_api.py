@@ -51,6 +51,29 @@ def test_projection_and_recommendation_api() -> None:
     )
 
 
+def test_custom_recommendation_api_is_request_reproducible() -> None:
+    payload = {
+        "teamSnapshotId": "team_demo_01",
+        "eventId": "event_demo_01",
+        "strategyMode": "custom",
+        "customWeights": {"expected": 1, "riskPenalty": 0},
+        "idempotencyKey": "api-custom-weights",
+        "maxOptions": 2,
+    }
+
+    first = client.post("/api/v1/optimizer/recommendations", json=payload).json()
+    second = client.post("/api/v1/optimizer/recommendations", json=payload).json()
+    changed = client.post(
+        "/api/v1/optimizer/recommendations",
+        json={**payload, "customWeights": {"expected": 0, "riskPenalty": 1}},
+    ).json()
+
+    assert first["recommendationRunId"] == second["recommendationRunId"]
+    assert first["recommendationRunId"] != changed["recommendationRunId"]
+    assert first["requestContext"]["customWeights"] == {"expected": 1.0, "riskPenalty": 0.0}
+    assert first["requestFingerprint"]
+
+
 def test_data_source_failure_degrades_without_breaking_optimizer() -> None:
     failed = client.post("/api/v1/fantasy/sync", json={"simulateFailure": True}).json()
     assert failed["status"] == "degraded"

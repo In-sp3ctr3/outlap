@@ -12,6 +12,8 @@ def _run_optimizer(
     locked_asset_ids: list[str] | None = None,
     banned_asset_ids: list[str] | None = None,
     allowed_chips: list[str] | None = None,
+    custom_weights: dict[str, float] | None = None,
+    idempotency_key: str | None = None,
     max_options: int = 5,
 ) -> RecommendationRunResult:
     state = seed_demo_state()
@@ -25,6 +27,8 @@ def _run_optimizer(
         locked_asset_ids=locked_asset_ids or [],
         banned_asset_ids=banned_asset_ids or [],
         allowed_chips=allowed_chips or [],
+        custom_weights=custom_weights or {},
+        idempotency_key=idempotency_key,
         max_options=max_options,
         projection_run_id=projection_run.projection_run_id,
         source_snapshot_ids=projection_run.source_snapshot_ids,
