@@ -71,6 +71,13 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `make check`: passed; API collected 44 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `apps/api/tests/test_fantasy_readonly_connector.py`: verifies documented GET-only fantasy paths, bearer token use in request headers only, token redaction from request paths/status/raw snapshots, degraded upstream handling, source snapshot persistence, and absence of transfer mutation methods.
   - `apps/api/tests/test_settings.py`: verifies both spec-style `FANTASY_*` and project-prefixed `RACEWEEK_FANTASY_*` settings names are supported.
+- Projection backtest slice, completed on June 5, 2026:
+  - `cd apps/api && uv run pytest tests/test_projections.py tests/test_cli.py -q`: passed, 4 tests.
+  - `cd apps/api && uv run ruff check src tests`: passed.
+  - `cd apps/api && uv run mypy src tests/test_projections.py tests/test_cli.py`: passed for 31 files.
+  - `make check`: passed; API collected 48 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_projections.py`: verifies contribution breakdowns reconcile with expected points, stale source data lowers confidence, and backtests compare projections to fixture scores.
+  - `apps/api/tests/test_cli.py`: verifies `raceweek backtest` emits deterministic fixture MAE and removes the old demo placeholder metric.
 
 Earlier local demo slice:
 
@@ -94,4 +101,4 @@ Earlier local demo slice:
 - Python 3.12 is supported locally; the upstream spec's Python 3.13 target remains a release baseline.
 - A FastAPI/TestClient deprecation warning is present from Starlette/httpx compatibility; it does not fail tests.
 - Live provider adapters and external connectors remain follow-up hardening beyond the local demo slice.
-- Full live connector, provider adapter, projection/backtest, optimizer, UI-state, and release gates remain open beyond the local demo and manual import slices.
+- Full live connector, provider adapter, projection hardening, optimizer, UI-state, and release gates remain open beyond the local demo and completed connector/backtest slices.
