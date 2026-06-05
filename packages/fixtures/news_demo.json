@@ -1,0 +1,26 @@
+{
+  "items": [
+    {
+      "newsId": "news_demo_01",
+      "sourceName": "Demo Wire",
+      "title": "Constructor Five reports conservative setup plan",
+      "url": "https://example.test/demo-news-1",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "retrievedAt": "2026-06-05T10:00:00Z",
+      "summary": "Fixture-only report used to raise mild risk for Constructor Five assets.",
+      "riskFlags": ["setup_uncertainty"],
+      "licenseNote": "Synthetic fixture"
+    },
+    {
+      "newsId": "news_demo_02",
+      "sourceName": "Demo Wire",
+      "title": "Driver Foxtrot shows strong race simulation pace",
+      "url": "https://example.test/demo-news-2",
+      "publishedAt": "2026-06-05T11:00:00Z",
+      "retrievedAt": "2026-06-05T11:30:00Z",
+      "summary": "Fixture-only positive signal for a low-ownership driver.",
+      "riskFlags": [],
+      "licenseNote": "Synthetic fixture"
+    }
+  ]
+}

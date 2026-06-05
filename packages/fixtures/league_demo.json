@@ -1,0 +1,35 @@
+{
+  "leagueId": "league_demo_01",
+  "eventId": "event_demo_01",
+  "name": "Demo Rivals League",
+  "userRank": 4,
+  "gapToLeader": 82,
+  "rivals": [
+    {
+      "teamName": "Leader Delta",
+      "points": 1240,
+      "assetIds": [
+        "asset_driver_alpha",
+        "asset_driver_bravo",
+        "asset_driver_gamma",
+        "asset_driver_hotel",
+        "asset_driver_juliet",
+        "asset_constructor_one",
+        "asset_constructor_two"
+      ]
+    },
+    {
+      "teamName": "Chaser Prime",
+      "points": 1196,
+      "assetIds": [
+        "asset_driver_alpha",
+        "asset_driver_charlie",
+        "asset_driver_delta",
+        "asset_driver_foxtrot",
+        "asset_driver_india",
+        "asset_constructor_two",
+        "asset_constructor_three"
+      ]
+    }
+  ]
+}
