@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "newsId": "news_demo_01",
+      "sourceName": "demo",
+      "title": "Driver Delta faces possible grid penalty",
+      "url": "https://example.invalid/news/demo-01",
+      "publishedAt": "2026-06-05T08:00:00Z",
+      "retrievedAt": "2026-06-05T08:05:00Z",
+      "summary": "Synthetic demo item for testing risk flags.",
+      "entities": [
+        "asset_driver_delta"
+      ],
+      "riskFlags": [
+        "grid_penalty"
+      ],
+      "licenseNote": "synthetic fixture"
+    }
+  ]
+}

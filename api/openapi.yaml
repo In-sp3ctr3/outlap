@@ -1,0 +1,741 @@
+openapi: 3.1.0
+info:
+  title: RaceWeek Strategist API
+  version: 1.0.0
+  description: Local-first API for fantasy motorsport strategy recommendations.
+servers:
+  - url: http://localhost:8000
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/v1/app/status:
+    get:
+      summary: Application status
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppStatus'
+  /api/v1/data-sources/status:
+    get:
+      summary: List data-source health states
+      responses:
+        '200':
+          description: Data-source health states
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DataSourceStatus'
+  /api/v1/providers:
+    get:
+      summary: List configured AI providers
+      responses:
+        '200':
+          description: Providers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProviderConfig'
+  /api/v1/providers/test:
+    post:
+      summary: Test an AI provider configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderTestRequest'
+      responses:
+        '200':
+          description: Provider test result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderTestResponse'
+  /api/v1/fantasy/import/team:
+    post:
+      summary: Import a fantasy team snapshot manually
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FantasyTeamSnapshot'
+      responses:
+        '201':
+          description: Imported team snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResult'
+  /api/v1/fantasy/import/market:
+    post:
+      summary: Import a fantasy market snapshot manually
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId, assets]
+              properties:
+                eventId:
+                  type: string
+                assets:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FantasyAsset'
+      responses:
+        '201':
+          description: Imported market snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResult'
+  /api/v1/fantasy/sync:
+    post:
+      summary: Sync configured fantasy data sources
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncRequest'
+      responses:
+        '202':
+          description: Sync accepted or completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResult'
+  /api/v1/fantasy/assets:
+    get:
+      summary: List fantasy assets for an event
+      parameters:
+        - in: query
+          name: eventId
+          schema: { type: string }
+        - in: query
+          name: assetType
+          schema: { type: string, enum: [driver, constructor] }
+      responses:
+        '200':
+          description: Fantasy assets
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FantasyAsset'
+  /api/v1/fantasy/teams/current:
+    get:
+      summary: Get current user fantasy teams
+      responses:
+        '200':
+          description: Current teams
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FantasyTeamSnapshot'
+  /api/v1/races:
+    get:
+      summary: List race meetings
+      parameters:
+        - in: query
+          name: season
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Race meetings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RaceMeeting'
+  /api/v1/races/current:
+    get:
+      summary: Get current or next race meeting
+      responses:
+        '200':
+          description: Current race meeting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RaceMeeting'
+  /api/v1/races/{meetingKey}/sessions:
+    get:
+      summary: List sessions for a meeting
+      parameters:
+        - in: path
+          name: meetingKey
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RaceSession'
+  /api/v1/races/{meetingKey}/intelligence:
+    get:
+      summary: Get race-week intelligence bundle
+      parameters:
+        - in: path
+          name: meetingKey
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Race-week intelligence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RaceWeekIntelligence'
+  /api/v1/projections/run:
+    post:
+      summary: Run projections for an event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectionRunRequest'
+      responses:
+        '201':
+          description: Projection run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectionRunResult'
+  /api/v1/projections/runs/{projectionRunId}:
+    get:
+      summary: Get projection run
+      parameters:
+        - in: path
+          name: projectionRunId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Projection run result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectionRunResult'
+  /api/v1/optimizer/recommendations:
+    post:
+      summary: Generate ranked strategy recommendations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptimizerRequest'
+      responses:
+        '201':
+          description: Recommendation run result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationRunResult'
+  /api/v1/recommendations/runs/{recommendationRunId}:
+    get:
+      summary: Get recommendation run
+      parameters:
+        - in: path
+          name: recommendationRunId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Recommendation run result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationRunResult'
+  /api/v1/leagues/import:
+    post:
+      summary: Import league/rival data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeagueImportRequest'
+      responses:
+        '201':
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResult'
+  /api/v1/leagues/{leagueId}/analysis:
+    get:
+      summary: Get league analysis
+      parameters:
+        - in: path
+          name: leagueId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: League analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeagueAnalysis'
+  /api/v1/agent/conversations:
+    post:
+      summary: Create agent conversation
+      responses:
+        '201':
+          description: Conversation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConversation'
+  /api/v1/agent/conversations/{conversationId}:
+    get:
+      summary: Get agent conversation
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Conversation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConversation'
+  /api/v1/agent/chat:
+    post:
+      summary: Send a message to the strategy assistant
+      parameters:
+        - in: query
+          name: stream
+          schema: { type: boolean, default: false }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentChatRequest'
+      responses:
+        '200':
+          description: Chat response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentChatResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [ok] }
+    AppStatus:
+      type: object
+      required: [version, setupComplete, databaseReady]
+      properties:
+        version: { type: string }
+        setupComplete: { type: boolean }
+        databaseReady: { type: boolean }
+        currentEventId: { type: string }
+    DataSourceStatus:
+      type: object
+      required: [source, status]
+      properties:
+        source: { type: string }
+        status: { type: string, enum: [ok, stale, degraded, error, disabled, unknown] }
+        lastSuccessfulSyncAt: { type: string, format: date-time }
+        lastAttemptedSyncAt: { type: string, format: date-time }
+        freshnessSeconds: { type: integer }
+        message: { type: string }
+        errorCode: { type: string }
+    ProviderConfig:
+      type: object
+      required: [providerName, displayName, enabled]
+      properties:
+        providerName: { type: string }
+        displayName: { type: string }
+        baseUrl: { type: string }
+        defaultModel: { type: string }
+        apiKeyEnvVar: { type: string }
+        enabled: { type: boolean }
+        supportsStreaming: { type: boolean }
+        supportsTools: { type: boolean }
+    ProviderTestRequest:
+      type: object
+      required: [providerName, model]
+      properties:
+        providerName: { type: string }
+        model: { type: string }
+        baseUrl: { type: string }
+        apiKeyEnvVar: { type: string }
+    ProviderTestResponse:
+      type: object
+      required: [ok, providerName]
+      properties:
+        ok: { type: boolean }
+        providerName: { type: string }
+        latencyMs: { type: integer }
+        message: { type: string }
+    FantasyAsset:
+      type: object
+      required: [assetId, assetType, displayName, priceMillions]
+      properties:
+        assetId: { type: string }
+        externalId: { type: string }
+        assetType: { type: string, enum: [driver, constructor] }
+        displayName: { type: string }
+        shortName: { type: string }
+        constructorName: { type: string }
+        priceMillions: { type: number }
+        fantasyPoints: { type: number }
+        ownershipPct: { type: number }
+        selectedByPct: { type: number }
+        pointsPerMillion: { type: number }
+        riskScore: { type: number }
+        sourceSnapshotId: { type: string }
+    FantasyTeamSnapshot:
+      type: object
+      required: [teamSnapshotId, teamName, eventId, costCapMillions, freeTransfers, assets, chips]
+      properties:
+        teamSnapshotId: { type: string }
+        teamName: { type: string }
+        eventId: { type: string }
+        slot: { type: integer }
+        costCapMillions: { type: number }
+        budgetUsedMillions: { type: number }
+        budgetRemainingMillions: { type: number }
+        freeTransfers: { type: integer }
+        transferPenaltyPoints: { type: number, default: 10 }
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamAsset'
+        chips:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChipState'
+        capturedAt: { type: string, format: date-time }
+    TeamAsset:
+      type: object
+      required: [assetId, assetType]
+      properties:
+        assetId: { type: string }
+        assetType: { type: string, enum: [driver, constructor] }
+        boostMultiplier: { type: number, default: 1 }
+    ChipState:
+      type: object
+      required: [chipName, status]
+      properties:
+        chipName: { type: string }
+        status: { type: string, enum: [available, used, active, unavailable, unknown] }
+        usedEventId: { type: string }
+    ImportResult:
+      type: object
+      required: [ok, importedId]
+      properties:
+        ok: { type: boolean }
+        importedId: { type: string }
+        warnings:
+          type: array
+          items: { type: string }
+    SyncRequest:
+      type: object
+      properties:
+        sources:
+          type: array
+          items: { type: string }
+        force: { type: boolean, default: false }
+        idempotencyKey: { type: string }
+    SyncResult:
+      type: object
+      required: [syncId, statuses]
+      properties:
+        syncId: { type: string }
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSourceStatus'
+    RaceMeeting:
+      type: object
+      required: [meetingKey, season, meetingName]
+      properties:
+        meetingKey: { type: string }
+        season: { type: integer }
+        roundNumber: { type: integer }
+        meetingName: { type: string }
+        circuitName: { type: string }
+        countryName: { type: string }
+        dateStart: { type: string, format: date-time }
+        dateEnd: { type: string, format: date-time }
+    RaceSession:
+      type: object
+      required: [sessionKey, meetingKey, sessionName, sessionType]
+      properties:
+        sessionKey: { type: string }
+        meetingKey: { type: string }
+        sessionName: { type: string }
+        sessionType: { type: string }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: string, format: date-time }
+        status: { type: string }
+    RaceWeekIntelligence:
+      type: object
+      required: [meeting, sessions, news, dataSources]
+      properties:
+        meeting:
+          $ref: '#/components/schemas/RaceMeeting'
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RaceSession'
+        weatherSummary:
+          type: string
+        raceControlFlags:
+          type: array
+          items: { type: string }
+        news:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsItem'
+        dataSources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSourceStatus'
+    NewsItem:
+      type: object
+      required: [newsId, sourceName, title, url, retrievedAt]
+      properties:
+        newsId: { type: string }
+        sourceName: { type: string }
+        title: { type: string }
+        url: { type: string }
+        publishedAt: { type: string, format: date-time }
+        retrievedAt: { type: string, format: date-time }
+        summary: { type: string }
+        entities:
+          type: array
+          items: { type: string }
+        riskFlags:
+          type: array
+          items: { type: string }
+    ProjectionRunRequest:
+      type: object
+      required: [eventId]
+      properties:
+        eventId: { type: string }
+        modelName: { type: string, default: transparent_weighted_v1 }
+        config: { type: object, additionalProperties: true }
+    ProjectionRunResult:
+      type: object
+      required: [projectionRunId, eventId, projections]
+      properties:
+        projectionRunId: { type: string }
+        eventId: { type: string }
+        modelName: { type: string }
+        modelVersion: { type: string }
+        generatedAt: { type: string, format: date-time }
+        projections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Projection'
+    Projection:
+      type: object
+      required: [assetId, expectedPoints, confidence, riskScore]
+      properties:
+        assetId: { type: string }
+        expectedPoints: { type: number }
+        floorPoints: { type: number }
+        ceilingPoints: { type: number }
+        confidence: { type: number }
+        riskScore: { type: number }
+        projectedPriceDeltaMillions: { type: number }
+        contributionBreakdown: { type: object, additionalProperties: true }
+    OptimizerRequest:
+      type: object
+      required: [teamSnapshotId, eventId, strategyMode]
+      properties:
+        teamSnapshotId: { type: string }
+        eventId: { type: string }
+        projectionRunId: { type: string }
+        strategyMode:
+          type: string
+          enum: [safe, balanced, aggressive, budget_builder, differential, chip_optimized, custom]
+        lockedAssetIds:
+          type: array
+          items: { type: string }
+        bannedAssetIds:
+          type: array
+          items: { type: string }
+        allowedChips:
+          type: array
+          items: { type: string }
+        customWeights:
+          type: object
+          additionalProperties: { type: number }
+        maxOptions: { type: integer, default: 20 }
+        idempotencyKey: { type: string }
+    RecommendationRunResult:
+      type: object
+      required: [recommendationRunId, options]
+      properties:
+        recommendationRunId: { type: string }
+        teamSnapshotId: { type: string }
+        eventId: { type: string }
+        generatedAt: { type: string, format: date-time }
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecommendationOption'
+    RecommendationOption:
+      type: object
+      required: [optionId, rank, expectedNetPoints, transfers, riskScore, confidence, summary]
+      properties:
+        optionId: { type: string }
+        rank: { type: integer }
+        strategyMode: { type: string }
+        chipAction: { type: string }
+        expectedGrossPoints: { type: number }
+        transferPenaltyPoints: { type: number }
+        expectedNetPoints: { type: number }
+        budgetUsedMillions: { type: number }
+        budgetRemainingMillions: { type: number }
+        expectedBudgetDeltaMillions: { type: number }
+        riskScore: { type: number }
+        confidence: { type: number }
+        summary: { type: string }
+        transfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecommendedTransfer'
+        rationale:
+          type: array
+          items: { type: string }
+        assumptions:
+          type: array
+          items: { type: string }
+        warnings:
+          type: array
+          items: { type: string }
+    RecommendedTransfer:
+      type: object
+      properties:
+        assetOutId: { type: string }
+        assetInId: { type: string }
+        reason: { type: string }
+    LeagueImportRequest:
+      type: object
+      required: [leagueId, eventId, rivals]
+      properties:
+        leagueId: { type: string }
+        eventId: { type: string }
+        rivals:
+          type: array
+          items: { type: object, additionalProperties: true }
+    LeagueAnalysis:
+      type: object
+      required: [leagueId, summary]
+      properties:
+        leagueId: { type: string }
+        summary: { type: string }
+        rank: { type: integer }
+        pointsGapToLeader: { type: number }
+        overlapPct: { type: number }
+        differentialAssets:
+          type: array
+          items: { type: string }
+        warnings:
+          type: array
+          items: { type: string }
+    AgentConversation:
+      type: object
+      required: [conversationId, messages]
+      properties:
+        conversationId: { type: string }
+        title: { type: string }
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentMessage'
+    AgentMessage:
+      type: object
+      required: [messageId, role, content, createdAt]
+      properties:
+        messageId: { type: string }
+        role: { type: string, enum: [user, assistant, tool, system] }
+        content: { type: string }
+        createdAt: { type: string, format: date-time }
+    AgentChatRequest:
+      type: object
+      required: [conversationId, message]
+      properties:
+        conversationId: { type: string }
+        message: { type: string }
+        providerName: { type: string }
+        model: { type: string }
+        context:
+          type: object
+          additionalProperties: true
+    AgentChatResponse:
+      type: object
+      required: [conversationId, message]
+      properties:
+        conversationId: { type: string }
+        message:
+          $ref: '#/components/schemas/AgentMessage'
+        referencedRecommendationRunIds:
+          type: array
+          items: { type: string }
+        toolCalls:
+          type: array
+          items: { type: object, additionalProperties: true }

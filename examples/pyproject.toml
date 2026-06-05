@@ -1,0 +1,52 @@
+[project]
+name = "raceweek-strategist-api"
+version = "1.0.0"
+description = "Local-first API for RaceWeek Strategist"
+requires-python = "==3.13.*"
+dependencies = [
+  "fastapi==0.136.3",
+  "uvicorn==0.49.0",
+  "pydantic==2.13.4",
+  "pydantic-settings==2.14.1",
+  "httpx==0.28.1",
+  "orjson==3.11.9",
+  "duckdb==1.5.3",
+  "polars==1.41.2",
+  "pandas==3.0.3",
+  "fastf1==3.8.3",
+  "feedparser==6.0.12",
+  "ortools==9.15.6755",
+  "scikit-learn==1.9.0",
+  "scipy==1.16.3",
+  "apscheduler==3.11.2",
+  "croniter==6.2.2",
+  "tenacity==9.1.4",
+  "python-dotenv==1.2.2",
+  "openai==2.41.0",
+  "anthropic==0.105.2",
+  "ollama==0.6.2",
+  "google-genai==2.8.0",
+  "mistralai==2.4.9"
+]
+
+[dependency-groups]
+dev = [
+  "pytest==9.0.3",
+  "pytest-cov==7.1.0",
+  "respx==0.23.1",
+  "ruff==0.15.16",
+  "mypy==2.1.0"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.pytest.ini_options]
+addopts = "--cov=raceweek --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unused_configs = true

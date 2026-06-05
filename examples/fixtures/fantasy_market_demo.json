@@ -1,0 +1,83 @@
+{
+  "eventId": "event_demo_01",
+  "assets": [
+    {
+      "assetId": "asset_driver_alpha",
+      "assetType": "driver",
+      "displayName": "Driver Alpha",
+      "constructorName": "Constructor One",
+      "priceMillions": 28.5,
+      "fantasyPoints": 42,
+      "ownershipPct": 65
+    },
+    {
+      "assetId": "asset_driver_bravo",
+      "assetType": "driver",
+      "displayName": "Driver Bravo",
+      "constructorName": "Constructor Two",
+      "priceMillions": 24.0,
+      "fantasyPoints": 35,
+      "ownershipPct": 52
+    },
+    {
+      "assetId": "asset_driver_charlie",
+      "assetType": "driver",
+      "displayName": "Driver Charlie",
+      "constructorName": "Constructor Three",
+      "priceMillions": 18.0,
+      "fantasyPoints": 26,
+      "ownershipPct": 28
+    },
+    {
+      "assetId": "asset_driver_delta",
+      "assetType": "driver",
+      "displayName": "Driver Delta",
+      "constructorName": "Constructor Four",
+      "priceMillions": 12.5,
+      "fantasyPoints": 18,
+      "ownershipPct": 14
+    },
+    {
+      "assetId": "asset_driver_echo",
+      "assetType": "driver",
+      "displayName": "Driver Echo",
+      "constructorName": "Constructor Five",
+      "priceMillions": 9.5,
+      "fantasyPoints": 13,
+      "ownershipPct": 9
+    },
+    {
+      "assetId": "asset_driver_foxtrot",
+      "assetType": "driver",
+      "displayName": "Driver Foxtrot",
+      "constructorName": "Constructor Six",
+      "priceMillions": 7.0,
+      "fantasyPoints": 9,
+      "ownershipPct": 4
+    },
+    {
+      "assetId": "asset_constructor_one",
+      "assetType": "constructor",
+      "displayName": "Constructor One",
+      "priceMillions": 30.0,
+      "fantasyPoints": 58,
+      "ownershipPct": 70
+    },
+    {
+      "assetId": "asset_constructor_two",
+      "assetType": "constructor",
+      "displayName": "Constructor Two",
+      "priceMillions": 22.0,
+      "fantasyPoints": 44,
+      "ownershipPct": 43
+    },
+    {
+      "assetId": "asset_constructor_three",
+      "assetType": "constructor",
+      "displayName": "Constructor Three",
+      "priceMillions": 15.0,
+      "fantasyPoints": 31,
+      "ownershipPct": 18
+    }
+  ]
+}

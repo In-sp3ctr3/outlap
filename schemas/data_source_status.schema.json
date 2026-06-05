@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raceweek-strategist.local/schemas/data_source_status.schema.json",
+  "title": "DataSourceStatus",
+  "type": "object",
+  "required": [
+    "source",
+    "status"
+  ],
+  "properties": {
+    "source": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "stale",
+        "degraded",
+        "error",
+        "disabled",
+        "unknown"
+      ]
+    },
+    "lastSuccessfulSyncAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "lastAttemptedSyncAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "freshnessSeconds": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "message": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "errorCode": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

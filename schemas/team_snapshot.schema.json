@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raceweek-strategist.local/schemas/team_snapshot.schema.json",
+  "title": "FantasyTeamSnapshot",
+  "type": "object",
+  "required": [
+    "teamSnapshotId",
+    "teamName",
+    "eventId",
+    "costCapMillions",
+    "budgetUsedMillions",
+    "budgetRemainingMillions",
+    "freeTransfers",
+    "assets",
+    "chips",
+    "capturedAt"
+  ],
+  "properties": {
+    "teamSnapshotId": {
+      "type": "string"
+    },
+    "teamName": {
+      "type": "string"
+    },
+    "eventId": {
+      "type": "string"
+    },
+    "slot": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 3
+    },
+    "costCapMillions": {
+      "type": "number",
+      "minimum": 0
+    },
+    "budgetUsedMillions": {
+      "type": "number",
+      "minimum": 0
+    },
+    "budgetRemainingMillions": {
+      "type": "number"
+    },
+    "freeTransfers": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "transferPenaltyPoints": {
+      "type": "number",
+      "minimum": 0,
+      "default": 10
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/teamAsset"
+      },
+      "minItems": 7,
+      "maxItems": 7
+    },
+    "chips": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/chipState"
+      }
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceSnapshotId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "teamAsset": {
+      "type": "object",
+      "required": [
+        "assetId",
+        "assetType"
+      ],
+      "properties": {
+        "assetId": {
+          "type": "string"
+        },
+        "assetType": {
+          "type": "string",
+          "enum": [
+            "driver",
+            "constructor"
+          ]
+        },
+        "boostMultiplier": {
+          "type": "number",
+          "default": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "chipState": {
+      "type": "object",
+      "required": [
+        "chipName",
+        "status"
+      ],
+      "properties": {
+        "chipName": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "available",
+            "used",
+            "active",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "usedEventId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raceweek-strategist.local/schemas/recommendation.schema.json",
+  "title": "RecommendationOption",
+  "type": "object",
+  "required": [
+    "optionId",
+    "rank",
+    "strategyMode",
+    "expectedGrossPoints",
+    "transferPenaltyPoints",
+    "expectedNetPoints",
+    "riskScore",
+    "confidence",
+    "summary",
+    "transfers"
+  ],
+  "properties": {
+    "optionId": {
+      "type": "string"
+    },
+    "rank": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "strategyMode": {
+      "type": "string"
+    },
+    "chipAction": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expectedGrossPoints": {
+      "type": "number"
+    },
+    "transferPenaltyPoints": {
+      "type": "number"
+    },
+    "expectedNetPoints": {
+      "type": "number"
+    },
+    "budgetUsedMillions": {
+      "type": "number"
+    },
+    "budgetRemainingMillions": {
+      "type": "number"
+    },
+    "expectedBudgetDeltaMillions": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "riskScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "summary": {
+      "type": "string"
+    },
+    "transfers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/transfer"
+      }
+    },
+    "rationale": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "transfer": {
+      "type": "object",
+      "properties": {
+        "assetOutId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "assetInId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

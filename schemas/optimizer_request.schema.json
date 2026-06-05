@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raceweek-strategist.local/schemas/optimizer_request.schema.json",
+  "title": "OptimizerRequest",
+  "type": "object",
+  "required": [
+    "teamSnapshotId",
+    "eventId",
+    "strategyMode"
+  ],
+  "properties": {
+    "teamSnapshotId": {
+      "type": "string"
+    },
+    "eventId": {
+      "type": "string"
+    },
+    "projectionRunId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "strategyMode": {
+      "type": "string",
+      "enum": [
+        "safe",
+        "balanced",
+        "aggressive",
+        "budget_builder",
+        "differential",
+        "chip_optimized",
+        "custom"
+      ]
+    },
+    "lockedAssetIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "bannedAssetIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "allowedChips": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "customWeights": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "maxOptions": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 20
+    },
+    "idempotencyKey": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
