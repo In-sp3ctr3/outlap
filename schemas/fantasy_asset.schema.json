@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raceweek-strategist.local/schemas/fantasy_asset.schema.json",
+  "title": "FantasyAsset",
+  "type": "object",
+  "required": [
+    "assetId",
+    "assetType",
+    "displayName",
+    "priceMillions"
+  ],
+  "properties": {
+    "assetId": {
+      "type": "string"
+    },
+    "externalId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "assetType": {
+      "type": "string",
+      "enum": [
+        "driver",
+        "constructor"
+      ]
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "shortName": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "constructorName": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "priceMillions": {
+      "type": "number",
+      "minimum": 0
+    },
+    "fantasyPoints": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "ownershipPct": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "selectedByPct": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "pointsPerMillion": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "riskScore": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "sourceSnapshotId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

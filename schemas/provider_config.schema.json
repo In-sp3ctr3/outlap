@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raceweek-strategist.local/schemas/provider_config.schema.json",
+  "title": "ProviderConfig",
+  "type": "object",
+  "required": [
+    "providerName",
+    "displayName",
+    "enabled"
+  ],
+  "properties": {
+    "providerName": {
+      "type": "string",
+      "enum": [
+        "openai",
+        "anthropic",
+        "gemini",
+        "ollama",
+        "openrouter",
+        "groq",
+        "xai",
+        "mistral",
+        "custom_openai"
+      ]
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "baseUrl": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "defaultModel": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "apiKeyEnvVar": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "supportsStreaming": {
+      "type": "boolean",
+      "default": true
+    },
+    "supportsTools": {
+      "type": "boolean",
+      "default": false
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

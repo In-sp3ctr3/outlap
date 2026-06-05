@@ -1,0 +1,75 @@
+{
+  "teamSnapshotId": "team_demo_01",
+  "teamName": "Demo Team",
+  "eventId": "event_demo_01",
+  "slot": 1,
+  "costCapMillions": 100.0,
+  "budgetUsedMillions": 99.5,
+  "budgetRemainingMillions": 0.5,
+  "freeTransfers": 2,
+  "transferPenaltyPoints": 10,
+  "capturedAt": "2026-06-05T00:00:00Z",
+  "assets": [
+    {
+      "assetId": "asset_driver_alpha",
+      "assetType": "driver",
+      "boostMultiplier": 2
+    },
+    {
+      "assetId": "asset_driver_bravo",
+      "assetType": "driver",
+      "boostMultiplier": 1
+    },
+    {
+      "assetId": "asset_driver_charlie",
+      "assetType": "driver",
+      "boostMultiplier": 1
+    },
+    {
+      "assetId": "asset_driver_delta",
+      "assetType": "driver",
+      "boostMultiplier": 1
+    },
+    {
+      "assetId": "asset_driver_echo",
+      "assetType": "driver",
+      "boostMultiplier": 1
+    },
+    {
+      "assetId": "asset_constructor_one",
+      "assetType": "constructor",
+      "boostMultiplier": 1
+    },
+    {
+      "assetId": "asset_constructor_two",
+      "assetType": "constructor",
+      "boostMultiplier": 1
+    }
+  ],
+  "chips": [
+    {
+      "chipName": "wildcard",
+      "status": "available"
+    },
+    {
+      "chipName": "limitless",
+      "status": "available"
+    },
+    {
+      "chipName": "no_negative",
+      "status": "available"
+    },
+    {
+      "chipName": "autopilot",
+      "status": "available"
+    },
+    {
+      "chipName": "3x_boost",
+      "status": "available"
+    },
+    {
+      "chipName": "final_fix",
+      "status": "available"
+    }
+  ]
+}

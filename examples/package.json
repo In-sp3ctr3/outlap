@@ -1,0 +1,21 @@
+{
+  "name": "raceweek-strategist",
+  "private": true,
+  "packageManager": "pnpm@11.5.2",
+  "engines": {
+    "node": "24.16.0",
+    "pnpm": "11.5.2"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter web dev",
+    "lint": "pnpm --recursive lint",
+    "typecheck": "pnpm --recursive typecheck",
+    "test": "pnpm --recursive test",
+    "e2e": "pnpm --filter web e2e",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm e2e"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "prettier": "3.8.3"
+  }
+}

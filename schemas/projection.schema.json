@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raceweek-strategist.local/schemas/projection.schema.json",
+  "title": "Projection",
+  "type": "object",
+  "required": [
+    "assetId",
+    "expectedPoints",
+    "confidence",
+    "riskScore"
+  ],
+  "properties": {
+    "assetId": {
+      "type": "string"
+    },
+    "expectedPoints": {
+      "type": "number"
+    },
+    "floorPoints": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "ceilingPoints": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "riskScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "projectedPriceDeltaMillions": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "contributionBreakdown": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}
