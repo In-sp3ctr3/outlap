@@ -34,6 +34,8 @@ Use this as the release gate for v1.0.0.
 - [ ] All chips tested.
 - [x] Optimizer deterministic ordering tested.
 - [x] Recommendations include provenance.
+- [x] Custom optimizer weights affect deterministic ranking.
+- [x] Recommendation run IDs are request-specific and reproducible.
 
 ## AI
 
@@ -82,4 +84,5 @@ Use this as the release gate for v1.0.0.
 - [x] Optional fantasy connector uses documented GET endpoints and redacts session tokens from persisted metadata.
 - [x] Projection contribution breakdowns and CLI backtests use deterministic fixture error metrics.
 - [x] Optimizer uses the pinned OR-Tools CP-SAT path when available and falls back to brute force deterministically.
-- [ ] Custom optimizer weights, full chip scoring simulation, provider, UI-state, and release gates remain open.
+- [x] Custom optimizer weights and request fingerprints persist with recommendation runs.
+- [ ] Full chip scoring simulation, provider, UI-state, and release gates remain open.

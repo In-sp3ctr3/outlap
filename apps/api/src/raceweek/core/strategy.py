@@ -1,6 +1,17 @@
 from __future__ import annotations
 
+from math import isfinite
+
 from raceweek.core.models import StrategyMode
+
+WEIGHT_KEYS = {
+    "expected",
+    "floor",
+    "ceiling",
+    "riskPenalty",
+    "budgetGrowth",
+    "differential",
+}
 
 STRATEGY_WEIGHTS: dict[str, dict[str, float]] = {
     "safe": {
@@ -54,5 +65,20 @@ STRATEGY_WEIGHTS: dict[str, dict[str, float]] = {
 }
 
 
-def weights_for(strategy_mode: StrategyMode) -> dict[str, float]:
-    return STRATEGY_WEIGHTS.get(strategy_mode, STRATEGY_WEIGHTS["balanced"])
+def weights_for(
+    strategy_mode: StrategyMode,
+    custom_weights: dict[str, float] | None = None,
+) -> dict[str, float]:
+    weights = dict(STRATEGY_WEIGHTS.get(strategy_mode, STRATEGY_WEIGHTS["balanced"]))
+    if strategy_mode == "custom":
+        weights.update(normalize_custom_weights(custom_weights or {}))
+    return weights
+
+
+def normalize_custom_weights(custom_weights: dict[str, float]) -> dict[str, float]:
+    normalized = {}
+    for key, value in custom_weights.items():
+        numeric_value = float(value)
+        if key in WEIGHT_KEYS and isfinite(numeric_value):
+            normalized[key] = numeric_value
+    return normalized

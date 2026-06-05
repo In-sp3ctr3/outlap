@@ -155,6 +155,19 @@ class OptimizerRequest(RaceweekModel):
     idempotency_key: str | None = None
 
 
+class OptimizerRequestContext(RaceweekModel):
+    team_snapshot_id: str = ""
+    event_id: str = ""
+    projection_run_id: str = ""
+    strategy_mode: StrategyMode = "balanced"
+    locked_asset_ids: list[str] = Field(default_factory=list)
+    banned_asset_ids: list[str] = Field(default_factory=list)
+    allowed_chips: list[str] = Field(default_factory=list)
+    custom_weights: dict[str, float] = Field(default_factory=dict)
+    max_options: int = Field(default=20, ge=1, le=100)
+    idempotency_key_hash: str | None = None
+
+
 class RecommendationTransfer(RaceweekModel):
     asset_out_id: str | None = None
     asset_in_id: str | None = None
@@ -196,6 +209,8 @@ class RecommendationRunResult(RaceweekModel):
     status: Literal["ok", "degraded", "error"]
     options: list[RecommendationOption]
     warnings: list[str] = Field(default_factory=list)
+    request_fingerprint: str = ""
+    request_context: OptimizerRequestContext = Field(default_factory=OptimizerRequestContext)
 
 
 class DataSourceStatus(RaceweekModel):

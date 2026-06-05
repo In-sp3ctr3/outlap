@@ -85,6 +85,19 @@ export type RecommendationRun = {
   generatedAt: string;
   status: string;
   warnings: string[];
+  requestFingerprint: string;
+  requestContext: {
+    teamSnapshotId: string;
+    eventId: string;
+    projectionRunId: string;
+    strategyMode: string;
+    lockedAssetIds: string[];
+    bannedAssetIds: string[];
+    allowedChips: string[];
+    customWeights: Record<string, number>;
+    maxOptions: number;
+    idempotencyKeyHash?: string | null;
+  };
   options: RecommendationOption[];
 };
 
@@ -140,6 +153,8 @@ export async function runRecommendation(params: {
   lockedAssetIds?: string[];
   bannedAssetIds?: string[];
   allowedChips?: string[];
+  customWeights?: Record<string, number>;
+  idempotencyKey?: string;
   maxOptions?: number;
 }): Promise<RecommendationRun> {
   const projection = await request<{ projectionRunId: string }>("/api/v1/projections/run", {
@@ -156,6 +171,8 @@ export async function runRecommendation(params: {
       lockedAssetIds: params.lockedAssetIds ?? [],
       bannedAssetIds: params.bannedAssetIds ?? [],
       allowedChips: params.allowedChips ?? [],
+      customWeights: params.customWeights ?? {},
+      idempotencyKey: params.idempotencyKey ?? null,
       maxOptions: params.maxOptions ?? 5,
     }),
   });

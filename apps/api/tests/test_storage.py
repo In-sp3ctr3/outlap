@@ -83,10 +83,12 @@ def test_projection_and_recommendation_runs_persist(tmp_path: Path) -> None:
         assets=state.assets,
         projections=projection_run.projections,
         event_id=state.current_event_id,
-        strategy_mode="balanced",
+        strategy_mode="custom",
         locked_asset_ids=[],
         banned_asset_ids=[],
         allowed_chips=[],
+        custom_weights={"expected": 1, "riskPenalty": 0},
+        idempotency_key="storage-recommendation",
         max_options=3,
         projection_run_id=projection_run.projection_run_id,
         source_snapshot_ids=projection_run.source_snapshot_ids,
@@ -99,3 +101,19 @@ def test_projection_and_recommendation_runs_persist(tmp_path: Path) -> None:
     assert reloaded.get_recommendation_run(
         recommendation_run.recommendation_run_id
     ).options[0].source_snapshot_ids
+    with reloaded.connect() as connection:
+        row = connection.execute(
+            """
+            SELECT request_json, optimizer_version
+            FROM recommendation_runs
+            WHERE recommendation_run_id = ?
+            """,
+            [recommendation_run.recommendation_run_id],
+        ).fetchone()
+    assert row is not None
+    request_json, optimizer_version = row
+
+    request_payload = load_json_value(request_json)
+    assert request_payload["customWeights"] == {"expected": 1.0, "riskPenalty": 0.0}
+    assert request_payload["idempotencyKeyHash"]
+    assert optimizer_version == recommendation_run.options[0].optimizer_version

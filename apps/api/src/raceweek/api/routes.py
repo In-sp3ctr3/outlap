@@ -206,6 +206,8 @@ def recommendations(request: OptimizerRequest) -> RecommendationRunResult:
         locked_asset_ids=request.locked_asset_ids,
         banned_asset_ids=request.banned_asset_ids,
         allowed_chips=request.allowed_chips,
+        custom_weights=request.custom_weights,
+        idempotency_key=request.idempotency_key,
         max_options=request.max_options,
         projection_run_id=projection_run.projection_run_id,
         source_snapshot_ids=projection_run.source_snapshot_ids,
