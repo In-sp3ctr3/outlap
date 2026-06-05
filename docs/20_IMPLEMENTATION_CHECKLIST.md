@@ -89,4 +89,4 @@ Use this as the release gate for v1.0.0.
 - [x] Provider registry, OpenAI-compatible adapter path, fake provider tests, agent refusal, recommendation ID citation, and fallback template are covered.
 - [x] UI-state pass covers responsive navigation, skip link, announced loading/empty/error states, working market/optimizer controls, dynamic provider selection, and disclaimer/no-official-asset checks.
 - [x] Release gate pass covers `make setup`, `make dev`, `make check`, CI workflow health, lockfiles, dependency audits, security policy, and Apache-2.0 license.
-- [ ] Official SDK adapter remains open.
+- [x] Official SDK adapter pass covers OpenAI, Anthropic, Gemini, Mistral, and Ollama with mocked SDK-client tests.
