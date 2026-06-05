@@ -10,10 +10,17 @@
     "expectedGrossPoints",
     "transferPenaltyPoints",
     "expectedNetPoints",
+    "budgetUsedMillions",
+    "budgetRemainingMillions",
     "riskScore",
     "confidence",
     "summary",
-    "transfers"
+    "transfers",
+    "selectedAssetIds",
+    "sourceSnapshotIds",
+    "projectionRunId",
+    "rulesetVersion",
+    "optimizerVersion"
   ],
   "properties": {
     "optionId": {
@@ -89,6 +96,27 @@
       "items": {
         "type": "string"
       }
+    },
+    "selectedAssetIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sourceSnapshotIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "projectionRunId": {
+      "type": "string"
+    },
+    "rulesetVersion": {
+      "type": "string"
+    },
+    "optimizerVersion": {
+      "type": "string"
     }
   },
   "$defs": {

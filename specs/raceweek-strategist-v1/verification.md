@@ -78,6 +78,15 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `make check`: passed; API collected 48 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `apps/api/tests/test_projections.py`: verifies contribution breakdowns reconcile with expected points, stale source data lowers confidence, and backtests compare projections to fixture scores.
   - `apps/api/tests/test_cli.py`: verifies `raceweek backtest` emits deterministic fixture MAE and removes the old demo placeholder metric.
+- OR-Tools optimizer slice, completed on June 5, 2026:
+  - `cd apps/api && PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/test_optimizer.py -q -p no:cacheprovider`: passed, 7 tests.
+  - `cd apps/api && uv run ruff check src tests/test_optimizer.py`: passed.
+  - `cd apps/api && uv run mypy src tests/test_optimizer.py`: passed for 33 files.
+  - `ruby -e "require 'yaml'; YAML.load_file('api/openapi.yaml'); puts 'openapi ok'"`: passed.
+  - `python3 -m json.tool schemas/recommendation.schema.json`: passed.
+  - `pnpm --filter web typecheck`: passed.
+  - `make check`: passed; API collected 52 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_optimizer.py`: verifies OR-Tools optimizer provenance, deterministic ordering, locked/banned assets, strategy mode coverage, no-chip vs chip comparison, brute-force fallback, and useful warnings for impossible constraints.
 
 Earlier local demo slice:
 
@@ -101,4 +110,4 @@ Earlier local demo slice:
 - Python 3.12 is supported locally; the upstream spec's Python 3.13 target remains a release baseline.
 - A FastAPI/TestClient deprecation warning is present from Starlette/httpx compatibility; it does not fail tests.
 - Live provider adapters and external connectors remain follow-up hardening beyond the local demo slice.
-- Full live connector, provider adapter, projection hardening, optimizer, UI-state, and release gates remain open beyond the local demo and completed connector/backtest slices.
+- Full live connector, provider adapter, projection hardening, custom weights, full chip scoring simulation, UI-state, and release gates remain open beyond the local demo and completed connector/backtest/OR-Tools slices.
