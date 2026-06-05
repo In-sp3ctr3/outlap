@@ -130,6 +130,14 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `pnpm why postcss --recursive`: reports one installed version, `postcss@8.5.15`.
   - `make check`: passed; API collected 68 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `pnpm peers check`: reports existing ESLint 10 peer-range warnings in ESLint plugins; lint/typecheck/tests pass and no vulnerability is associated with the warning.
+- Official SDK provider adapter slice, completed on June 5, 2026:
+  - `cd apps/api && uv sync`: passed; installed pinned OpenAI, Anthropic, Google GenAI, Mistral, and Ollama SDKs.
+  - `cd apps/api && uv run pytest tests/test_official_provider_adapters.py tests/test_providers.py tests/test_agent_guardrails.py -q`: passed, 15 tests.
+  - `cd apps/api && uv run ruff check src/raceweek/providers tests/test_official_provider_adapters.py tests/test_providers.py`: passed.
+  - `cd apps/api && uv run mypy src/raceweek/providers src/raceweek/settings.py`: passed for 7 source files.
+  - `cd apps/api && uvx pip-audit`: passed with no known vulnerabilities.
+  - `make check`: passed; API collected 74 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_official_provider_adapters.py`: verifies OpenAI Responses API, Anthropic Messages API, Gemini `generate_content`, Mistral chat completion, and Ollama local chat adapters through injected fake clients with no live provider calls.
 
 Earlier local demo slice:
 
