@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Demo Motorsport Wire</title>
+    <item>
+      <title>Driver Alpha faces grid penalty review</title>
+      <link>https://example.test/news/driver-alpha-grid-review</link>
+      <pubDate>Fri, 05 Jun 2026 12:00:00 GMT</pubDate>
+      <description>Short feed summary mentioning Driver Alpha and a possible grid penalty.</description>
+      <content:encoded>Full article body should not be persisted by the news connector.</content:encoded>
+    </item>
+    <item>
+      <title>Constructor One confirms reliability upgrade</title>
+      <link>https://example.test/news/constructor-one-upgrade</link>
+      <pubDate>Fri, 05 Jun 2026 13:00:00 GMT</pubDate>
+      <description>Short feed summary mentioning Constructor One reliability work.</description>
+    </item>
+  </channel>
+</rss>

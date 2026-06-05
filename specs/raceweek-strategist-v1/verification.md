@@ -52,6 +52,12 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `cd apps/api && uv run mypy src tests/test_jolpica_connector.py`: passed for 27 files.
   - `make check`: passed; API collected 34 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `apps/api/tests/test_jolpica_connector.py`: verifies documented Ergast-compatible `.json` paths, schedule/results/qualifying/sprint/standings normalization, degraded handling for upstream 502, response hashes, HTTP status metadata, sanitized request paths, and source snapshot persistence.
+- News connector slice, completed on June 5, 2026:
+  - `cd apps/api && uv run pytest tests/test_news_connector.py -q`: passed, 3 tests.
+  - `cd apps/api && uv run ruff check src tests`: passed.
+  - `cd apps/api && uv run mypy src tests/test_news_connector.py`: passed for 28 files.
+  - `make check`: passed; API collected 37 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_news_connector.py`: verifies RSS metadata parsing, summary retention, entity/risk flag extraction, sanitized request paths without query tokens, degraded invalid-feed handling, and metadata-only source snapshot persistence without `content:encoded` full article bodies.
 
 Earlier local demo slice:
 
