@@ -38,7 +38,7 @@ StrategyMode = Literal[
     "chip_optimized",
     "custom",
 ]
-DataStatus = Literal["healthy", "degraded", "error", "disabled", "stale"]
+DataStatus = Literal["ok", "stale", "degraded", "error", "disabled", "unknown"]
 
 
 class FantasyAsset(RaceweekModel):

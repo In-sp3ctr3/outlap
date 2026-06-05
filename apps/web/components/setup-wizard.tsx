@@ -20,7 +20,7 @@ export function SetupWizard({ onComplete }: { onComplete: () => Promise<void> })
               recommendations and optional bring-your-own AI explanations.
             </p>
           </div>
-          <StatusBadge status="healthy" label="Demo-ready" />
+          <StatusBadge status="ok" label="Demo-ready" />
         </div>
         <div className="step-list">
           <Step title="1. Choose mode" detail="Demo mode uses synthetic fixture data and works offline after install." />

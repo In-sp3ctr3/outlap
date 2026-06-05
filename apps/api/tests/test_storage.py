@@ -2,6 +2,7 @@ from pathlib import Path
 
 from raceweek.core.optimizer import optimize_recommendations
 from raceweek.core.projections import run_projection
+from raceweek.storage.jsonio import dump_json, load_json_value
 from raceweek.storage.repository import DuckDbRepository
 
 
@@ -37,7 +38,7 @@ def test_seed_demo_persists_state_and_source_snapshots(tmp_path: Path) -> None:
     assert reloaded.current_event_id == "event_demo_01"
     assert len(reloaded.assets) >= 14
     assert reloaded.team.team_snapshot_id == "team_demo_01"
-    assert reloaded.data_sources["manual_import"].status == "healthy"
+    assert reloaded.data_sources["manual_import"].status == "ok"
     assert reloaded.source_snapshot_ids == {
         "snapshot_demo_market_01",
         "snapshot_demo_team_01",
@@ -45,6 +46,28 @@ def test_seed_demo_persists_state_and_source_snapshots(tmp_path: Path) -> None:
         "snapshot_demo_news_01",
         "snapshot_demo_league_01",
     }
+
+
+def test_load_state_normalizes_legacy_healthy_status(tmp_path: Path) -> None:
+    db_path = tmp_path / "raceweek.duckdb"
+    repository = DuckDbRepository(db_path)
+    repository.reset_demo()
+    with repository.connect() as connection:
+        payload_row = connection.execute(
+            "SELECT payload_json FROM data_source_statuses WHERE source = 'manual_import'"
+        ).fetchone()
+        assert payload_row is not None
+        payload = load_json_value(payload_row[0])
+        assert isinstance(payload, dict)
+        payload["status"] = "healthy"
+        connection.execute(
+            "UPDATE data_source_statuses SET payload_json = ?::JSON WHERE source = 'manual_import'",
+            [dump_json(payload)],
+        )
+
+    reloaded = DuckDbRepository(db_path).load_state()
+
+    assert reloaded.data_sources["manual_import"].status == "ok"
 
 
 def test_projection_and_recommendation_runs_persist(tmp_path: Path) -> None:

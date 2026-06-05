@@ -92,7 +92,7 @@ def seed_demo_state() -> DemoState:
         data_sources={
             "manual_import": DataSourceStatus(
                 source="manual_import",
-                status="healthy",
+                status="ok",
                 severity="info",
                 message="Demo team and market fixtures loaded.",
                 last_successful_sync_at=now,
@@ -102,7 +102,7 @@ def seed_demo_state() -> DemoState:
             ),
             "openf1": DataSourceStatus(
                 source="openf1",
-                status="healthy",
+                status="ok",
                 severity="info",
                 message="Demo race-week intelligence loaded from local fixture.",
                 last_successful_sync_at=now,
@@ -112,7 +112,7 @@ def seed_demo_state() -> DemoState:
             ),
             "news": DataSourceStatus(
                 source="news",
-                status="healthy",
+                status="ok",
                 severity="info",
                 message="Demo news feed loaded.",
                 last_successful_sync_at=now,

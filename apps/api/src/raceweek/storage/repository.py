@@ -5,6 +5,7 @@ from threading import RLock
 
 import duckdb
 
+from raceweek.connectors.base import ConnectorResult
 from raceweek.core.models import (
     DataSourceStatus,
     FantasyAsset,
@@ -111,7 +112,9 @@ class DuckDbRepository:
                 data_sources = {
                     status.source: status
                     for status in (
-                        DataSourceStatus.model_validate(load_json_value(row[0]))
+                        DataSourceStatus.model_validate(
+                            _normalize_data_source_status(load_json_value(row[0]))
+                        )
                         for row in connection.execute(
                             "SELECT payload_json FROM data_source_statuses ORDER BY source"
                         ).fetchall()
@@ -196,6 +199,38 @@ class DuckDbRepository:
                     license_note="User-provided local manual import",
                 )
 
+    def save_connector_result(
+        self,
+        result: ConnectorResult[object],
+        *,
+        request_url_template: str,
+        license_note: str,
+        source_version: str = "public-api",
+        normalization_version: str = "connector-normalizer-v1",
+    ) -> None:
+        with self._lock:
+            self.apply_migrations()
+            with self.connect() as connection:
+                write_source_snapshot(
+                    connection=connection,
+                    snapshot_id=result.raw_snapshot_id,
+                    source_name=result.source,
+                    source_version=source_version,
+                    connector_version=result.status.connector_version,
+                    request_method="GET",
+                    request_url_template=request_url_template,
+                    request_params={"requestPaths": result.request_paths},
+                    http_status=result.http_status,
+                    payload=result.raw_payload,
+                    license_note=license_note,
+                    normalization_version=normalization_version,
+                    status=result.status.status,
+                    error_message=(
+                        result.status.message if result.status.status != "ok" else None
+                    ),
+                )
+                save_data_sources(connection, [result.status])
+
     def load_provider_configs(self) -> list[ProviderConfig]:
         with self._lock:
             self.apply_migrations()
@@ -232,3 +267,9 @@ class DuckDbRepository:
             self.apply_migrations()
             with self.connect() as connection:
                 return load_recommendation_run(connection, recommendation_run_id)
+
+
+def _normalize_data_source_status(payload: object) -> object:
+    if isinstance(payload, dict) and payload.get("status") == "healthy":
+        return {**payload, "status": "ok"}
+    return payload
