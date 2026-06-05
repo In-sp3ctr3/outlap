@@ -18,57 +18,7 @@ from raceweek.core.rules import (
     calculate_transfer_penalty,
     validate_lineup,
 )
-
-STRATEGY_WEIGHTS: dict[str, dict[str, float]] = {
-    "safe": {
-        "expected": 0.60,
-        "floor": 0.30,
-        "ceiling": 0.05,
-        "riskPenalty": 0.25,
-        "budgetGrowth": 0.05,
-        "differential": 0.00,
-    },
-    "balanced": {
-        "expected": 0.75,
-        "floor": 0.10,
-        "ceiling": 0.10,
-        "riskPenalty": 0.12,
-        "budgetGrowth": 0.08,
-        "differential": 0.05,
-    },
-    "aggressive": {
-        "expected": 0.55,
-        "floor": 0.00,
-        "ceiling": 0.30,
-        "riskPenalty": 0.03,
-        "budgetGrowth": 0.05,
-        "differential": 0.20,
-    },
-    "budget_builder": {
-        "expected": 0.50,
-        "floor": 0.05,
-        "ceiling": 0.05,
-        "riskPenalty": 0.10,
-        "budgetGrowth": 0.40,
-        "differential": 0.00,
-    },
-    "differential": {
-        "expected": 0.55,
-        "floor": 0.05,
-        "ceiling": 0.20,
-        "riskPenalty": 0.08,
-        "budgetGrowth": 0.05,
-        "differential": 0.30,
-    },
-    "chip_optimized": {
-        "expected": 0.72,
-        "floor": 0.08,
-        "ceiling": 0.14,
-        "riskPenalty": 0.10,
-        "budgetGrowth": 0.05,
-        "differential": 0.08,
-    },
-}
+from raceweek.core.strategy import weights_for
 
 
 def optimize_recommendations(
@@ -337,7 +287,7 @@ def _rank_options(options: list[RecommendationOption]) -> list[RecommendationOpt
 
 
 def _objective_score(option: RecommendationOption) -> float:
-    weights = STRATEGY_WEIGHTS.get(option.strategy_mode, STRATEGY_WEIGHTS["balanced"])
+    weights = weights_for(option.strategy_mode)
     ceiling_proxy = option.expected_gross_points * (1.15 - option.risk_score * 0.1)
     floor_proxy = option.expected_gross_points * (0.72 - option.risk_score * 0.12)
     differential_proxy = sum(
