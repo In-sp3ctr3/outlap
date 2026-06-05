@@ -27,9 +27,14 @@ test("manual import style flow can filter market and compare recommendations", a
   await page.getByRole("link", { name: "Market" }).click();
   await page.getByLabel("Filter assets").fill("Foxtrot");
   await expect(page.getByText("Driver Foxtrot")).toBeVisible();
+  await page.getByRole("button", { name: "Lock" }).first().click();
+  await expect(page.getByText("Locked")).toBeVisible();
 
   await page.getByRole("link", { name: "Optimizer" }).click();
   await page.getByLabel("Strategy mode").selectOption("differential");
+  await page.getByRole("button", { name: "Lock current core" }).click();
+  await page.getByRole("button", { name: "Ban risky assets" }).click();
+  await expect(page.getByText(/Active constraints:/)).toBeVisible();
   await page.getByRole("button", { name: "Run optimizer" }).click();
   await page.getByRole("button", { name: "Compare" }).first().click();
   await expect(page.getByLabel("Comparison drawer")).toBeVisible();

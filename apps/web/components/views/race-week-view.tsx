@@ -4,20 +4,31 @@ import { RotateCw } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { PageHead } from "@/components/page-head";
+import { StateNotice } from "@/components/state-notice";
 import type { DashboardData, loadRaceIntelligence } from "@/lib/api";
 import { loadRaceIntelligence as fetchRaceIntelligence } from "@/lib/api";
 
 export function RaceWeekView({ data }: { data: DashboardData }) {
   const [intelligence, setIntelligence] = useState<Awaited<ReturnType<typeof loadRaceIntelligence>> | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchRaceIntelligence(data.race.meetingKey).then(setIntelligence);
+    setError(null);
+    setIntelligence(null);
+    void fetchRaceIntelligence(data.race.meetingKey)
+      .then(setIntelligence)
+      .catch((caught: unknown) => {
+        setError(caught instanceof Error ? caught.message : "Unable to load race-week data");
+      });
   }, [data.race.meetingKey]);
 
   return (
     <>
       <PageHead title="Race Week" detail="Session timeline, weather, news, and race-control context." />
-      {!intelligence ? <div className="loading">Loading race-week intelligence...</div> : null}
+      {error ? <StateNotice tone="error" title="Race-week intelligence unavailable">{error}</StateNotice> : null}
+      {!intelligence && !error ? (
+        <StateNotice tone="loading" title="Loading race-week intelligence" />
+      ) : null}
       {intelligence ? (
         <div className="grid two">
           <section className="panel">

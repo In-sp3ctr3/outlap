@@ -1,0 +1,23 @@
+.empty,
+.error,
+.loading {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.error {
+  border-color: rgba(251, 113, 133, 0.45);
+  color: #fecdd3;
+}
+
+.panel > .empty,
+.panel > .error,
+.panel > .loading,
+.content > .empty,
+.content > .error,
+.content > .loading {
+  margin-top: 14px;
+}
