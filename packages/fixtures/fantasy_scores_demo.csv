@@ -1,0 +1,8 @@
+assetId,eventId,fantasyPoints,ownershipPct,selectedByPct,sourceSnapshotId
+asset_driver_alpha,event_demo_01,44.0,68.0,68.0,snapshot_demo_market_01
+asset_driver_bravo,event_demo_01,39.0,54.0,54.0,snapshot_demo_market_01
+asset_driver_charlie,event_demo_01,30.0,31.0,31.0,snapshot_demo_market_01
+asset_driver_delta,event_demo_01,19.0,16.0,16.0,snapshot_demo_market_01
+asset_driver_echo,event_demo_01,8.0,9.0,9.0,snapshot_demo_market_01
+asset_constructor_two,event_demo_01,36.0,42.0,42.0,snapshot_demo_market_01
+asset_constructor_three,event_demo_01,21.0,18.0,18.0,snapshot_demo_market_01

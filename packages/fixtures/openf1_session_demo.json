@@ -1,0 +1,41 @@
+{
+  "meetings": [
+    {
+      "meeting_key": "meeting_demo_01",
+      "meeting_name": "Harbor Night Grand Prix",
+      "circuit_short_name": "Harbor Park",
+      "country_name": "Demo Republic",
+      "location": "Harbor City",
+      "year": 2026
+    }
+  ],
+  "sessions": [
+    {
+      "session_key": "session_demo_race",
+      "meeting_key": "meeting_demo_01",
+      "session_name": "Race",
+      "session_type": "Race",
+      "date_start": "2026-06-14T18:00:00Z",
+      "date_end": "2026-06-14T20:00:00Z"
+    }
+  ],
+  "weather": [
+    {
+      "session_key": "session_demo_race",
+      "air_temperature": 29.0,
+      "track_temperature": 39.0,
+      "rainfall": 0,
+      "wind_speed": 14.0,
+      "date": "2026-06-14T18:00:00Z"
+    }
+  ],
+  "race_control": [
+    {
+      "session_key": "session_demo_race",
+      "category": "Flag",
+      "flag": "NONE",
+      "message": "No penalties pending in demo snapshot.",
+      "date": "2026-06-05T00:00:00Z"
+    }
+  ]
+}

@@ -204,6 +204,7 @@ class ImportResult(RaceweekModel):
     item_count: int
     source_snapshot_id: str
     message: str
+    warnings: list[str] = Field(default_factory=list)
 
 
 class SyncRequest(RaceweekModel):
