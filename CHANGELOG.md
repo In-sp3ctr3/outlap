@@ -22,3 +22,4 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added an optional read-only fantasy connector using documented GET endpoints with token redaction.
 - Added deterministic projection backtesting with real fixture error metrics in the CLI.
 - Added a pinned OR-Tools optimizer path with brute-force fallback and optimizer provenance in contracts.
+- Added custom optimizer weights with request-specific recommendation fingerprints and persisted request context.

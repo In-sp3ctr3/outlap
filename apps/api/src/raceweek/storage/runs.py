@@ -140,9 +140,9 @@ def save_recommendation_run(
             run.event_id,
             run.projection_run_id,
             "fantasy_demo_2026_v1",
-            "bruteforce_demo_v1",
+            _optimizer_version_for(run),
             run.strategy_mode,
-            "{}",
+            dump_json(run.request_context.model_dump(by_alias=True, mode="json")),
             run.generated_at,
             run.status,
             None,
@@ -183,3 +183,12 @@ def save_recommendation_run(
                 dump_json(option.model_dump(by_alias=True, mode="json")),
             ],
         )
+
+
+def _optimizer_version_for(run: RecommendationRunResult) -> str:
+    versions = sorted({option.optimizer_version for option in run.options})
+    if not versions:
+        return "none"
+    if len(versions) == 1:
+        return versions[0]
+    return "+".join(versions)
