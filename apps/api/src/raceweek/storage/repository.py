@@ -8,6 +8,7 @@ import duckdb
 from raceweek.core.models import (
     DataSourceStatus,
     FantasyAsset,
+    FantasyAssetScore,
     FantasyTeamSnapshot,
     ProjectionRunResult,
     ProviderConfig,
@@ -37,6 +38,7 @@ from raceweek.storage.seed import (
     save_demo_source_snapshots,
     save_json_setting,
     save_provider_configs,
+    save_scores,
     save_team,
 )
 from raceweek.storage.seed import save_source_snapshot as write_source_snapshot
@@ -75,6 +77,7 @@ class DuckDbRepository:
                 save_data_sources(connection, state.data_sources.values())
                 save_provider_configs(connection, default_provider_configs())
                 save_assets(connection, state.current_event_id, state.assets)
+                save_scores(connection, state.current_event_id, state.scores)
                 save_team(connection, state.team)
                 save_json_setting(connection, "current_event_id", state.current_event_id)
                 save_json_setting(connection, "race_data", state.race_data)
@@ -122,6 +125,12 @@ class DuckDbRepository:
                 }
                 return DemoState(
                     assets=assets,
+                    scores=[
+                        FantasyAssetScore.model_validate(load_json_value(row[0]))
+                        for row in connection.execute(
+                            "SELECT payload_json FROM fantasy_asset_scores ORDER BY asset_id"
+                        ).fetchall()
+                    ],
                     team=FantasyTeamSnapshot.model_validate(load_json_value(team_row[0])),
                     current_event_id=str(load_json_setting(connection, "current_event_id")),
                     race_data=load_json_setting(connection, "race_data"),
@@ -145,6 +154,12 @@ class DuckDbRepository:
             with self.connect() as connection:
                 save_assets(connection, event_id, assets)
                 save_json_setting(connection, "current_event_id", event_id)
+
+    def save_scores(self, event_id: str, scores: list[FantasyAssetScore]) -> None:
+        with self._lock:
+            self.apply_migrations()
+            with self.connect() as connection:
+                save_scores(connection, event_id, scores)
 
     def save_data_source_status(self, status: DataSourceStatus) -> None:
         with self._lock:
