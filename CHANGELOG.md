@@ -16,3 +16,4 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added manual fantasy score CSV import, score persistence, and score listing endpoints.
 - Added a mocked OpenF1 session-context connector with provenance-safe snapshot persistence.
 - Aligned data-source health statuses with the public `ok`/`degraded` API contract.
+- Added a mocked Jolpica season-context connector for schedule, results, qualifying, sprint, and standings data.
