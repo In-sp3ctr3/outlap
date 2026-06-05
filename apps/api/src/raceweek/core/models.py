@@ -229,10 +229,24 @@ class ProviderConfig(RaceweekModel):
     provider_name: str
     display_name: str
     enabled: bool
+    base_url: str | None = None
     default_model: str | None = None
+    api_key_env_var: str | None = None
     supports_streaming: bool = True
     supports_tools: bool = False
     key_configured: bool = False
+
+
+class ProviderTestRequest(RaceweekModel):
+    provider_name: str
+    model: str | None = None
+
+
+class ProviderTestResponse(RaceweekModel):
+    ok: bool
+    provider_name: str
+    message: str
+    latency_ms: int | None = None
 
 
 class ImportResult(RaceweekModel):

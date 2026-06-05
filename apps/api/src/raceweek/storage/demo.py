@@ -9,6 +9,7 @@ from raceweek.core.models import (
     ProviderConfig,
     RecommendationRunResult,
 )
+from raceweek.providers.registry import provider_registry
 from raceweek.settings import settings
 from raceweek.storage.fixtures import (
     DemoState,
@@ -92,7 +93,7 @@ def simulate_openf1_failure() -> None:
 
 
 def provider_configs() -> list[ProviderConfig]:
-    return REPOSITORY.load_provider_configs()
+    return provider_registry().browser_configs()
 
 
 def save_projection_result(run: ProjectionRunResult) -> None:

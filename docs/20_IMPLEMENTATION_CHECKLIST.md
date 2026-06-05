@@ -39,12 +39,12 @@ Use this as the release gate for v1.0.0.
 
 ## AI
 
-- [ ] Provider registry supports required providers.
-- [ ] No provider key is exposed to browser.
-- [ ] Fake provider test suite passes.
-- [ ] AI refuses auto-transfer requests.
-- [ ] AI references recommendation IDs for transfer advice.
-- [ ] Fallback template works without AI.
+- [x] Provider registry supports required providers.
+- [x] No provider key is exposed to browser.
+- [x] Fake provider test suite passes.
+- [x] AI refuses auto-transfer requests.
+- [x] AI references recommendation IDs for transfer advice.
+- [x] Fallback template works without AI.
 
 ## UI/UX
 
@@ -86,4 +86,5 @@ Use this as the release gate for v1.0.0.
 - [x] Optimizer uses the pinned OR-Tools CP-SAT path when available and falls back to brute force deterministically.
 - [x] Custom optimizer weights and request fingerprints persist with recommendation runs.
 - [x] Chip scoring simulation covers regular boost, 3x Boost, Autopilot, No Negative, Wildcard, Limitless, and Final Fix.
-- [ ] Provider, UI-state, and release gates remain open.
+- [x] Provider registry, OpenAI-compatible adapter path, fake provider tests, agent refusal, recommendation ID citation, and fallback template are covered.
+- [ ] UI-state, official SDK adapter, and release gates remain open.

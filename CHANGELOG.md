@@ -24,3 +24,4 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added a pinned OR-Tools optimizer path with brute-force fallback and optimizer provenance in contracts.
 - Added custom optimizer weights with request-specific recommendation fingerprints and persisted request context.
 - Added deterministic chip scoring for regular boost, 3x Boost, Autopilot, No Negative, and Final Fix constraints.
+- Added a typed AI provider registry, OpenAI-compatible adapter path, fake provider tests, browser-safe provider config responses, and read-only agent guardrails.

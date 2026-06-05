@@ -104,7 +104,15 @@ export type RecommendationRun = {
 export type DashboardData = {
   appStatus: { version: string; currentEventId: string };
   dataSources: DataSourceStatus[];
-  providers: Array<{ providerName: string; displayName: string; enabled: boolean; keyConfigured: boolean }>;
+  providers: Array<{
+    providerName: string;
+    displayName: string;
+    enabled: boolean;
+    keyConfigured: boolean;
+    baseUrl?: string | null;
+    defaultModel?: string | null;
+    apiKeyEnvVar?: string | null;
+  }>;
   race: RaceMeeting;
   teams: TeamSnapshot[];
   assets: FantasyAsset[];
