@@ -1,22 +1,14 @@
 from __future__ import annotations
 
-from collections.abc import Callable
-
 from fastapi import APIRouter, HTTPException, status
 
 from raceweek import __version__
 from raceweek.agents import answer_chat
-from raceweek.connectors.manual import (
-    parse_league_import,
-    parse_market_import,
-    parse_team_import,
-)
-from raceweek.connectors.manual_types import ManualImportError
+from raceweek.api.import_routes import router as import_router
 from raceweek.core.models import (
     AgentChatRequest,
     AgentChatResponse,
     AgentConversation,
-    ImportResult,
     LeagueAnalysis,
     OptimizerRequest,
     ProjectionRunResult,
@@ -36,10 +28,6 @@ from raceweek.storage.demo import (
     find_recommendation_run,
     get_state,
     provider_configs,
-    record_source_snapshot,
-    replace_assets,
-    replace_league,
-    replace_team,
     reset_state,
     save_projection_result,
     save_recommendation_result,
@@ -47,6 +35,7 @@ from raceweek.storage.demo import (
 )
 
 router = APIRouter()
+router.include_router(import_router)
 
 
 @router.get("/health")
@@ -89,42 +78,6 @@ def provider_test(payload: dict[str, object]) -> dict[str, object]:
     return {"ok": True, "message": "Provider configuration is valid for demo mode."}
 
 
-@router.post("/api/v1/fantasy/import/team", status_code=status.HTTP_201_CREATED)
-def import_team(payload: dict[str, object]) -> ImportResult:
-    imported = _parse_import(lambda: parse_team_import(payload, get_state().assets))
-    record_source_snapshot(
-        imported.source_snapshot_id,
-        imported.raw_payload,
-        request_url_template="manual://fantasy/team",
-    )
-    replace_team(imported.team)
-    return ImportResult(
-        status="imported",
-        item_count=len(imported.team.assets),
-        source_snapshot_id=imported.source_snapshot_id,
-        message="Team snapshot imported. Manual action remains required for transfers.",
-        warnings=imported.warnings,
-    )
-
-
-@router.post("/api/v1/fantasy/import/market", status_code=status.HTTP_201_CREATED)
-def import_market(payload: dict[str, object]) -> ImportResult:
-    imported = _parse_import(lambda: parse_market_import(payload))
-    record_source_snapshot(
-        imported.source_snapshot_id,
-        imported.raw_payload,
-        request_url_template="manual://fantasy/market",
-    )
-    replace_assets(imported.event_id, imported.assets)
-    return ImportResult(
-        status="imported",
-        item_count=len(imported.assets),
-        source_snapshot_id=imported.source_snapshot_id,
-        message="Market snapshot imported.",
-        warnings=imported.warnings,
-    )
-
-
 @router.post("/api/v1/fantasy/sync", status_code=status.HTTP_202_ACCEPTED)
 def sync_fantasy(request: SyncRequest | None = None) -> SyncResult:
     if request and request.simulate_failure:
@@ -149,6 +102,16 @@ def fantasy_assets(eventId: str | None = None, assetType: str | None = None) -> 
         items = []
     if assetType:
         items = [asset for asset in items if asset.asset_type == assetType]
+    return {"items": items}
+
+
+@router.get("/api/v1/fantasy/scores")
+def fantasy_scores(eventId: str | None = None, assetId: str | None = None) -> dict[str, object]:
+    items = get_state().scores
+    if eventId:
+        items = [score for score in items if score.event_id == eventId]
+    if assetId:
+        items = [score for score in items if score.asset_id == assetId]
     return {"items": items}
 
 
@@ -260,24 +223,6 @@ def recommendation_run(recommendation_run_id: str) -> RecommendationRunResult:
     return result
 
 
-@router.post("/api/v1/leagues/import", status_code=status.HTTP_201_CREATED)
-def import_league(payload: dict[str, object]) -> ImportResult:
-    imported = _parse_import(lambda: parse_league_import(payload))
-    record_source_snapshot(
-        imported.source_snapshot_id,
-        imported.raw_payload,
-        request_url_template="manual://league",
-    )
-    replace_league(imported.league)
-    return ImportResult(
-        status="imported",
-        item_count=_count_imported_items(imported.league.get("rivals")),
-        source_snapshot_id=imported.source_snapshot_id,
-        message="League snapshot imported for local analysis.",
-        warnings=imported.warnings,
-    )
-
-
 @router.get("/api/v1/leagues/{league_id}/analysis")
 def league_analysis(league_id: str) -> LeagueAnalysis:
     analysis = analyze_league()
@@ -313,14 +258,3 @@ def get_conversation(conversation_id: str) -> AgentConversation:
 @router.post("/api/v1/agent/chat")
 def chat(request: AgentChatRequest) -> AgentChatResponse:
     return answer_chat(request)
-
-
-def _parse_import[ParsedImport](parse: Callable[[], ParsedImport]) -> ParsedImport:
-    try:
-        return parse()
-    except ManualImportError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
-
-
-def _count_imported_items(value: object) -> int:
-    return len(value) if isinstance(value, list) else 0

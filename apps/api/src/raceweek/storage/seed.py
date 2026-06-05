@@ -9,6 +9,7 @@ import duckdb
 from raceweek.core.models import (
     DataSourceStatus,
     FantasyAsset,
+    FantasyAssetScore,
     FantasyTeamSnapshot,
     ProviderConfig,
     utc_now,
@@ -26,6 +27,7 @@ def clear_tables(connection: duckdb.DuckDBPyConnection) -> None:
         "chip_states",
         "user_team_assets",
         "user_fantasy_teams",
+        "fantasy_asset_scores",
         "fantasy_assets",
         "provider_configs",
         "data_source_statuses",
@@ -120,6 +122,34 @@ def save_assets(
                 asset.price_millions,
                 asset.source_snapshot_id,
                 dump_json(asset.model_dump(by_alias=True, mode="json")),
+            ],
+        )
+
+
+def save_scores(
+    connection: duckdb.DuckDBPyConnection,
+    event_id: str,
+    scores: list[FantasyAssetScore],
+) -> None:
+    connection.execute("DELETE FROM fantasy_asset_scores WHERE event_id = ?", [event_id])
+    for score in scores:
+        connection.execute(
+            """
+            INSERT INTO fantasy_asset_scores (
+              score_id, asset_id, event_id, fantasy_points, ownership_pct,
+              selected_by_pct, captured_at, source_snapshot_id, payload_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::JSON)
+            """,
+            [
+                f"{score.event_id}_{score.asset_id}",
+                score.asset_id,
+                score.event_id,
+                score.fantasy_points,
+                score.ownership_pct,
+                score.selected_by_pct,
+                score.captured_at,
+                score.source_snapshot_id,
+                dump_json(score.model_dump(by_alias=True, mode="json")),
             ],
         )
 

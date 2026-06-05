@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -8,6 +9,7 @@ from typing import Any
 from raceweek.core.models import (
     DataSourceStatus,
     FantasyAsset,
+    FantasyAssetScore,
     FantasyTeamSnapshot,
     LeagueAnalysis,
     ProjectionRunResult,
@@ -23,6 +25,7 @@ FIXTURES = ROOT / "packages" / "fixtures"
 @dataclass
 class DemoState:
     assets: list[FantasyAsset]
+    scores: list[FantasyAssetScore]
     team: FantasyTeamSnapshot
     current_event_id: str
     race_data: dict[str, Any]
@@ -46,8 +49,14 @@ def load_fixture(name: str) -> dict[str, Any]:
     return payload
 
 
+def load_csv_fixture(name: str) -> list[dict[str, str]]:
+    with (FIXTURES / name).open() as file:
+        return list(csv.DictReader(file))
+
+
 def seed_demo_state() -> DemoState:
     market = load_fixture("fantasy_market_demo.json")
+    scores = load_csv_fixture("fantasy_scores_demo.csv")
     team = load_fixture("fantasy_team_demo.json")
     race_data = load_fixture("race_calendar_demo.json")
     news = load_fixture("news_demo.json")
@@ -56,6 +65,18 @@ def seed_demo_state() -> DemoState:
 
     return DemoState(
         assets=[FantasyAsset.model_validate(asset) for asset in market["assets"]],
+        scores=[
+            FantasyAssetScore.model_validate(
+                {
+                    **score,
+                    "fantasyPoints": _optional_float(score.get("fantasyPoints")),
+                    "ownershipPct": _optional_float(score.get("ownershipPct")),
+                    "selectedByPct": _optional_float(score.get("selectedByPct")),
+                    "capturedAt": now,
+                }
+            )
+            for score in scores
+        ],
         team=FantasyTeamSnapshot.model_validate(team),
         current_event_id=market["eventId"],
         race_data=race_data,
@@ -166,3 +187,9 @@ def analyze_league_state(state: DemoState) -> LeagueAnalysis:
             "Preserve chips unless the optimizer shows a clear net gain.",
         ],
     )
+
+
+def _optional_float(value: str | None) -> float | None:
+    if value is None or value == "":
+        return None
+    return float(value)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from raceweek.core.models import (
     FantasyAsset,
+    FantasyAssetScore,
     FantasyTeamSnapshot,
     LeagueAnalysis,
     ProjectionRunResult,
@@ -49,6 +50,11 @@ def replace_team(team: FantasyTeamSnapshot) -> None:
 
 def replace_assets(event_id: str, assets: list[FantasyAsset]) -> None:
     REPOSITORY.save_assets(event_id, assets)
+    _reload_state()
+
+
+def replace_scores(event_id: str, scores: list[FantasyAssetScore]) -> None:
+    REPOSITORY.save_scores(event_id, scores)
     _reload_state()
 
 

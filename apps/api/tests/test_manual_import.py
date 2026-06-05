@@ -175,6 +175,59 @@ def test_league_csv_import_feeds_analysis() -> None:
     assert "asset_driver_alpha" in analysis["commonAssetIds"]
 
 
+def test_score_csv_import_validates_numbers_and_persists() -> None:
+    bad = {
+        "format": "csv",
+        "eventId": "event_demo_01",
+        "content": "assetId,eventId,fantasyPoints\nasset_driver_alpha,event_demo_01,nope\n",
+    }
+    assert client.post("/api/v1/fantasy/import/scores", json=bad).status_code == 422
+
+    good = {
+        "format": "csv",
+        "eventId": "event_demo_01",
+        "content": _csv(
+            [
+                {
+                    "assetId": "asset_driver_alpha",
+                    "eventId": "event_demo_01",
+                    "fantasyPoints": "44",
+                    "ownershipPct": "68",
+                    "selectedByPct": "68",
+                    "unknownColumn": "ignored",
+                },
+                {
+                    "assetId": "asset_constructor_two",
+                    "eventId": "event_demo_01",
+                    "fantasyPoints": "36",
+                    "ownershipPct": "42",
+                    "selectedByPct": "42",
+                    "unknownColumn": "ignored",
+                },
+            ],
+            [
+                "assetId",
+                "eventId",
+                "fantasyPoints",
+                "ownershipPct",
+                "selectedByPct",
+                "unknownColumn",
+            ],
+        ),
+    }
+
+    response = client.post("/api/v1/fantasy/import/scores", json=good)
+
+    assert response.status_code == 201
+    assert response.json()["itemCount"] == 2
+    assert any("unknownColumn" in warning for warning in response.json()["warnings"])
+    scores = client.get("/api/v1/fantasy/scores", params={"eventId": "event_demo_01"}).json()
+    assert {score["assetId"] for score in scores["items"]} == {
+        "asset_driver_alpha",
+        "asset_constructor_two",
+    }
+
+
 def _csv(rows: list[dict[str, str]], fieldnames: list[str]) -> str:
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=fieldnames)

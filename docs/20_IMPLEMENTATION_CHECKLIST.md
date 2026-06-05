@@ -16,7 +16,7 @@ Use this as the release gate for v1.0.0.
 
 ## Data
 
-- [ ] Manual import validates JSON and CSV.
+- [x] Manual import validates JSON and CSV.
 - [ ] Fantasy connector is optional and read-only.
 - [ ] OpenF1 connector works with fixture/mocked tests.
 - [ ] Jolpica connector works with fixture/mocked tests.
@@ -74,5 +74,5 @@ Use this as the release gate for v1.0.0.
 - [x] Manual team, market, and league imports validate JSON/CSV inputs before storage.
 - [x] Manual import warnings report unknown JSON fields and CSV columns without failing the import.
 - [x] Manual import rejects duplicate lineup assets and non-numeric market prices.
-- [ ] Fantasy score CSV import and storage remain open.
+- [x] Fantasy score CSV import validates numeric fields and persists score snapshots.
 - [ ] Full v1 connector, provider, optimizer, projection, UI-state, and release gates remain open.

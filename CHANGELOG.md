@@ -13,3 +13,4 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added public repository hygiene files, coding standards, and CI/dependency-update configuration.
 - Added DuckDB-backed demo persistence, source snapshot storage, projection/recommendation run storage, and the `raceweek seed-demo` command.
 - Added manual import validation for JSON and CSV team, market, and league snapshots.
+- Added manual fantasy score CSV import, score persistence, and score listing endpoints.
