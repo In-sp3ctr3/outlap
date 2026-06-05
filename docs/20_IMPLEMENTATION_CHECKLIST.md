@@ -20,7 +20,7 @@ Use this as the release gate for v1.0.0.
 - [ ] Fantasy connector is optional and read-only.
 - [x] OpenF1 connector works with fixture/mocked tests.
 - [x] Jolpica connector works with fixture/mocked tests.
-- [ ] FastF1 adapter works with cache path.
+- [x] FastF1 adapter works with cache path.
 - [x] News connector stores metadata/summary only.
 - [x] Source snapshots are recorded.
 - [x] Data health is visible in UI.
@@ -78,4 +78,5 @@ Use this as the release gate for v1.0.0.
 - [x] OpenF1 mocked session-context connector degrades gracefully and persists sanitized source snapshots.
 - [x] Jolpica mocked season-context connector normalizes schedule/results/standings and persists sanitized source snapshots.
 - [x] RSS/news connector stores metadata and feed summaries without full article bodies.
+- [x] FastF1 adapter enables the configured cache path and stores aggregate session summaries only.
 - [ ] Full v1 connector, provider, optimizer, projection, UI-state, and release gates remain open.
