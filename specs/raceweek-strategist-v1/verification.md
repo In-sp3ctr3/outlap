@@ -23,6 +23,13 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `make check`: passed after repository-level DuckDB access serialization; Playwright completed without API server exceptions.
   - `apps/api/tests/test_storage.py`: verifies idempotent migration application, fixture reload from DuckDB, recorded source snapshot IDs, and persisted projection/recommendation run payloads.
   - `apps/api/tests/test_api.py`: verifies projection and recommendation run retrieval through HTTP after repository-backed writes.
+- Manual import validation slice, completed on June 5, 2026:
+  - `cd apps/api && uv run pytest tests/test_manual_import.py tests/test_storage.py tests/test_api.py -q`: passed, 12 tests.
+  - `cd apps/api && uv run ruff check src tests`: passed.
+  - `cd apps/api && uv run mypy src`: passed for 21 source files.
+  - `make check`: passed; API collected 24 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_manual_import.py`: verifies JSON unknown-field warnings, duplicate lineup rejection, team CSV budget computation, market CSV price validation, and league CSV analysis import.
+  - Added synthetic `fantasy_scores_demo.csv`, `fantasy_league_demo.csv`, and `openf1_session_demo.json` fixtures for connector follow-up work.
 
 Earlier local demo slice:
 
@@ -46,3 +53,4 @@ Earlier local demo slice:
 - Python 3.12 is supported locally; the upstream spec's Python 3.13 target remains a release baseline.
 - A FastAPI/TestClient deprecation warning is present from Starlette/httpx compatibility; it does not fail tests.
 - Live provider adapters and external connectors remain follow-up hardening beyond the local demo slice.
+- Fantasy score CSV import storage remains open; current manual import coverage is team, market, and league.

@@ -71,4 +71,8 @@ Use this as the release gate for v1.0.0.
 - [x] Milestone 1 demo fixtures seed into DuckDB via `raceweek seed-demo`.
 - [x] Milestone 1 demo source snapshots are recorded with content hashes and raw JSON payloads.
 - [x] Milestone 1 projection and recommendation runs persist and reload with provenance.
+- [x] Manual team, market, and league imports validate JSON/CSV inputs before storage.
+- [x] Manual import warnings report unknown JSON fields and CSV columns without failing the import.
+- [x] Manual import rejects duplicate lineup assets and non-numeric market prices.
+- [ ] Fantasy score CSV import and storage remain open.
 - [ ] Full v1 connector, provider, optimizer, projection, UI-state, and release gates remain open.
