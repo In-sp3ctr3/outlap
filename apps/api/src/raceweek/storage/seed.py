@@ -67,6 +67,13 @@ def save_source_snapshot(
     request_url_template: str,
     payload: Any,
     license_note: str,
+    *,
+    source_version: str = "demo-fixture",
+    request_params: dict[str, object] | None = None,
+    http_status: int | None = 200,
+    normalization_version: str = "demo-normalizer-v1",
+    status: str = "ok",
+    error_message: str | None = None,
 ) -> None:
     raw = dump_json(payload)
     connection.execute("DELETE FROM source_snapshots WHERE snapshot_id = ?", [snapshot_id])
@@ -82,20 +89,20 @@ def save_source_snapshot(
         [
             snapshot_id,
             source_name,
-            "demo-fixture",
+            source_version,
             connector_version,
             request_method,
             request_url_template,
-            "{}",
+            dump_json(request_params or {}),
             utc_now(),
-            200,
+            http_status,
             hashlib.sha256(raw.encode()).hexdigest(),
             None,
             raw,
             license_note,
-            "demo-normalizer-v1",
-            "ok",
-            None,
+            normalization_version,
+            status,
+            error_message,
         ],
     )
 

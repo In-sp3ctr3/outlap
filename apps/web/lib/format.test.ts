@@ -9,6 +9,7 @@ describe("format helpers", () => {
     expect(riskLabel(0.2)).toBe("Low");
     expect(riskLabel(0.4)).toBe("Medium");
     expect(riskLabel(0.8)).toBe("High");
+    expect(freshnessTone("ok")).toBe("good");
     expect(freshnessTone("degraded")).toBe("warn");
   });
 });

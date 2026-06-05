@@ -22,7 +22,7 @@ export function MyTeamsView({ data }: { data: DashboardData }) {
       <section className="panel" style={{ marginTop: 16 }}>
         <h2>Chips</h2>
         <div className="status-strip" style={{ marginTop: 12 }}>
-          {team.chips.map((chip) => <StatusBadge key={chip.chipName} status={chip.status === "available" ? "healthy" : "stale"} label={`${chip.chipName}: ${chip.status}`} />)}
+          {team.chips.map((chip) => <StatusBadge key={chip.chipName} status={chip.status === "available" ? "ok" : "stale"} label={`${chip.chipName}: ${chip.status}`} />)}
         </div>
       </section>
     </>
