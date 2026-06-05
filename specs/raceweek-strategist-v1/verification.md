@@ -105,6 +105,14 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `cd apps/api && uv run mypy src tests/test_optimizer_chips.py tests/test_optimizer.py`: passed for 37 files.
   - `make check`: passed; API collected 59 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `apps/api/tests/test_optimizer_chips.py`: verifies regular boost multipliers affect gross points, 3x Boost replaces the regular boost for the top projected driver, Autopilot boosts the top projected driver, No Negative floors negative expected scores, and Final Fix returns only one-driver-change scenarios.
+- Provider and agent guardrail slice, completed on June 5, 2026:
+  - `cd apps/api && uv run pytest tests/test_providers.py tests/test_agent_guardrails.py tests/test_api.py::test_provider_failure_returns_safe_fallback -q`: passed, 10 tests.
+  - `cd apps/api && uv run ruff check src/raceweek/agents.py src/raceweek/providers src/raceweek/api/routes.py src/raceweek/core/models.py tests/test_providers.py tests/test_agent_guardrails.py`: passed.
+  - `cd apps/api && uv run mypy src/raceweek/agents.py src/raceweek/providers src/raceweek/api/routes.py src/raceweek/core/models.py`: passed for 6 source files.
+  - `ruby -e "require 'yaml'; YAML.load_file('api/openapi.yaml'); puts 'openapi ok'"`: passed.
+  - `make check`: passed; API collected 68 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
+  - `apps/api/tests/test_providers.py`: verifies required provider registry coverage, browser-safe key presence, mocked OpenAI-compatible request/response parsing, provider-test fake/failure/unknown behavior, and no raw provider key exposure from `/api/v1/providers`.
+  - `apps/api/tests/test_agent_guardrails.py`: verifies transfer/chip mutation refusal, password/API-key disclosure refusal, recommendation-run citation for transfer advice, fallback without AI, and provider-output secret redaction.
 
 Earlier local demo slice:
 
@@ -127,5 +135,5 @@ Earlier local demo slice:
 - Playwright runs with one worker because the demo API mutates shared local state during reset/import/failure flows.
 - Python 3.12 is supported locally; the upstream spec's Python 3.13 target remains a release baseline.
 - A FastAPI/TestClient deprecation warning is present from Starlette/httpx compatibility; it does not fail tests.
-- Live provider adapters and external connectors remain follow-up hardening beyond the local demo slice.
-- Full live connector, provider adapter, projection hardening, UI-state, and release gates remain open beyond the local demo and completed connector/backtest/optimizer/chip slices.
+- Official SDK provider adapters and external connector hardening remain follow-up work beyond the current mocked/local slices.
+- Full live connector, official provider SDK, projection hardening, UI-state, and release gates remain open beyond the local demo and completed connector/backtest/optimizer/chip/provider slices.

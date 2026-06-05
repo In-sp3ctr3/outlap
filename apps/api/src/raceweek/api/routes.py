@@ -12,6 +12,8 @@ from raceweek.core.models import (
     LeagueAnalysis,
     OptimizerRequest,
     ProjectionRunResult,
+    ProviderTestRequest,
+    ProviderTestResponse,
     RaceMeeting,
     RaceSession,
     RaceWeekIntelligence,
@@ -22,6 +24,8 @@ from raceweek.core.models import (
 )
 from raceweek.core.optimizer import optimize_recommendations
 from raceweek.core.projections import run_projection
+from raceweek.providers.adapters import ProviderError
+from raceweek.providers.registry import provider_registry
 from raceweek.storage.demo import (
     analyze_league,
     find_projection_run,
@@ -71,11 +75,11 @@ def providers() -> dict[str, object]:
 
 
 @router.post("/api/v1/providers/test")
-def provider_test(payload: dict[str, object]) -> dict[str, object]:
-    provider = str(payload.get("providerName", "fake"))
-    if provider == "fake-fail":
-        return {"ok": False, "message": "Fake provider failure path verified."}
-    return {"ok": True, "message": "Provider configuration is valid for demo mode."}
+def provider_test(payload: ProviderTestRequest) -> ProviderTestResponse:
+    try:
+        return provider_registry().test_provider(payload.provider_name, model=payload.model)
+    except ProviderError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.post("/api/v1/fantasy/sync", status_code=status.HTTP_202_ACCEPTED)

@@ -450,17 +450,16 @@ components:
         enabled: { type: boolean }
         supportsStreaming: { type: boolean }
         supportsTools: { type: boolean }
+        keyConfigured: { type: boolean }
     ProviderTestRequest:
       type: object
-      required: [providerName, model]
+      required: [providerName]
       properties:
         providerName: { type: string }
         model: { type: string }
-        baseUrl: { type: string }
-        apiKeyEnvVar: { type: string }
     ProviderTestResponse:
       type: object
-      required: [ok, providerName]
+      required: [ok, providerName, message]
       properties:
         ok: { type: boolean }
         providerName: { type: string }
@@ -875,25 +874,26 @@ components:
         createdAt: { type: string, format: date-time }
     AgentChatRequest:
       type: object
-      required: [conversationId, message]
+      required: [message]
       properties:
         conversationId: { type: string }
         message: { type: string }
         providerName: { type: string }
         model: { type: string }
+        recommendationRunId: { type: string }
         context:
           type: object
           additionalProperties: true
     AgentChatResponse:
       type: object
-      required: [conversationId, message]
+      required: [conversationId, message, status, providerName, canMutateFantasyAccount]
       properties:
         conversationId: { type: string }
-        message:
-          $ref: '#/components/schemas/AgentMessage'
-        referencedRecommendationRunIds:
-          type: array
-          items: { type: string }
+        message: { type: string }
+        status: { type: string, enum: [ok, fallback] }
+        providerName: { type: string }
+        citedRecommendationRunId: { type: string }
         toolCalls:
           type: array
           items: { type: object, additionalProperties: true }
+        canMutateFantasyAccount: { type: boolean }

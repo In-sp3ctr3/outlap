@@ -17,6 +17,7 @@ from raceweek.core.models import (
     RecommendationRunResult,
     utc_now,
 )
+from raceweek.providers.registry import provider_registry
 
 ROOT = Path(__file__).resolve().parents[5]
 FIXTURES = ROOT / "packages" / "fixtures"
@@ -125,43 +126,7 @@ def seed_demo_state() -> DemoState:
 
 
 def provider_configs() -> list[ProviderConfig]:
-    return [
-        ProviderConfig(
-            provider_name="fake",
-            display_name="Fake deterministic provider",
-            enabled=True,
-            default_model="fake-strategist",
-            supports_tools=True,
-            key_configured=True,
-        ),
-        ProviderConfig(
-            provider_name="fake-fail",
-            display_name="Fake failing provider",
-            enabled=True,
-            default_model="fake-failure",
-            key_configured=True,
-        ),
-        ProviderConfig(provider_name="ollama", display_name="Ollama local", enabled=False),
-        ProviderConfig(
-            provider_name="openai",
-            display_name="OpenAI",
-            enabled=False,
-            default_model="gpt-5.4",
-            supports_tools=True,
-        ),
-        ProviderConfig(provider_name="anthropic", display_name="Anthropic Claude", enabled=False),
-        ProviderConfig(provider_name="gemini", display_name="Google Gemini", enabled=False),
-        ProviderConfig(provider_name="mistral", display_name="Mistral", enabled=False),
-        ProviderConfig(provider_name="openrouter", display_name="OpenRouter", enabled=False),
-        ProviderConfig(provider_name="groq", display_name="Groq", enabled=False),
-        ProviderConfig(provider_name="xai", display_name="xAI", enabled=False),
-        ProviderConfig(
-            provider_name="custom-openai",
-            display_name="Custom OpenAI-compatible",
-            enabled=False,
-            supports_tools=True,
-        ),
-    ]
+    return list(provider_registry().browser_configs())
 
 
 def analyze_league_state(state: DemoState) -> LeagueAnalysis:
