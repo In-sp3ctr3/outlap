@@ -32,6 +32,11 @@ This project follows Semantic Versioning once the first public release is tagged
 - Verified live configured-provider smoke against local Ollama using `smollm2:135m`.
 - Added README badges, a generated project header asset, and a CodeQL workflow.
 
+### Changed
+
+- Switched the project license decision and repository metadata to MIT.
+- Added a scoped pnpm release-age exception for the reviewed `@types/node@25.9.2` and `@types/react@19.2.17` Dependabot update.
+
 ### Security
 
 - Forced the workspace to the patched `postcss@8.5.15` release through pnpm overrides.

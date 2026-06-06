@@ -642,7 +642,7 @@ All features listed in this document are in v1 unless explicitly marked as exclu
 | Release process | Required | Versioned docs/changelog |
 | Contributor guide | Required | Plugin patterns |
 | Security policy | Required | Vulnerability reporting |
-| License | Required | Apache-2.0 recommended |
+| License | Required | MIT selected |
 
 
 <!-- END docs/02_PRODUCT_SCOPE_FEATURES.md -->
@@ -3874,7 +3874,7 @@ Diagnostics export must include:
 
 ## License
 
-Recommended v1 license: Apache-2.0.
+Selected v1 license: MIT.
 
 Reasoning:
 
@@ -4113,7 +4113,7 @@ The product must remain useful without AI.
 | ADR-0005 | Fantasy connector is read-only with manual import fallback |
 | ADR-0006 | OpenF1 + Jolpica + FastF1 for race data |
 | ADR-0007 | Avoid official Formula 1 branding and protected assets |
-| ADR-0008 | Use Apache-2.0 license for v1 |
+| ADR-0008 | Use MIT license for v1 |
 | ADR-0009 | OpenAPI + JSON Schema as implementation contracts |
 
 
@@ -4561,9 +4561,9 @@ Mitigation:
 
 ---
 
-<!-- BEGIN docs/adrs/ADR-0008-apache-license.md -->
+<!-- BEGIN docs/adrs/ADR-0008-mit-license.md -->
 
-# ADR-0008 — Use Apache-2.0 License for v1
+# ADR-0008 — Use MIT License for v1
 
 ## Status
 
@@ -4575,7 +4575,7 @@ The project wants open-source adoption, integrations, and community contribution
 
 ## Decision
 
-Use Apache-2.0 for v1 unless maintainers decide before public launch that AGPL-3.0 better matches project goals.
+Use MIT for v1.
 
 ## Consequences
 
@@ -4596,7 +4596,7 @@ Mitigation:
 - build strong community and governance.
 
 
-<!-- END docs/adrs/ADR-0008-apache-license.md -->
+<!-- END docs/adrs/ADR-0008-mit-license.md -->
 
 
 ---
