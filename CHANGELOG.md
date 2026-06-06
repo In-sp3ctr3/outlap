@@ -31,12 +31,19 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added product acceptance coverage for setup manual import, dashboard health, market sorting/locks/comparison, race-week race-control/news/stale states, league analysis, and settings provider/import/export controls.
 - Verified live configured-provider smoke against local Ollama using `smollm2:135m`.
 - Added README badges, a generated project header asset, and a CodeQL workflow.
+- Added real-data-first onboarding with empty states, public race-context sync, read-only Fantasy connector status, structured market metadata, historical form backfill, and Team 1/2/3 catalog selection.
+- Added the mockup-driven splash/onboarding flow with explicit Demo Data and Real Data entry paths.
+- Added optimizer readiness gates so recommendations stay hidden until market prices and current team state are available.
+- Added manual import templates for chips state, season totals, optional transfer history, and rival team slots.
+- Added Jolpica pagination and OpenF1 sync presets for richer public race-context ingestion without proprietary feeds.
 
 ### Changed
 
 - Renamed public product branding, documentation, repository metadata, and the README header asset to Outlap.
 - Switched the project license decision and repository metadata to MIT.
 - Added a scoped pnpm release-age exception for the reviewed `@types/node@25.9.2` and `@types/react@19.2.17` Dependabot update.
+- Removed demo/dummy fallback from the primary app experience; fixture data remains only for tests, explicit demo reset, and CLI backtesting.
+- Reclassified public race-derived backfill as form features instead of official fantasy scores.
 
 ### Security
 

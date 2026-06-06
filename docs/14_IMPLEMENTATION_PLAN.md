@@ -31,8 +31,8 @@ Deliverables:
 - Zod/TS types;
 - DuckDB migrations;
 - source snapshot repository;
-- demo fixtures;
-- seed-demo command.
+- license-safe fixtures for tests;
+- seed-demo command for explicit fixture/backtest workflows.
 
 Acceptance:
 
@@ -185,7 +185,7 @@ Deliverables:
 
 Acceptance:
 
-- fresh clone demo verified;
+- fresh clone real-data empty state verified;
 - `make check` passes;
 - docs reviewed;
 - no secrets or protected assets;
@@ -209,4 +209,4 @@ Acceptance:
 - Do not use official images/logos for polish.
 - Do not leave provider errors as unhandled exceptions.
 - Do not skip data provenance.
-- Do not ship without demo mode.
+- Do not ship the primary app with demo/dummy fallback enabled.

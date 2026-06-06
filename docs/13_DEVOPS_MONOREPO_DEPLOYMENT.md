@@ -123,7 +123,7 @@ API startup must:
 3. apply migrations;
 4. seed provider defaults;
 5. seed ruleset defaults;
-6. optionally seed demo data.
+6. optionally seed license-safe fixtures only for local test/backtest workflows.
 
 Do not seed real current data into the repository.
 
@@ -156,7 +156,7 @@ Release checklist:
 
 - changelog updated;
 - tests pass;
-- demo mode verified;
+- real-data empty state and source-data onboarding verified;
 - docs version updated;
 - dependency audit reviewed;
 - Docker images build;

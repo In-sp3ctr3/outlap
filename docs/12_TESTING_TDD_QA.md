@@ -131,17 +131,18 @@ Use fake provider fixtures to test:
 
 ### Playwright E2E flows
 
-1. Demo first run.
+1. Real-data first run.
    - launch app;
-   - complete setup in demo mode;
-   - see dashboard;
+   - see dashboard empty/skeleton states without dummy data;
+   - load market/catalog data;
+   - select Team 1, Team 2, and Team 3 from catalog assets;
    - open optimizer;
    - generate recommendation;
    - open AI Strategist with fake provider.
 
-2. Manual import.
-   - import fixture team;
-   - import market;
+2. Source-data import.
+   - import or sync market/catalog data;
+   - backfill historical form from public results when market assets exist;
    - run projections;
    - run optimizer;
    - compare two recommendation cards.
@@ -242,7 +243,7 @@ secret-scan
 dependency-audit
 ```
 
-CI must run with fixture/demo data only. Live connector tests may run in a separate scheduled workflow with maintainer-provided secrets, but they must not block normal contributor PRs.
+CI must run with license-safe fixtures and mocked connector data only. Live connector tests may run in a separate scheduled workflow with maintainer-provided secrets, but they must not block normal contributor PRs.
 
 ## Definition of done
 

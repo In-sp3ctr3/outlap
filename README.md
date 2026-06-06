@@ -13,19 +13,22 @@
 
 # Outlap
 
-Outlap is an unofficial, local-first fantasy motorsport strategy dashboard. It combines synthetic or user-imported fantasy team data, race-week context, deterministic projections, legal lineup optimization, and optional bring-your-own AI explanations.
+Outlap is an unofficial, local-first fantasy motorsport strategy dashboard. It combines real race-week context, user-provided or read-only fantasy market data, deterministic projections, legal lineup optimization, and optional bring-your-own AI explanations.
 
 The project deliberately avoids official motorsport branding, logos, team marks, driver imagery, broadcast assets, and any suggestion of affiliation or endorsement.
 
 ## Status
 
-The v1 local demo is implemented and covered by CI. The current product includes:
+The v1 real-data-first local app is implemented and covered by CI. The current product includes:
 
 - Next.js web app;
 - FastAPI API;
 - DuckDB-backed local storage;
 - deterministic rules, projections, and optimizer;
-- manual import and demo fixtures;
+- OpenF1/Jolpica race-context sync;
+- optional read-only Fantasy connector status/sync paths;
+- structured market import plus in-app Team 1/2/3 selection from loaded assets;
+- CSV/TSV import templates as a fallback source-data path;
 - data-health degradation paths;
 - read-only AI provider adapters and local Ollama smoke coverage;
 - Playwright end-to-end tests.
@@ -43,7 +46,7 @@ apps/
   api/      FastAPI API, domain core, storage adapters, tests
   web/      Next.js app, UI components, Playwright tests
 packages/
-  fixtures/ Synthetic demo data safe for open-source use
+  fixtures/ Synthetic fixture data safe for tests
 api/        OpenAPI contract from the v1 spec
 schemas/    JSON Schemas for shared contracts
 docs/       Product, architecture, security, testing, and ADR docs
@@ -83,12 +86,12 @@ make lint        # ruff and eslint
 make typecheck   # mypy and TypeScript
 make e2e         # Playwright
 make check       # lint, typecheck, tests, e2e
-make demo        # run the demo/backtest CLI path
+make demo        # run the fixture/backtest CLI path for tests
 ```
 
 ## Configuration
 
-Copy `.env.example` to `.env` for local overrides. Provider API keys are optional and bring-your-own-key. Secrets must stay out of logs, fixtures, snapshots, and commits.
+Copy `.env.example` to `.env` for local overrides. Public race context uses OpenF1 and Jolpica without API keys. Official Fantasy user/team sync is optional and read-only; set `FANTASY_SESSION_TOKEN` or `RACEWEEK_FANTASY_SESSION_TOKEN` for picked-team sync from the in-app Fantasy sync panel. Without a token, use the structured JSON market import endpoint or the CSV/TSV fallback, then select Teams 1-3 in the app. Provider API keys are optional and bring-your-own-key. Secrets must stay out of logs, fixtures, snapshots, and commits.
 
 ## Testing
 
@@ -97,7 +100,7 @@ The test plan follows the v1 spec:
 - unit tests for rules, transfers, chips, projections, and optimizer behavior;
 - API tests for public endpoints and failure states;
 - frontend tests for component logic;
-- Playwright flows for demo setup, manual/import-style strategy, degraded data, provider failure, and responsive smoke coverage.
+- Playwright flows for real-data empty states, market loading, Team 1/2/3 selection, optimizer readiness, provider failure, and responsive smoke coverage.
 
 ## Documentation
 

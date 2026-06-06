@@ -4,14 +4,14 @@ Use this as the release gate for v1.0.0.
 
 ## Product
 
-- [x] Setup wizard works in demo mode.
-- [x] Setup wizard works with manual team import.
+- [x] Real-data onboarding starts empty without demo fallback.
+- [x] Onboarding selects Team 1, Team 2, and Team 3 from loaded market/catalog assets.
 - [x] Dashboard shows next event, team state, recommendation, and data health.
 - [x] Market table supports sorting/filtering/comparison.
 - [x] Optimizer returns safe/balanced/aggressive/budget/differential/chip modes.
 - [x] Race Week page shows sessions, weather, race-control, news, and stale-data states.
 - [x] AI Strategist works with fake provider and at least one real configured provider.
-- [x] League analysis works with imported demo league data.
+- [x] League view degrades to empty state until real/imported league data is available.
 - [x] Settings page manages providers, data sources, rules, privacy, import/export.
 
 ## Data
@@ -91,6 +91,6 @@ Use this as the release gate for v1.0.0.
 - [x] UI-state pass covers responsive navigation, skip link, announced loading/empty/error states, working market/optimizer controls, dynamic provider selection, and disclaimer/no-official-asset checks.
 - [x] Release gate pass covers `make setup`, `make dev`, `make check`, CI workflow health, lockfiles, dependency audits, security policy, and MIT license.
 - [x] Official SDK adapter pass covers OpenAI, Anthropic, Gemini, Mistral, and Ollama with mocked SDK-client tests.
-- [x] Product acceptance pass covers setup demo/manual import, dashboard, market sort/filter/lock/compare, race-week session/weather/race-control/news/stale data, league, settings provider test/import/export controls, and fake/failing AI provider browser flows.
+- [x] Product acceptance pass covers real-data empty state, market load, Team 1/2/3 selection, dashboard, market sort/filter/lock/compare, race-week session/weather/race-control/stale data, league empty/imported states, settings provider/import controls, and fake/failing AI provider browser flows.
 - [x] Live configured-provider smoke completed against local Ollama with `smollm2:135m`.
 - [x] OSS presentation pass covers README badges, generated header asset, and CodeQL static analysis workflow.

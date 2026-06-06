@@ -71,7 +71,7 @@ Acceptance criteria:
 
 - setup can be completed without any paid service if using local Ollama and manual import;
 - missing AI provider does not block deterministic optimizer use;
-- broken fantasy connector shows manual import fallback;
+- broken fantasy connector shows structured import/team-selection fallback and CSV/TSV as a recovery path;
 - secrets are not logged.
 
 ### PRD-002: Dashboard
@@ -235,7 +235,7 @@ Repository must include:
 
 Acceptance criteria:
 
-- fresh clone can run demo mode without live secrets;
+- fresh clone runs real-data mode without live secrets and shows skeleton/empty states until data is synced or provided;
 - CI can run with fixtures only.
 
 ## 6. Success metrics

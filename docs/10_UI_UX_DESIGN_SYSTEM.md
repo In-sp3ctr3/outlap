@@ -37,7 +37,7 @@ Settings
 Steps:
 
 1. Welcome + unofficial disclaimer.
-2. Choose local/demo/live mode.
+2. Load real race/fantasy source data or continue with empty states until data is available.
 3. Configure data sources.
 4. Configure AI provider.
 5. Import team or connect read-only token.
@@ -269,7 +269,7 @@ Example empty state:
 
 ```text
 No fantasy team imported yet.
-Import your team manually or configure a read-only fantasy connector. You can still explore demo mode.
+Load market data, then select Teams 1, 2, and 3 from the catalog. Configure the read-only fantasy connector only when you have a local session token.
 ```
 
 ## Copywriting style

@@ -154,5 +154,5 @@ make lint        # ruff + eslint
 make typecheck   # mypy + tsc
 make e2e         # Playwright
 make check       # lint + typecheck + tests
-make demo        # load fixture data and run app
+make demo        # run explicit fixture/backtest workflow
 ```
