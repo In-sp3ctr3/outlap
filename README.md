@@ -1,3 +1,16 @@
+<p align="center">
+  <img src="docs/assets/brand/raceweek-strategist-header.png" alt="RaceWeek Strategist header" width="100%">
+</p>
+
+<p align="center">
+  <a href="https://github.com/In-sp3ctr3/outlap/actions/workflows/check.yml"><img alt="CI" src="https://github.com/In-sp3ctr3/outlap/actions/workflows/check.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/In-sp3ctr3/outlap/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/In-sp3ctr3/outlap/actions/workflows/codeql.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/In-sp3ctr3/outlap/actions/workflows/secret-scan.yml"><img alt="Secret Scan" src="https://github.com/In-sp3ctr3/outlap/actions/workflows/secret-scan.yml/badge.svg?branch=main"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/In-sp3ctr3/outlap"></a>
+  <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a>
+  <img alt="Local first" src="https://img.shields.io/badge/local--first-privacy%20by%20default-14b8a6">
+</p>
+
 # RaceWeek Strategist
 
 RaceWeek Strategist is an unofficial, local-first fantasy motorsport strategy dashboard. It combines synthetic or user-imported fantasy team data, race-week context, deterministic projections, legal lineup optimization, and optional bring-your-own AI explanations.
@@ -6,15 +19,15 @@ The project deliberately avoids official motorsport branding, logos, team marks,
 
 ## Status
 
-This repository is in active v1 implementation. The current target is a polished local demo product with:
+The v1 local demo is implemented and covered by CI. The current product includes:
 
 - Next.js web app;
 - FastAPI API;
-- DuckDB-ready local storage path;
+- DuckDB-backed local storage;
 - deterministic rules, projections, and optimizer;
 - manual import and demo fixtures;
 - data-health degradation paths;
-- read-only AI provider adapter surface;
+- read-only AI provider adapters and local Ollama smoke coverage;
 - Playwright end-to-end tests.
 
 ## Product Promise

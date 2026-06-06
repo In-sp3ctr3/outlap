@@ -118,6 +118,13 @@ export type DashboardData = {
   assets: FantasyAsset[];
 };
 
+export type ProviderTestResult = {
+  ok: boolean;
+  providerName: string;
+  message: string;
+  latencyMs?: number | null;
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -135,6 +142,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export async function resetDemo(): Promise<void> {
   await request("/api/v1/demo/reset", { method: "POST", body: "{}" });
+}
+
+export async function importTeam(payload: unknown): Promise<void> {
+  await request("/api/v1/fantasy/import/team", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function testProvider(providerName: string): Promise<ProviderTestResult> {
+  return request<ProviderTestResult>("/api/v1/providers/test", {
+    method: "POST",
+    body: JSON.stringify({ providerName }),
+  });
 }
 
 export async function loadDashboard(): Promise<DashboardData> {
