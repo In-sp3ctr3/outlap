@@ -3,12 +3,15 @@
 import { Ban, Lock, Scale } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { ImportWizard } from "@/components/import-wizard";
 import { PageHead } from "@/components/page-head";
 import { StateNotice } from "@/components/state-notice";
-import type { FantasyAsset } from "@/lib/api";
+import type { DashboardData, FantasyAsset } from "@/lib/api";
+import { assetAbbreviation, assetTeamColor, assetTypeLabel } from "@/lib/fantasy-assets";
 import { formatBudget, formatPoints, riskLabel } from "@/lib/format";
 
-export function MarketView({ assets }: { assets: FantasyAsset[] }) {
+export function MarketView({ data, onRefresh }: { data: DashboardData; onRefresh: () => Promise<void> }) {
+  const assets = data.assets;
   const [filter, setFilter] = useState("");
   const [sort, setSort] = useState<"points" | "price" | "risk">("points");
   const [lockedAssetIds, setLockedAssetIds] = useState<string[]>([]);
@@ -52,6 +55,14 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
   return (
     <>
       <PageHead title="Market" detail="Prices, projected form inputs, ownership, value, and risk." />
+      {assets.length === 0 ? (
+        <>
+          <StateNotice tone="empty" title="No real market rows imported">
+            Sync the Fantasy catalog or provide market data to unlock the table and optimizer readiness.
+          </StateNotice>
+          <ImportWizard onImported={onRefresh} />
+        </>
+      ) : null}
       <section className="panel">
         <div className="grid two">
           <label className="field">
@@ -68,22 +79,49 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
           </label>
         </div>
       </section>
-      <div className="table-wrap" style={{ marginTop: 16 }}>
-        <table>
+      {assets.length > 0 ? <div className="table-wrap" style={{ marginTop: 16 }}>
+        <table aria-label="Market assets">
+          <caption>Loaded fantasy market assets with source labels and optimizer controls.</caption>
           <thead>
-            <tr><th>Asset</th><th>Type</th><th>Constructor</th><th>Price</th><th>Recent points</th><th>Ownership</th><th>Risk</th><th>Controls</th></tr>
+            <tr>
+              <th>Asset</th>
+              <th>Type</th>
+              <th>Constructor</th>
+              <th>Current price</th>
+              <th>Source mode</th>
+              <th>Officialness</th>
+              <th>Price delta</th>
+              <th>Recent points</th>
+              <th>Projected points</th>
+              <th>PPM</th>
+              <th>Ownership</th>
+              <th>Risk</th>
+              <th>Controls</th>
+            </tr>
           </thead>
           <tbody>
             {visible.map((asset) => (
               <tr key={asset.assetId}>
-                <td>{asset.displayName}</td>
-                <td>{asset.assetType}</td>
+                <td>
+                  <span className="asset-name-cell">
+                    <span className="asset-token" style={{ backgroundColor: assetTeamColor(asset) }}>
+                      {assetAbbreviation(asset)}
+                    </span>
+                    <span>{asset.displayName}</span>
+                  </span>
+                </td>
+                <td>{assetTypeLabel(asset.assetType)}</td>
                 <td>{asset.constructorName}</td>
                 <td>{formatBudget(asset.priceMillions)}</td>
-                <td>{formatPoints(asset.fantasyPoints ?? 0)}</td>
-                <td>{asset.ownershipPct ?? 0}%</td>
+                <td>{sourceModeLabel(asset)}</td>
+                <td>{officialnessLabel(asset)}</td>
+                <td>unknown</td>
+                <td>{asset.fantasyPoints == null ? "unknown" : formatPoints(asset.fantasyPoints)}</td>
+                <td>{asset.fantasyPoints == null ? "unknown" : `${formatPoints(asset.fantasyPoints)} est.`}</td>
+                <td>{pointsPerMillion(asset)}</td>
+                <td>{asset.ownershipPct == null ? "unknown" : `${asset.ownershipPct}%`}</td>
                 <td>
-                  {riskLabel(asset.riskScore ?? 0)}
+                  {asset.riskScore == null ? "unknown" : riskLabel(asset.riskScore)}
                   {lockedAssetIds.includes(asset.assetId) ? <span className="badge">Locked</span> : null}
                   {bannedAssetIds.includes(asset.assetId) ? <span className="badge bad">Banned</span> : null}
                 </td>
@@ -91,6 +129,7 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
                   <div className="button-row">
                     <button
                       aria-pressed={lockedAssetIds.includes(asset.assetId)}
+                      aria-label={`Lock ${asset.displayName}`}
                       className="button secondary"
                       type="button"
                       onClick={() => toggleAsset(asset.assetId, "lock")}
@@ -99,6 +138,7 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
                     </button>
                     <button
                       aria-pressed={bannedAssetIds.includes(asset.assetId)}
+                      aria-label={`Ban ${asset.displayName}`}
                       className="button secondary"
                       type="button"
                       onClick={() => toggleAsset(asset.assetId, "ban")}
@@ -107,6 +147,7 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
                     </button>
                     <button
                       aria-pressed={comparedAssetIds.includes(asset.assetId)}
+                      aria-label={`Compare ${asset.displayName}`}
                       className="button secondary"
                       type="button"
                       onClick={() => toggleComparison(asset.assetId)}
@@ -119,7 +160,7 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </div> : null}
       {visible.length === 0 ? (
         <StateNotice tone="empty" title="No assets match the current filter" />
       ) : null}
@@ -133,9 +174,9 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
               <article className="comparison-item" key={asset.assetId}>
                 <h3>{asset.displayName}</h3>
                 <p>Price {formatBudget(asset.priceMillions)}</p>
-                <p>Recent points {formatPoints(asset.fantasyPoints ?? 0)}</p>
-                <p>Ownership {asset.ownershipPct ?? 0}%</p>
-                <p>Risk {riskLabel(asset.riskScore ?? 0)}</p>
+                <p>Recent points {asset.fantasyPoints == null ? "unknown" : formatPoints(asset.fantasyPoints)}</p>
+                <p>Ownership {asset.ownershipPct == null ? "unknown" : `${asset.ownershipPct}%`}</p>
+                <p>Risk {asset.riskScore == null ? "unknown" : riskLabel(asset.riskScore)}</p>
               </article>
             ))}
           </div>
@@ -143,4 +184,23 @@ export function MarketView({ assets }: { assets: FantasyAsset[] }) {
       </section>
     </>
   );
+}
+
+function sourceModeLabel(asset: FantasyAsset): string {
+  if (!asset.sourceSnapshotId) return "unknown";
+  if (asset.sourceSnapshotId.includes("manual")) return "manual import";
+  if (asset.sourceSnapshotId.includes("fantasy")) return "fantasy read-only";
+  return "loaded snapshot";
+}
+
+function officialnessLabel(asset: FantasyAsset): string {
+  if (!asset.sourceSnapshotId) return "unknown";
+  if (asset.sourceSnapshotId.includes("manual")) return "user entered";
+  if (asset.sourceSnapshotId.includes("fantasy")) return "official source";
+  return "unknown";
+}
+
+function pointsPerMillion(asset: FantasyAsset): string {
+  if (asset.fantasyPoints == null || asset.priceMillions <= 0) return "unknown";
+  return (asset.fantasyPoints / asset.priceMillions).toFixed(1);
 }

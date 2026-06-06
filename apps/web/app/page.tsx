@@ -1,5 +1,5 @@
-import { RaceweekApp } from "@/components/raceweek-app";
+import { SplashPage } from "@/components/splash-page";
 
 export default function Page() {
-  return <RaceweekApp initialView="setup" />;
+  return <SplashPage />;
 }

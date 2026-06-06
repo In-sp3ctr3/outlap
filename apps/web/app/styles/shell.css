@@ -24,7 +24,7 @@
 
 .sidebar {
   border-right: 1px solid var(--line);
-  background: rgba(8, 10, 15, 0.92);
+  background: rgba(7, 8, 11, 0.96);
   padding: 24px 18px;
   position: sticky;
   top: 0;
@@ -38,20 +38,17 @@
   margin-bottom: 24px;
 }
 
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border: 1px solid rgba(45, 212, 191, 0.6);
-  border-radius: 8px;
-  color: var(--accent);
-  background: rgba(45, 212, 191, 0.1);
-}
-
+.brand-kicker,
 .brand-title {
+  display: block;
   font-weight: 800;
   line-height: 1.05;
+}
+
+.brand-kicker {
+  color: var(--accent-strong);
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
 .brand-subtitle {
@@ -84,14 +81,93 @@
 .nav a:hover,
 .nav button:hover,
 .nav a.active {
-  border-color: rgba(45, 212, 191, 0.25);
-  background: rgba(45, 212, 191, 0.09);
+  border-color: rgba(240, 71, 79, 0.32);
+  background: rgba(201, 39, 47, 0.14);
   color: var(--text);
 }
 
 .content {
   padding: 28px;
   min-width: 0;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.top-bar-status,
+.race-selector,
+.icon-button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.top-bar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--good);
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.52);
+}
+
+.live-dot.missing {
+  background: var(--bad);
+  box-shadow: 0 0 14px rgba(251, 113, 133, 0.52);
+}
+
+.live-dot.demo {
+  background: var(--warn);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.52);
+}
+
+.race-selector {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-width: min(340px, 100%);
+  padding: 7px 11px;
+}
+
+.race-selector span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.race-selector strong,
+.race-selector small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.race-selector small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  color: var(--text);
 }
 
 .page-head {

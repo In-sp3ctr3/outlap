@@ -1,114 +1,85 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
-const settingsTeamImportPayload = {
-  teamSnapshotId: "team_settings_import_01",
-  teamName: "Settings Import Team",
-  eventId: "event_demo_01",
-  slot: 1,
-  costCapMillions: 100,
-  budgetUsedMillions: 99,
-  budgetRemainingMillions: 1,
-  freeTransfers: 2,
-  transferPenaltyPoints: 10,
-  capturedAt: "2026-06-05T00:00:00Z",
-  sourceSnapshotId: "snapshot_settings_import_team_01",
-  assets: [
-    { assetId: "asset_driver_alpha", assetType: "driver", boostMultiplier: 2 },
-    { assetId: "asset_driver_bravo", assetType: "driver", boostMultiplier: 1 },
-    { assetId: "asset_driver_charlie", assetType: "driver", boostMultiplier: 1 },
-    { assetId: "asset_driver_delta", assetType: "driver", boostMultiplier: 1 },
-    { assetId: "asset_driver_echo", assetType: "driver", boostMultiplier: 1 },
-    { assetId: "asset_constructor_two", assetType: "constructor", boostMultiplier: 1 },
-    { assetId: "asset_constructor_three", assetType: "constructor", boostMultiplier: 1 },
-  ],
-  chips: [
-    { chipName: "wildcard", status: "available" },
-    { chipName: "limitless", status: "available" },
-    { chipName: "no_negative", status: "available" },
-    { chipName: "autopilot", status: "available" },
-    { chipName: "3x_boost", status: "available" },
-    { chipName: "final_fix", status: "available" },
-  ],
-};
+const marketCsv = [
+  "season,round,asset_kind,asset_name,team_name,price_m,fantasy_points_total,selection_percent",
+  "2026,8,driver,Driver One,Example Racing,12.1,44,12%",
+  "2026,8,driver,Driver Two,Example Racing,11.2,40,15%",
+  "2026,8,driver,Driver Three,Example Racing,10.3,36,18%",
+  "2026,8,driver,Driver Four,Example Racing,9.4,30,9%",
+  "2026,8,driver,Driver Five,Example Racing,8.5,28,8%",
+  "2026,8,constructor,Constructor One,,22.4,68,32%",
+  "2026,8,constructor,Constructor Two,,18.4,52,22%",
+].join("\n");
 
 test.beforeEach(async ({ page }) => {
-  await page.request.post("http://127.0.0.1:8000/api/v1/demo/reset");
+  await page.request.post("http://127.0.0.1:8000/api/v1/data/reset", {
+    data: { scope: "all" },
+  });
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
 });
 
-test("demo first run reaches dashboard, optimizer, and fake AI", async ({ page }) => {
-  await page.getByRole("button", { name: "Start demo mode" }).click();
+test("splash separates demo and real-data entry paths", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Your unofficial race-week fantasy strategy cockpit" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Demo Data/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Real Data/ })).toBeVisible();
+
+  await page.getByRole("button", { name: /Real Data/ }).click();
+  await expect(page).toHaveURL(/\/onboarding$/);
+  await expect(page.getByRole("heading", { name: "Real Data Setup" })).toBeVisible();
+  await expect(page.getByText("No fantasy market prices")).toBeVisible();
+});
+
+test("real-data onboarding selects three current teams from market data", async ({ page }) => {
+  await chooseRealMode(page);
+  await expect(page.getByRole("heading", { name: "Real Data Setup" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Real data onboarding" })).toBeVisible();
+  await expect(page.getByText("No fantasy market prices")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Fantasy read-only sync" })).toBeVisible();
+  await expect(page.getByText("Fantasy account mutation: disabled")).toBeVisible();
+
+  await importCsv(page, "market_prices", marketCsv);
+  await expect(page.getByText("Imported 7 market_prices rows.")).toBeVisible();
+
+  await selectCurrentLineup(page);
+  await expect(page.getByRole("tab", { name: /Team 1/ })).toBeVisible();
+
+  await page.getByRole("link", { name: "Dashboard" }).click();
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await expect(page.getByText("Next event", { exact: true })).toBeVisible();
-  await expect(page.getByText("Budget / transfers")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Data health" })).toBeVisible();
-  await page.getByRole("button", { name: "Generate baseline" }).click();
-  await expect(page.getByTestId("recommendation-card")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Data Freshness" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Generate baseline" })).toBeEnabled();
+});
+
+test("market and optimizer use imported real data", async ({ page }) => {
+  await chooseRealMode(page);
+  await importCsv(page, "market_prices", marketCsv);
+  await selectCurrentLineup(page);
+
+  await page.getByRole("link", { name: "Market" }).click();
+  await page.getByLabel("Filter assets").fill("Driver One");
+  const driverOneRow = page.getByRole("row", { name: /Driver One/ });
+  await expect(driverOneRow).toBeVisible();
+  await driverOneRow.getByRole("button", { name: /Compare Driver One/ }).click();
+  await expect(page.getByLabel("Asset comparison").getByText("Driver One")).toBeVisible();
 
   await page.getByRole("link", { name: "Optimizer" }).click();
   await expect(page.getByRole("heading", { name: "Optimizer" })).toBeVisible();
   await page.getByRole("button", { name: "Run optimizer" }).click();
-  await expect(page.getByText("Recommended move").first()).toBeVisible();
-
-  await page.getByRole("link", { name: "AI Strategist" }).click();
-  await expect(page.getByLabel("Provider")).toContainText("OpenAI");
-  await page.getByRole("button", { name: "Send" }).click();
-  await expect(page.getByText("Fantasy account mutation: disabled.")).toBeVisible();
+  await expect(page.getByTestId("recommendation-card").first()).toBeVisible();
 });
 
-test("setup wizard can import manual team JSON", async ({ page }) => {
-  await page.getByRole("button", { name: "Import manual JSON" }).click();
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await expect(page.getByText("Manual Import Team")).toBeVisible();
-});
-
-test("manual import style flow can filter market and compare recommendations", async ({ page }) => {
-  await page.getByRole("button", { name: "Start demo mode" }).click();
-  await page.getByRole("link", { name: "Market" }).click();
-  await page.getByLabel("Filter assets").fill("Foxtrot");
-  await expect(page.getByText("Driver Foxtrot")).toBeVisible();
-  await page.getByLabel("Sort").selectOption("price");
-  await expect(page.getByRole("columnheader", { name: "Price" })).toBeVisible();
-  await page.getByRole("button", { name: "Lock" }).first().click();
-  await expect(page.getByText("Locked")).toBeVisible();
-  await page.getByRole("button", { name: "Compare" }).first().click();
-  await expect(page.getByLabel("Asset comparison").getByText("Driver Foxtrot")).toBeVisible();
-  await page.getByLabel("Filter assets").fill("");
-  await page.getByRole("button", { name: "Compare" }).first().click();
-  await expect(page.getByLabel("Asset comparison").getByText("Driver Alpha")).toBeVisible();
-
-  await page.getByRole("link", { name: "Optimizer" }).click();
-  await page.getByLabel("Strategy mode").selectOption("differential");
-  await page.getByRole("button", { name: "Lock current core" }).click();
-  await page.getByRole("button", { name: "Ban risky assets" }).click();
-  await expect(page.getByText(/Active constraints:/)).toBeVisible();
-  await page.getByRole("button", { name: "Run optimizer" }).click();
-  await page.getByRole("button", { name: "Compare" }).first().click();
-  await expect(page.getByLabel("Comparison drawer")).toBeVisible();
-});
-
-test("data source failure shows degraded health and optimizer still works", async ({ page }) => {
-  await page.getByRole("button", { name: "Start demo mode" }).click();
+test("data freshness center exposes all real-data domains", async ({ page }) => {
+  await chooseRealMode(page);
+  await importCsv(page, "market_prices", marketCsv);
   await page.getByRole("link", { name: "Data Health" }).click();
-  await page.getByRole("button", { name: "Simulate failed connector" }).click();
-  await expect(page.getByText("OpenF1 demo connector unavailable")).toBeVisible();
 
-  await page.getByRole("link", { name: "Race Week" }).click();
-  await expect(page.getByRole("heading", { name: "Event timeline" })).toBeVisible();
-  await expect(page.getByText("Rain chance")).toBeVisible();
-  await expect(page.getByText("No penalties pending in demo snapshot.")).toBeVisible();
-  await expect(page.getByText("Driver Foxtrot shows strong race simulation pace")).toBeVisible();
-  await expect(page.getByText(/openf1: stale/)).toBeVisible();
-  await expect(page.getByText("OpenF1 demo connector unavailable")).toBeVisible();
-
-  await page.getByRole("link", { name: "Optimizer" }).click();
-  await page.getByRole("button", { name: "Run optimizer" }).click();
-  await expect(page.getByText("Data source degraded").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Data Freshness" })).toBeVisible();
+  await expect(page.getByText("Fantasy market prices has 7 real imported record")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Race calendar / schedule" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "User fantasy team" })).toBeVisible();
 });
 
-test("provider failure falls back to deterministic recommendation context", async ({ page }) => {
-  await page.getByRole("button", { name: "Start demo mode" }).click();
+test("provider failure falls back without fantasy mutation", async ({ page }) => {
+  await page.getByRole("button", { name: /Demo Data/ }).click();
   await page.getByRole("link", { name: "AI Strategist" }).click();
   await page.getByLabel("Provider").selectOption("fake-fail");
   await page.getByRole("button", { name: "Send" }).click();
@@ -116,34 +87,59 @@ test("provider failure falls back to deterministic recommendation context", asyn
   await expect(page.getByText("Fantasy account mutation: disabled.")).toBeVisible();
 });
 
-test("mobile navigation keeps primary routes reachable", async ({ page, isMobile }) => {
+test("mobile navigation keeps primary real-data routes reachable", async ({ page, isMobile }) => {
   test.skip(!isMobile, "mobile project only");
-  await page.getByRole("button", { name: "Start demo mode" }).click();
+  await chooseRealMode(page);
   await page.getByRole("link", { name: "League" }).click();
   await expect(page.getByRole("heading", { name: "League" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Catch-up plan" })).toBeVisible();
+  await expect(page.getByText("No real league table imported")).toBeVisible();
   await page.getByRole("link", { name: "Settings" }).click();
   await expect(page.getByText("No telemetry is enabled by default.")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Data sources" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Data freshness" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Import/export" })).toBeVisible();
 });
 
-test("settings can test the deterministic provider", async ({ page }) => {
-  await page.getByRole("button", { name: "Start demo mode" }).click();
-  await page.getByRole("link", { name: "Settings" }).click();
-  await page
-    .locator(".provider-row")
-    .filter({ hasText: "Fake deterministic provider" })
-    .getByRole("button", { name: "Test" })
-    .click();
-  await expect(page.getByText("Fake provider is available for deterministic tests.")).toBeVisible();
-});
+async function chooseRealMode(page: Page) {
+  await page.getByRole("button", { name: /Real Data/ }).click();
+  await expect(page).toHaveURL(/\/onboarding$/);
+}
 
-test("settings can import manual team JSON", async ({ page }) => {
-  await page.getByRole("button", { name: "Start demo mode" }).click();
-  await page.getByRole("link", { name: "Settings" }).click();
-  await page.getByLabel("Team import JSON").fill(JSON.stringify(settingsTeamImportPayload));
-  await page.getByRole("button", { name: "Import team JSON" }).click();
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await expect(page.getByText("Settings Import Team")).toBeVisible();
-});
+async function importCsv(page: Page, templateType: string, rawText: string) {
+  const wizard = page.getByRole("region", { name: "Manual CSV import" }).last();
+  await expect(wizard).toBeVisible();
+  await wizard.getByLabel("Template").selectOption(templateType);
+  await wizard.getByLabel("CSV text").fill(rawText);
+  const previewButton = wizard.getByRole("button", { name: "Preview import" });
+  await expect(previewButton).toBeEnabled();
+  await previewButton.click();
+  await expect(wizard.getByText("No validation messages")).toBeVisible();
+  const confirmButton = wizard.getByRole("button", { name: "Confirm import" });
+  await expect(confirmButton).toBeEnabled();
+  await confirmButton.click();
+}
+
+async function selectCurrentLineup(page: Page) {
+  const selector = page.getByLabel("Current team selector");
+  const catalog = selector.getByLabel("Fantasy market catalog");
+  await expect(selector.getByRole("heading", { name: "Current team selector" })).toBeVisible();
+  for (const name of ["Driver One", "Driver Two", "Driver Three", "Driver Four", "Driver Five"]) {
+    const asset = catalog.getByRole("button", { name: new RegExp(name) });
+    await expect(asset).toBeVisible();
+    await asset.click();
+  }
+  await selector.getByRole("button", { name: /^team$/i }).click();
+  await expect(selector.getByText("5 / 5 drivers")).toBeVisible();
+  await expect(selector.getByText("Driver One")).toBeVisible();
+  for (const name of ["Constructor One", "Constructor Two"]) {
+    const asset = catalog.getByRole("button", { name: new RegExp(name) });
+    await expect(asset).toBeVisible();
+    await asset.click();
+  }
+  const copyButton = selector.getByRole("button", { name: "Copy Team 1 to all" });
+  await expect(copyButton).toBeEnabled();
+  await copyButton.click();
+  const saveButton = selector.getByRole("button", { name: "Save all teams" });
+  await expect(saveButton).toBeEnabled();
+  await saveButton.click();
+  await expect(page.getByText("Saved Teams 1, 2, and 3")).toBeVisible();
+}

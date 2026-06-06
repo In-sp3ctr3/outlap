@@ -3,20 +3,25 @@
 import { Ban, BrainCircuit, Lock } from "lucide-react";
 import { useState } from "react";
 
+import { FreshnessDomainRow } from "@/components/freshness";
 import { PageHead } from "@/components/page-head";
+import { RealDataOnboarding } from "@/components/real-data-onboarding";
 import { RecommendationCard } from "@/components/recommendation-card";
 import { StateNotice } from "@/components/state-notice";
-import type { DashboardData, RecommendationOption, RecommendationRun } from "@/lib/api";
+import type { DashboardData, OptimizerReadiness, RecommendationOption, RecommendationRun } from "@/lib/api";
 
 export function OptimizerView({
   data,
+  readiness,
   recommendation,
   comparison,
   loadingRecommendation,
   onRecommend,
   onCompare,
+  onRefresh,
 }: {
   data: DashboardData;
+  readiness: OptimizerReadiness | null;
   recommendation: RecommendationRun | null;
   comparison: RecommendationOption | null;
   loadingRecommendation: boolean;
@@ -27,17 +32,67 @@ export function OptimizerView({
     bannedAssetIds?: string[],
   ) => Promise<void>;
   onCompare: (option: RecommendationOption) => void;
+  onRefresh: () => Promise<void>;
 }) {
   const [strategy, setStrategy] = useState("balanced");
   const [chip, setChip] = useState("");
   const [lockCore, setLockCore] = useState(false);
   const [banRisky, setBanRisky] = useState(false);
   const team = data.teams[0];
+  const readinessBlockers =
+    readiness?.blockingReasons.map((item) => ({
+      key: item.key,
+      label: item.label,
+      message: item.message,
+      action: item.recommendedAction,
+    })) ?? [];
+  const blockers = data.freshness.filter((item) => item.isBlocking && item.status !== "real_current");
   if (!team) {
     return (
       <>
         <PageHead title="Optimizer" detail="Ranked legal lineups, transfer penalties, chip scenarios, assumptions, and provenance." />
-        <StateNotice tone="empty" title="No team snapshot is loaded" />
+        <StateNotice tone="empty" title="Optimizer waiting for real fantasy data">
+          Load market data and select Teams 1-3 before deterministic recommendations run.
+        </StateNotice>
+        <section className="panel">
+          <h2>Blocking data</h2>
+          {readinessBlockers.map((blocker) => (
+            <StateNotice tone="empty" title={blocker.label} key={blocker.key}>
+              {blocker.message} {blocker.action}
+            </StateNotice>
+          ))}
+          <div className="freshness-list">
+            {blockers.map((item) => (
+              <FreshnessDomainRow item={item} key={item.key} />
+            ))}
+          </div>
+        </section>
+        <div style={{ marginTop: 16 }}>
+          <RealDataOnboarding data={data} onRefresh={onRefresh} />
+        </div>
+      </>
+    );
+  }
+  if (blockers.length > 0 || readinessBlockers.length > 0) {
+    return (
+      <>
+        <PageHead title="Optimizer" detail="Ranked legal lineups, transfer penalties, chip scenarios, assumptions, and provenance." />
+        <StateNotice tone="empty" title="Optimizer blocked by missing real data">
+          Recommendations stay hidden until current fantasy prices and team state are loaded.
+        </StateNotice>
+        <section className="panel">
+          <h2>Blocking data</h2>
+          {readinessBlockers.map((blocker) => (
+            <StateNotice tone="empty" title={blocker.label} key={blocker.key}>
+              {blocker.message} {blocker.action}
+            </StateNotice>
+          ))}
+          <div className="freshness-list">
+            {blockers.map((item) => (
+              <FreshnessDomainRow item={item} key={item.key} />
+            ))}
+          </div>
+        </section>
       </>
     );
   }

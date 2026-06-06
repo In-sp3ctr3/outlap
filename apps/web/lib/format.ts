@@ -13,7 +13,7 @@ export function riskLabel(value: number): "Low" | "Medium" | "High" {
 }
 
 export function freshnessTone(status: string): "good" | "warn" | "bad" {
-  if (status === "ok") return "good";
-  if (status === "degraded" || status === "stale") return "warn";
+  if (status === "ok" || status === "real_current") return "good";
+  if (["degraded", "stale", "real_stale", "partial", "unknown"].includes(status)) return "warn";
   return "bad";
 }

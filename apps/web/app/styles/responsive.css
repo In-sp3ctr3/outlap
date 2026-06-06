@@ -1,4 +1,26 @@
 @media (max-width: 900px) {
+  .splash-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .splash-rail {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .splash-stage {
+    min-height: auto;
+    padding: 28px 18px;
+  }
+
+  .splash-backdrop {
+    inset: 12px;
+  }
+
+  .splash-content h1 {
+    font-size: 34px;
+  }
+
   .app-shell {
     grid-template-columns: 1fr;
   }
@@ -25,16 +47,39 @@
 
   .grid.two,
   .grid.three,
-  .step-list {
+  .setup-progress {
     grid-template-columns: 1fr;
   }
 
   .page-head {
     display: grid;
   }
+
+  .freshness-row {
+    grid-template-columns: 1fr;
+  }
+
+  .top-bar {
+    justify-content: stretch;
+    flex-wrap: wrap;
+  }
+
+  .race-selector {
+    flex: 1 1 240px;
+  }
+
+  .selector-toolbar,
+  .selection-summary,
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {
+  .splash-rail {
+    padding: 22px 18px;
+  }
+
   .nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

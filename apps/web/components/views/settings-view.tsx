@@ -2,19 +2,20 @@
 
 import { useState } from "react";
 
+import { FreshnessDomainRow } from "@/components/freshness";
+import { ImportWizard } from "@/components/import-wizard";
 import { PageHead } from "@/components/page-head";
 import { StateNotice } from "@/components/state-notice";
-import { StatusBadge } from "@/components/status";
-import { importTeam, testProvider, type DashboardData } from "@/lib/api";
+import { resetRealData, testProvider, type DashboardData } from "@/lib/api";
 
 export function SettingsView({ data }: { data: DashboardData }) {
   const [providerMessage, setProviderMessage] = useState<string | null>(null);
   const [testingProvider, setTestingProvider] = useState<string | null>(null);
-  const [teamImportJson, setTeamImportJson] = useState("");
-  const [importError, setImportError] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
 
-  function clearLocalData() {
-    window.localStorage.removeItem("raceweek-setup-complete");
+  async function clearLocalData() {
+    setResetting(true);
+    await resetRealData();
     window.location.assign("/");
   }
 
@@ -28,16 +29,6 @@ export function SettingsView({ data }: { data: DashboardData }) {
       setProviderMessage(caught instanceof Error ? caught.message : "Provider test failed");
     } finally {
       setTestingProvider(null);
-    }
-  }
-
-  async function handleTeamImport() {
-    setImportError(null);
-    try {
-      await importTeam(JSON.parse(teamImportJson));
-      window.location.assign("/");
-    } catch (caught) {
-      setImportError(caught instanceof Error ? caught.message : "Team import failed");
     }
   }
 
@@ -69,63 +60,26 @@ export function SettingsView({ data }: { data: DashboardData }) {
           ) : null}
         </section>
         <section className="panel">
-          <h2>Data sources</h2>
-          <div className="status-strip" style={{ marginTop: 12 }}>
-            {data.dataSources.map((source) => (
-              <StatusBadge
-                key={source.source}
-                status={source.status}
-                label={`${source.source}: ${source.freshness}`}
-              />
+          <h2>Data freshness</h2>
+          <div className="freshness-list">
+            {data.freshness.map((item) => (
+              <FreshnessDomainRow item={item} compact key={item.key} />
             ))}
           </div>
         </section>
         <section className="panel">
           <h2>Privacy</h2>
           <p>No telemetry is enabled by default. Provider keys stay server-side and are never sent to the browser.</p>
-          <button className="button secondary" type="button" onClick={clearLocalData}>Clear local setup state</button>
+          <button className="button secondary" type="button" disabled={resetting} onClick={clearLocalData}>Clear local real data</button>
         </section>
         <section className="panel">
           <h2>Ruleset</h2>
-          <p>fantasy_demo_2026_v1 · 5 drivers · 2 constructors · 100.0M cap · 10 point extra-transfer penalty.</p>
+          <p>v1 fantasy rules · 5 drivers · 2 teams · 100.0M cap · 10 point extra-transfer penalty.</p>
         </section>
         <section className="panel">
           <h2>Import/export</h2>
-          <p>Manual JSON and CSV imports are local-first. Exported state contains fixture/demo data only and never includes provider keys.</p>
-          <label className="field">
-            Team import JSON
-            <textarea
-              className="textarea"
-              value={teamImportJson}
-              onChange={(event) => setTeamImportJson(event.target.value)}
-              placeholder='{"teamSnapshotId":"team_manual_01", ...}'
-            />
-          </label>
-          <div className="button-row">
-            <button
-              className="button"
-              type="button"
-              disabled={!teamImportJson.trim()}
-              onClick={handleTeamImport}
-            >
-              Import team JSON
-            </button>
-            <button
-              className="button secondary"
-              type="button"
-              onClick={() => navigator.clipboard?.writeText(JSON.stringify(data.teams[0] ?? {}, null, 2))}
-            >
-              Copy team JSON
-            </button>
-            <button
-              className="button secondary"
-              type="button"
-              onClick={() => navigator.clipboard?.writeText(JSON.stringify(data.dataSources, null, 2))}
-            >
-              Copy data-source status
-            </button>
-          </div>
-          {importError ? <StateNotice tone="error" title="Team import failed">{importError}</StateNotice> : null}
+          <p>Fallback CSV/TSV imports are local-first and write provenance records to DuckDB.</p>
+          <ImportWizard onImported={async () => window.location.assign("/settings")} />
         </section>
         <section className="panel">
           <h2>About</h2>

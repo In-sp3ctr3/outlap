@@ -1,12 +1,12 @@
 :root {
-  --bg: #080a0f;
-  --panel: #10151d;
-  --panel-strong: #151c27;
-  --line: #273243;
-  --text: #f4f7fb;
-  --muted: #94a3b8;
-  --accent: #2dd4bf;
-  --accent-strong: #0f766e;
+  --bg: #060709;
+  --panel: #111317;
+  --panel-strong: #181b20;
+  --line: #2a2d35;
+  --text: #f7f7f5;
+  --muted: #a0a6b3;
+  --accent: #c9272f;
+  --accent-strong: #f0474f;
   --warn: #fbbf24;
   --bad: #fb7185;
   --good: #34d399;
@@ -26,13 +26,13 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(rgba(45, 212, 191, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(45, 212, 191, 0.05) 1px, transparent 1px),
-    radial-gradient(circle at top right, rgba(45, 212, 191, 0.14), transparent 34rem),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(201, 39, 47, 0.18), transparent 32rem),
     var(--bg);
   background-size: 42px 42px, 42px 42px, auto, auto;
   color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Aptos", "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0;
 }
 
