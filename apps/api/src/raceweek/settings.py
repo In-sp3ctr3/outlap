@@ -1,24 +1,33 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
+def current_utc_year() -> str:
+    return str(datetime.now(UTC).year)
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="RACEWEEK_", env_file=".env", extra="ignore")
 
-    database_path: str = str(REPO_ROOT / "data" / "raceweek.duckdb")
-    demo_mode: bool = True
+    database_path: str = Field(
+        default=str(REPO_ROOT / "data" / "raceweek.duckdb"),
+        validation_alias=AliasChoices("RWS_DUCKDB_PATH", "RACEWEEK_DATABASE_PATH"),
+    )
+    demo_mode: bool = False
     fantasy_api_base_url: str = Field(
         default="https://fantasy-api.formula1.com/partner_games/f1",
         validation_alias=AliasChoices("RACEWEEK_FANTASY_API_BASE_URL", "FANTASY_API_BASE_URL"),
     )
     fantasy_game_version: str = Field(
-        default="2022",
+        default_factory=current_utc_year,
         validation_alias=AliasChoices("RACEWEEK_FANTASY_GAME_VERSION", "FANTASY_GAME_VERSION"),
     )
     fantasy_session_token: str | None = Field(
@@ -121,6 +130,16 @@ class Settings(BaseSettings):
         default=None,
         validation_alias=AliasChoices("RACEWEEK_CUSTOM_OPENAI_MODEL", "CUSTOM_OPENAI_MODEL"),
     )
+
+    @field_validator("fantasy_game_version", mode="before")
+    @classmethod
+    def default_blank_fantasy_game_version(cls, value: Any) -> str:
+        if value is None:
+            return current_utc_year()
+        if isinstance(value, str):
+            stripped = value.strip()
+            return stripped or current_utc_year()
+        return str(value)
 
 
 settings = Settings()

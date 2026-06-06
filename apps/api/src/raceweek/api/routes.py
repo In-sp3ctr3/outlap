@@ -4,11 +4,14 @@ from fastapi import APIRouter, HTTPException, status
 
 from raceweek import __version__
 from raceweek.agents import answer_chat
+from raceweek.api.data_first_routes import router as data_first_router
 from raceweek.api.import_routes import router as import_router
 from raceweek.core.models import (
     AgentChatRequest,
     AgentChatResponse,
     AgentConversation,
+    FantasyAsset,
+    FantasyTeamSnapshot,
     LeagueAnalysis,
     OptimizerRequest,
     ProjectionRunResult,
@@ -27,6 +30,7 @@ from raceweek.core.projections import run_projection
 from raceweek.providers.adapters import ProviderError
 from raceweek.providers.registry import provider_registry
 from raceweek.storage.demo import (
+    REPOSITORY,
     analyze_league,
     find_projection_run,
     find_recommendation_run,
@@ -39,6 +43,7 @@ from raceweek.storage.demo import (
 )
 
 router = APIRouter()
+router.include_router(data_first_router)
 router.include_router(import_router)
 
 
@@ -60,7 +65,7 @@ def app_status() -> dict[str, object]:
         "version": __version__,
         "setupComplete": True,
         "databaseReady": True,
-        "currentEventId": state.current_event_id,
+        "currentEventId": REPOSITORY.get_json_setting("current_event_id", state.current_event_id),
     }
 
 
@@ -173,7 +178,11 @@ def intelligence(meeting_key: str) -> RaceWeekIntelligence:
 def projections_run(payload: dict[str, object]) -> ProjectionRunResult:
     event_id = str(payload.get("eventId") or get_state().current_event_id)
     state = get_state()
-    result = run_projection(state.assets, event_id=event_id, stale_sources=state.is_degraded())
+    result = run_projection(
+        _assets_for_strategy(event_id),
+        event_id=event_id,
+        stale_sources=state.is_degraded(),
+    )
     save_projection_result(result)
     return result
 
@@ -188,12 +197,15 @@ def projection_run(projection_run_id: str) -> ProjectionRunResult:
 
 @router.post("/api/v1/optimizer/recommendations", status_code=status.HTTP_201_CREATED)
 def recommendations(request: OptimizerRequest) -> RecommendationRunResult:
+    _ensure_optimizer_ready_for_real_data()
     state = get_state()
+    assets = _assets_for_strategy(request.event_id)
+    team = _team_for_strategy(request.team_snapshot_id)
     projection_run = (
         find_projection_run(request.projection_run_id)
         if request.projection_run_id
         else run_projection(
-            state.assets,
+            assets,
             event_id=request.event_id,
             stale_sources=state.is_degraded(),
         )
@@ -202,8 +214,8 @@ def recommendations(request: OptimizerRequest) -> RecommendationRunResult:
         raise HTTPException(status_code=404, detail="Projection run not found")
     save_projection_result(projection_run)
     result = optimize_recommendations(
-        team=state.team,
-        assets=state.assets,
+        team=team,
+        assets=assets,
         projections=projection_run.projections,
         event_id=request.event_id,
         strategy_mode=request.strategy_mode,
@@ -219,6 +231,87 @@ def recommendations(request: OptimizerRequest) -> RecommendationRunResult:
     )
     save_recommendation_result(result)
     return result
+
+
+def _assets_for_strategy(event_id: str) -> list[FantasyAsset]:
+    real_assets = REPOSITORY.real_assets()
+    if real_assets:
+        return real_assets
+    if _real_data_mode_enabled():
+        raise _optimizer_readiness_exception([_market_readiness_blocker()])
+    state = get_state()
+    if event_id == state.current_event_id or event_id.startswith("event_demo"):
+        return state.assets
+    raise HTTPException(
+        status_code=409,
+        detail="Load real fantasy market data before strategy runs.",
+    )
+
+
+def _team_for_strategy(team_snapshot_id: str) -> FantasyTeamSnapshot:
+    real_teams = REPOSITORY.real_teams()
+    if real_teams:
+        team = next(
+            (item for item in real_teams if item.team_snapshot_id == team_snapshot_id),
+            None,
+        )
+        if team is None:
+            raise HTTPException(status_code=404, detail="Real team snapshot not found.")
+        return team
+    if _real_data_mode_enabled():
+        raise _optimizer_readiness_exception([_team_readiness_blocker()])
+    state = get_state()
+    if team_snapshot_id == state.team.team_snapshot_id or team_snapshot_id.startswith("team_demo"):
+        return state.team
+    raise HTTPException(status_code=409, detail="Select current teams before strategy runs.")
+
+
+def _ensure_optimizer_ready_for_real_data() -> None:
+    if not _real_data_mode_enabled():
+        return
+    blockers = _optimizer_readiness_blockers()
+    if blockers:
+        raise _optimizer_readiness_exception(blockers)
+
+
+def _real_data_mode_enabled() -> bool:
+    return str(REPOSITORY.get_json_setting("data_mode", "")) == "real"
+
+
+def _optimizer_readiness_blockers() -> list[dict[str, str]]:
+    blockers: list[dict[str, str]] = []
+    if not REPOSITORY.real_assets():
+        blockers.append(_market_readiness_blocker())
+    if not REPOSITORY.real_teams():
+        blockers.append(_team_readiness_blocker())
+    return blockers
+
+
+def _market_readiness_blocker() -> dict[str, str]:
+    return {
+        "key": "fantasy.market",
+        "action": "sync_fantasy_game",
+        "message": "Load real fantasy market/catalog data before running optimizer.",
+    }
+
+
+def _team_readiness_blocker() -> dict[str, str]:
+    return {
+        "key": "fantasy.user_team",
+        "action": "open_team_selector",
+        "message": "Select or import a current fantasy team before running optimizer.",
+    }
+
+
+def _optimizer_readiness_exception(blockers: list[dict[str, str]]) -> HTTPException:
+    return HTTPException(
+        status_code=409,
+        detail={
+            "code": "optimizer_readiness_blocked",
+            "message": "Optimizer requires real fantasy market and current team data.",
+            "blockers": blockers,
+        },
+    )
 
 
 @router.get("/api/v1/recommendations/runs/{recommendation_run_id}")

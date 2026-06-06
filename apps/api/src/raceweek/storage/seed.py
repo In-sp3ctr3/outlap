@@ -20,6 +20,12 @@ from raceweek.storage.jsonio import dump_json, load_json_value
 
 def clear_tables(connection: duckdb.DuckDBPyConnection) -> None:
     for table in [
+        "sync_runs",
+        "race_context_events",
+        "race_context_sessions",
+        "race_context_meetings",
+        "import_errors",
+        "import_jobs",
         "recommendation_options",
         "recommendation_runs",
         "projections",

@@ -34,9 +34,19 @@ def _reload_state() -> DemoState:
     return STATE
 
 
+def reload_state() -> DemoState:
+    return _reload_state()
+
+
 def reset_state() -> DemoState:
     global STATE
     STATE = REPOSITORY.reset_demo()
+    return STATE
+
+
+def reset_real_data_state() -> DemoState:
+    global STATE
+    STATE = REPOSITORY.reset_real_data()
     return STATE
 
 

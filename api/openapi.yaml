@@ -26,6 +26,61 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppStatus'
+  /api/v1/onboarding/status:
+    get:
+      summary: Get first-run onboarding status and next route
+      responses:
+        '200':
+          description: Onboarding status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStatus'
+  /api/v1/onboarding/mode:
+    post:
+      summary: Select demo or real-data mode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataModeRequest'
+      responses:
+        '200':
+          description: Selected data mode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataModeResponse'
+  /api/v1/data-mode:
+    get:
+      summary: Get current data mode
+      responses:
+        '200':
+          description: Current data mode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataModeResponse'
+    put:
+      summary: Force real-data mode and disable demo fallback
+      responses:
+        '200':
+          description: Current data mode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataModeResponse'
+  /api/v1/readiness/optimizer:
+    get:
+      summary: Explain whether deterministic optimizer can run
+      responses:
+        '200':
+          description: Optimizer readiness gates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizerReadiness'
   /api/v1/data-sources/status:
     get:
       summary: List data-source health states
@@ -144,6 +199,136 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SyncResult'
+  /api/v1/fantasy/read-only/status:
+    get:
+      summary: Get read-only fantasy connector requirements and import alternatives
+      responses:
+        '200':
+          description: Read-only fantasy connector status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FantasyReadOnlyStatus'
+  /api/v1/fantasy/sync-requirements:
+    get:
+      summary: Get Fantasy sync environment requirements
+      responses:
+        '200':
+          description: Fantasy sync requirements
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/v1/sync/fantasy-game:
+    post:
+      summary: Sync read-only Fantasy game catalog, scores, and optional picked team data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FantasySyncRequest'
+      responses:
+        '200':
+          description: Fantasy sync result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FantasySyncResponse'
+  /api/v1/fantasy/public-form/backfill:
+    post:
+      summary: Backfill public race-derived form features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FantasyBackfillRequest'
+      responses:
+        '200':
+          description: Public form feature backfill result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicFormBackfillResponse'
+  /api/v1/fantasy/scores/backfill:
+    post:
+      deprecated: true
+      summary: Deprecated alias for public race-derived form backfill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FantasyBackfillRequest'
+      responses:
+        '200':
+          description: Deprecated response with scoreCount fixed at zero
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FantasyBackfillResponse'
+  /api/v1/sync/race-context:
+    post:
+      summary: Sync public race context from OpenF1 and Jolpica
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                season: { type: integer }
+                meetingKey: { type: string }
+      responses:
+        '200':
+          description: Race context sync result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, rowCount, sourceSnapshotIds, currentEventId]
+                properties:
+                  status: { type: string, enum: [ok, degraded] }
+                  rowCount: { type: integer }
+                  currentEventId: { type: string }
+                  sourceSnapshotIds:
+                    type: array
+                    items: { type: string }
+  /api/v1/fantasy/market:
+    get:
+      summary: List loaded real fantasy market/catalog assets
+      responses:
+        '200':
+          description: Real loaded fantasy market assets plus freshness
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, freshness]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FantasyAsset'
+                  freshness:
+                    $ref: '#/components/schemas/DataFreshness'
+  /api/v1/onboarding/teams/select:
+    post:
+      summary: Save one to three current fantasy teams from loaded market assets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardingTeamSelectionRequest'
+      responses:
+        '201':
+          description: Saved current team slots
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingTeamSelectionResponse'
   /api/v1/fantasy/assets:
     get:
       summary: List fantasy assets for an event
@@ -427,6 +612,54 @@ components:
         setupComplete: { type: boolean }
         databaseReady: { type: boolean }
         currentEventId: { type: string }
+    DataMode:
+      type: string
+      enum: [unset, demo, real]
+    DataModeRequest:
+      type: object
+      required: [mode]
+      properties:
+        mode: { type: string, enum: [demo, real] }
+        allowDemoFallback: { type: boolean, default: false }
+    DataModeResponse:
+      type: object
+      required: [mode, allowDemoFallback]
+      properties:
+        mode:
+          $ref: '#/components/schemas/DataMode'
+        allowDemoFallback: { type: boolean }
+    OnboardingStatus:
+      type: object
+      required: [firstRunCompleted, mode, nextRoute, setupComplete, needsRealData]
+      properties:
+        firstRunCompleted: { type: boolean }
+        mode:
+          $ref: '#/components/schemas/DataMode'
+        nextRoute: { type: string }
+        setupComplete: { type: boolean }
+        needsRealData: { type: boolean }
+    ReadinessIssue:
+      type: object
+      required: [key, label, message, recommendedAction]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        message: { type: string }
+        recommendedAction: { type: string }
+    OptimizerReadiness:
+      type: object
+      required: [ready, blockingReasons, warnings, canRunWithWarnings]
+      properties:
+        ready: { type: boolean }
+        blockingReasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReadinessIssue'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReadinessIssue'
+        canRunWithWarnings: { type: boolean }
     DataSourceStatus:
       type: object
       required: [source, status]
@@ -438,6 +671,68 @@ components:
         freshnessSeconds: { type: integer }
         message: { type: string }
         errorCode: { type: string }
+    DataFreshness:
+      type: object
+      required: [key, label, status, sourceMode, staleAfterSeconds, recordCount, isBlocking, message]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        status:
+          type: string
+          enum: [real_current, real_stale, demo, missing, partial, error, unknown]
+        sourceKey: { type: string }
+        sourceMode:
+          type: string
+          enum: [real, manual, advanced_token, demo, none]
+        lastSuccessAt: { type: string, format: date-time }
+        lastAttemptAt: { type: string, format: date-time }
+        ageSeconds: { type: integer }
+        staleAfterSeconds: { type: integer }
+        recordCount: { type: integer }
+        isDemo: { type: boolean }
+        isBlocking: { type: boolean }
+        message: { type: string }
+    DataInputPath:
+      type: object
+      required: [label, endpoint, method, primary]
+      properties:
+        label: { type: string }
+        endpoint: { type: string }
+        method: { type: string, enum: [GET, POST] }
+        contentType: { type: string }
+        primary: { type: boolean }
+    FantasyReadOnlyStatus:
+      type: object
+      required:
+        - source
+        - status
+        - message
+        - baseUrlConfigured
+        - gameVersionConfigured
+        - sessionTokenConfigured
+        - requiredEnvVars
+        - documentedEndpoints
+        - structuredJsonImport
+        - csvFallback
+        - canMutateFantasyAccount
+      properties:
+        source: { type: string }
+        status: { type: string, enum: [ok, stale, degraded, error, disabled, unknown] }
+        message: { type: string }
+        baseUrlConfigured: { type: boolean }
+        gameVersionConfigured: { type: boolean }
+        sessionTokenConfigured: { type: boolean }
+        requiredEnvVars:
+          type: array
+          items: { type: string }
+        documentedEndpoints:
+          type: array
+          items: { type: string }
+        structuredJsonImport:
+          $ref: '#/components/schemas/DataInputPath'
+        csvFallback:
+          $ref: '#/components/schemas/DataInputPath'
+        canMutateFantasyAccount: { type: boolean }
     ProviderConfig:
       type: object
       required: [providerName, displayName, enabled]
@@ -474,7 +769,11 @@ components:
         assetType: { type: string, enum: [driver, constructor] }
         displayName: { type: string }
         shortName: { type: string }
+        abbreviation: { type: string }
         constructorName: { type: string }
+        teamColor:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
         priceMillions: { type: number }
         fantasyPoints: { type: number }
         ownershipPct: { type: number }
@@ -515,6 +814,83 @@ components:
           items:
             $ref: '#/components/schemas/ChipState'
         capturedAt: { type: string, format: date-time }
+    OnboardingTeamSlotSelection:
+      type: object
+      required: [slot, teamName, assetIds]
+      properties:
+        slot: { type: integer, minimum: 1, maximum: 3 }
+        teamName: { type: string, minLength: 1 }
+        assetIds:
+          type: array
+          minItems: 7
+          maxItems: 7
+          items: { type: string }
+        costCapMillions: { type: number, default: 100, minimum: 0 }
+        freeTransfers: { type: integer, default: 2, minimum: 0 }
+        transferPenaltyPoints: { type: number, default: 10, minimum: 0 }
+    OnboardingTeamSelectionRequest:
+      type: object
+      required: [eventId, teams]
+      properties:
+        eventId: { type: string }
+        teams:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/OnboardingTeamSlotSelection'
+    OnboardingTeamSelectionResponse:
+      type: object
+      required: [items, freshness]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FantasyTeamSnapshot'
+        freshness:
+          $ref: '#/components/schemas/DataFreshness'
+    FantasySyncRequest:
+      type: object
+      required: [gamePeriodId]
+      properties:
+        gamePeriodId: { type: string }
+        season: { type: integer }
+        leagueId: { type: string }
+        userGlobalId: { type: string }
+        slot: { type: integer, minimum: 1, maximum: 3 }
+    FantasySyncResponse:
+      type: object
+      required: [status, assetCount, scoreCount, teamCount, sourceSnapshotId, message]
+      properties:
+        status: { type: string, enum: [ok, degraded] }
+        assetCount: { type: integer }
+        scoreCount: { type: integer }
+        teamCount: { type: integer }
+        sourceSnapshotId: { type: string }
+        message: { type: string }
+    FantasyBackfillRequest:
+      type: object
+      required: [season]
+      properties:
+        season: { type: integer }
+        throughRound: { type: integer, minimum: 1 }
+        eventId: { type: string }
+    FantasyBackfillResponse:
+      type: object
+      required: [status, scoreCount, sourceSnapshotId, message]
+      properties:
+        status: { type: string, enum: [ok, degraded] }
+        scoreCount: { type: integer }
+        sourceSnapshotId: { type: string }
+        message: { type: string }
+    PublicFormBackfillResponse:
+      type: object
+      required: [status, featureCount, sourceSnapshotId, message]
+      properties:
+        status: { type: string, enum: [ok, degraded] }
+        featureCount: { type: integer }
+        sourceSnapshotId: { type: string }
+        message: { type: string }
     TeamAsset:
       type: object
       required: [assetId, assetType]

@@ -36,11 +36,24 @@
         "null"
       ]
     },
+    "abbreviation": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "constructorName": {
       "type": [
         "string",
         "null"
       ]
+    },
+    "teamColor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^#[0-9A-Fa-f]{6}$"
     },
     "priceMillions": {
       "type": "number",

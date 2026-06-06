@@ -8,7 +8,12 @@ from pathlib import Path
 import httpx
 
 from raceweek.connectors.base import ConnectorResult
-from raceweek.connectors.openf1 import OPENF1_LICENSE_NOTE, OpenF1Connector, OpenF1SessionContext
+from raceweek.connectors.openf1 import (
+    OPENF1_LICENSE_NOTE,
+    OPENF1_SYNC_PRESETS,
+    OpenF1Connector,
+    OpenF1SessionContext,
+)
 from raceweek.storage.jsonio import load_json_value
 from raceweek.storage.repository import DuckDbRepository
 
@@ -24,7 +29,7 @@ def test_openf1_fetches_session_context_with_provenance_metadata() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         calls.append(request)
         key = request.url.path.rsplit("/", 1)[-1]
-        return httpx.Response(200, json=fixture[key])
+        return httpx.Response(200, json=fixture.get(key, []))
 
     result = asyncio.run(fetch_context(handler))
 
@@ -36,14 +41,20 @@ def test_openf1_fetches_session_context_with_provenance_metadata() -> None:
     assert result.request_paths == [
         "/meetings?meeting_key=meeting_demo_01",
         "/sessions?meeting_key=meeting_demo_01",
-        "/weather?meeting_key=meeting_demo_01",
+        "/drivers?meeting_key=meeting_demo_01",
+        "/session_result?meeting_key=meeting_demo_01",
+        "/starting_grid?meeting_key=meeting_demo_01",
         "/race_control?meeting_key=meeting_demo_01",
+        "/weather?meeting_key=meeting_demo_01",
     ]
     assert [call.url.path for call in calls] == [
         "/v1/meetings",
         "/v1/sessions",
-        "/v1/weather",
+        "/v1/drivers",
+        "/v1/session_result",
+        "/v1/starting_grid",
         "/v1/race_control",
+        "/v1/weather",
     ]
     assert result.data.meetings[0].meeting_key == "meeting_demo_01"
     assert result.data.sessions[0].session_key == "session_demo_race"
@@ -86,7 +97,7 @@ def test_openf1_connector_result_persists_source_snapshot(tmp_path: Path) -> Non
     fixture = load_fixture("openf1_session_demo.json")
 
     def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(200, json=fixture[request.url.path.rsplit("/", 1)[-1]])
+        return httpx.Response(200, json=fixture.get(request.url.path.rsplit("/", 1)[-1], []))
 
     result = asyncio.run(fetch_context(handler))
     repository = DuckDbRepository(tmp_path / "raceweek.duckdb")
@@ -133,6 +144,47 @@ async def fetch_context(handler: Handler) -> ConnectorResult[OpenF1SessionContex
             client=client,
         )
         return await connector.fetch_session_context("meeting_demo_01")
+
+
+def test_openf1_sync_presets_control_endpoint_scope() -> None:
+    assert OPENF1_SYNC_PRESETS["light"] == [
+        "meetings",
+        "sessions",
+        "drivers",
+        "session_result",
+        "starting_grid",
+        "race_control",
+        "weather",
+    ]
+    assert len(OPENF1_SYNC_PRESETS["race_week"]) == 13
+    assert "car_data" not in OPENF1_SYNC_PRESETS["race_week"]
+    assert OPENF1_SYNC_PRESETS["telemetry"][-1] == "car_data"
+
+
+def test_openf1_race_week_preset_fetches_required_context_without_car_data() -> None:
+    fixture = load_fixture("openf1_session_demo.json")
+    calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        endpoint = request.url.path.rsplit("/", 1)[-1]
+        calls.append(endpoint)
+        return httpx.Response(200, json=fixture.get(endpoint, []))
+
+    transport = httpx.MockTransport(handler)
+
+    async def run() -> ConnectorResult[OpenF1SessionContext]:
+        async with httpx.AsyncClient(transport=transport) as client:
+            connector = OpenF1Connector(
+                base_url="https://api.openf1.test/v1",
+                client=client,
+            )
+            return await connector.fetch_session_context("meeting_demo_01", preset="race_week")
+
+    result = asyncio.run(run())
+
+    assert result.status.status == "ok"
+    assert calls == OPENF1_SYNC_PRESETS["race_week"]
+    assert "car_data" not in calls
 
 
 def load_fixture(name: str) -> dict[str, object]:

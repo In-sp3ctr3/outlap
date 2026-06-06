@@ -39,10 +39,18 @@ class JolpicaConnector:
         request_paths: list[str] = []
         http_status: int | None = 200
         try:
-            for key, path in _endpoint_paths(season).items():
-                payload, http_status = await self._get(path)
+            calendar, http_status, paths = await self._get_paginated(f"{season}.json")
+            raw_payload["calendar"] = calendar
+            request_paths.extend(paths)
+            for key, path in _season_endpoint_paths(season).items():
+                payload, http_status, paths = await self._get_paginated(path)
                 raw_payload[key] = payload
-                request_paths.append(_request_path(path))
+                request_paths.extend(paths)
+            for round_number in _calendar_rounds(calendar):
+                for key, path in _round_endpoint_paths(season, round_number).items():
+                    payload, http_status, paths = await self._get_paginated(path)
+                    raw_payload[f"{key}:{round_number}"] = payload
+                    request_paths.extend(paths)
             response_hash = _hash_payload(raw_payload)
             return ConnectorResult(
                 source=JOLPICA_SOURCE,
@@ -75,7 +83,30 @@ class JolpicaConnector:
             )
 
     async def _get(self, path: str) -> tuple[dict[str, Any], int]:
-        response = await self.client.get(f"{self.base_url}/{path}", params={"limit": "100"})
+        payload, status_code = await self._get_page(path, limit=100, offset=0)
+        return payload, status_code
+
+    async def _get_paginated(self, path: str) -> tuple[dict[str, Any], int, list[str]]:
+        limit = 100
+        offset = 0
+        pages: list[dict[str, Any]] = []
+        request_paths: list[str] = []
+        http_status = 200
+        while True:
+            payload, http_status = await self._get_page(path, limit=limit, offset=offset)
+            pages.append(payload)
+            request_paths.append(_request_path(path, limit=limit, offset=offset))
+            total = _mrdata_int(payload, "total")
+            offset += limit
+            if offset >= total:
+                break
+        return _merge_pages(pages), http_status, request_paths
+
+    async def _get_page(self, path: str, *, limit: int, offset: int) -> tuple[dict[str, Any], int]:
+        response = await self.client.get(
+            f"{self.base_url}/{path}",
+            params={"limit": str(limit), "offset": str(offset)},
+        )
         if response.status_code >= 400:
             raise JolpicaConnectorError(
                 f"Jolpica request failed for /{path}: HTTP {response.status_code}",
@@ -102,14 +133,22 @@ class JolpicaConnectorError(ValueError):
         self.status_code = status_code
 
 
-def _endpoint_paths(season: int) -> dict[str, str]:
+def _season_endpoint_paths(season: int) -> dict[str, str]:
     return {
-        "calendar": f"{season}.json",
         "results": f"{season}/results.json",
         "qualifying": f"{season}/qualifying.json",
         "sprint": f"{season}/sprint.json",
         "driverStandings": f"{season}/driverstandings.json",
         "constructorStandings": f"{season}/constructorstandings.json",
+        "status": "status.json",
+    }
+
+
+def _round_endpoint_paths(season: int, round_number: int) -> dict[str, str]:
+    return {
+        "pitstops": f"{season}/{round_number}/pitstops.json",
+        "laps": f"{season}/{round_number}/laps.json",
+        "status": f"{season}/{round_number}/status.json",
     }
 
 
@@ -139,8 +178,73 @@ def _degraded_status(message: str, connector_version: str) -> DataSourceStatus:
     )
 
 
-def _request_path(path: str) -> str:
-    return f"/{path}?{urlencode({'limit': '100'})}"
+def _request_path(path: str, *, limit: int = 100, offset: int = 0) -> str:
+    return f"/{path}?{urlencode({'limit': str(limit), 'offset': str(offset)})}"
+
+
+def _mrdata_int(payload: dict[str, Any], key: str) -> int:
+    mrdata = payload.get("MRData")
+    if not isinstance(mrdata, dict):
+        return 0
+    value = mrdata.get(key)
+    return int(str(value or 0))
+
+
+def _merge_pages(pages: list[dict[str, Any]]) -> dict[str, Any]:
+    if not pages:
+        return {"MRData": {"total": "0"}}
+    merged = pages[0]
+    for page in pages[1:]:
+        _extend_races(merged, page)
+        _extend_standings(merged, page)
+        _extend_status(merged, page)
+    if isinstance(merged.get("MRData"), dict):
+        merged["MRData"]["offset"] = "0"
+    return merged
+
+
+def _extend_races(target: dict[str, Any], page: dict[str, Any]) -> None:
+    target_races = _table_list(target, "RaceTable", "Races")
+    page_races = _table_list(page, "RaceTable", "Races")
+    target_races.extend(page_races)
+
+
+def _extend_standings(target: dict[str, Any], page: dict[str, Any]) -> None:
+    target_lists = _table_list(target, "StandingsTable", "StandingsLists")
+    page_lists = _table_list(page, "StandingsTable", "StandingsLists")
+    target_lists.extend(page_lists)
+
+
+def _extend_status(target: dict[str, Any], page: dict[str, Any]) -> None:
+    target_rows = _table_list(target, "StatusTable", "Status")
+    page_rows = _table_list(page, "StatusTable", "Status")
+    target_rows.extend(page_rows)
+
+
+def _table_list(payload: dict[str, Any], table_key: str, list_key: str) -> list[Any]:
+    mrdata = payload.get("MRData")
+    table = mrdata.get(table_key) if isinstance(mrdata, dict) else None
+    rows = table.get(list_key) if isinstance(table, dict) else None
+    if isinstance(rows, list):
+        return rows
+    if isinstance(table, dict):
+        empty: list[Any] = []
+        table[list_key] = empty
+        return empty
+    return []
+
+
+def _calendar_rounds(payload: dict[str, Any]) -> list[int]:
+    races = _table_list(payload, "RaceTable", "Races")
+    rounds: list[int] = []
+    for race in races:
+        if not isinstance(race, dict):
+            continue
+        try:
+            rounds.append(int(str(race.get("round"))))
+        except (TypeError, ValueError):
+            continue
+    return rounds
 
 
 def _hash_payload(payload: dict[str, object]) -> str:

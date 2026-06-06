@@ -7,7 +7,7 @@ from typing import Any
 from urllib.parse import urlencode
 
 import httpx
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from raceweek.connectors.base import ConnectorResult
 from raceweek.core.models import DataSourceStatus, utc_now
@@ -15,6 +15,48 @@ from raceweek.core.models import DataSourceStatus, utc_now
 OPENF1_SOURCE = "openf1"
 OPENF1_CONNECTOR_VERSION = "openf1-v1"
 OPENF1_LICENSE_NOTE = "OpenF1 public API; unofficial Formula 1 data source."
+OPENF1_SYNC_PRESETS = {
+    "light": [
+        "meetings",
+        "sessions",
+        "drivers",
+        "session_result",
+        "starting_grid",
+        "race_control",
+        "weather",
+    ],
+    "race_week": [
+        "meetings",
+        "sessions",
+        "drivers",
+        "session_result",
+        "starting_grid",
+        "race_control",
+        "weather",
+        "laps",
+        "intervals",
+        "pit",
+        "position",
+        "stints",
+        "overtakes",
+    ],
+    "telemetry": [
+        "meetings",
+        "sessions",
+        "drivers",
+        "session_result",
+        "starting_grid",
+        "race_control",
+        "weather",
+        "laps",
+        "intervals",
+        "pit",
+        "position",
+        "stints",
+        "overtakes",
+        "car_data",
+    ],
+}
 
 
 class OpenF1Model(BaseModel):
@@ -28,6 +70,8 @@ class OpenF1Meeting(OpenF1Model):
     country_name: str | None = None
     location: str | None = None
     year: int | None = None
+    date_start: datetime | None = None
+    date_end: datetime | None = None
 
 
 class OpenF1Session(OpenF1Model):
@@ -61,6 +105,16 @@ class OpenF1SessionContext(OpenF1Model):
     sessions: list[OpenF1Session]
     weather: list[OpenF1Weather]
     race_control: list[OpenF1RaceControl]
+    drivers: list[dict[str, Any]] = Field(default_factory=list)
+    session_result: list[dict[str, Any]] = Field(default_factory=list)
+    starting_grid: list[dict[str, Any]] = Field(default_factory=list)
+    laps: list[dict[str, Any]] = Field(default_factory=list)
+    intervals: list[dict[str, Any]] = Field(default_factory=list)
+    pit: list[dict[str, Any]] = Field(default_factory=list)
+    position: list[dict[str, Any]] = Field(default_factory=list)
+    stints: list[dict[str, Any]] = Field(default_factory=list)
+    overtakes: list[dict[str, Any]] = Field(default_factory=list)
+    car_data: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class OpenF1Connector:
@@ -75,25 +129,57 @@ class OpenF1Connector:
         self.client = client or httpx.AsyncClient()
         self.connector_version = connector_version
 
+    async def fetch_meetings(self, year: int | None = None) -> ConnectorResult[list[OpenF1Meeting]]:
+        fetched_at = utc_now()
+        params = {"year": str(year)} if year else {}
+        request_paths = [_request_path("meetings", params)]
+        try:
+            payload, http_status = await self._get("meetings", params)
+            meetings = _validate_list(OpenF1Meeting, payload)
+            raw_payload: dict[str, object] = {"meetings": payload}
+            response_hash = _hash_payload(raw_payload)
+            return ConnectorResult(
+                source=OPENF1_SOURCE,
+                fetched_at=fetched_at,
+                raw_snapshot_id=_snapshot_id(str(year or "all"), response_hash),
+                data=meetings,
+                status=_ok_status(fetched_at, self.connector_version),
+                request_paths=request_paths,
+                response_hash=response_hash,
+                http_status=http_status,
+                raw_payload=raw_payload,
+            )
+        except (httpx.HTTPError, OpenF1ConnectorError, ValidationError, ValueError) as exc:
+            raw_payload = {"error": str(exc)}
+            response_hash = _hash_payload(raw_payload)
+            return ConnectorResult(
+                source=OPENF1_SOURCE,
+                fetched_at=fetched_at,
+                raw_snapshot_id=_snapshot_id(str(year or "all"), response_hash),
+                data=[],
+                status=_degraded_status(str(exc), self.connector_version),
+                request_paths=request_paths,
+                response_hash=response_hash,
+                http_status=exc.status_code if isinstance(exc, OpenF1ConnectorError) else None,
+                raw_payload=raw_payload,
+            )
+
     async def fetch_session_context(
         self,
         meeting_key: str,
+        *,
+        preset: str = "light",
     ) -> ConnectorResult[OpenF1SessionContext]:
         fetched_at = utc_now()
         raw_payload: dict[str, object] = {}
         request_paths: list[str] = []
         http_status: int | None = 200
         try:
-            for endpoint in ["meetings", "sessions", "weather", "race_control"]:
+            for endpoint in _preset_endpoints(preset):
                 payload, http_status = await self._get(endpoint, {"meeting_key": meeting_key})
                 raw_payload[endpoint] = payload
                 request_paths.append(_request_path(endpoint, {"meeting_key": meeting_key}))
-            context = OpenF1SessionContext(
-                meetings=_validate_list(OpenF1Meeting, raw_payload["meetings"]),
-                sessions=_validate_list(OpenF1Session, raw_payload["sessions"]),
-                weather=_validate_list(OpenF1Weather, raw_payload["weather"]),
-                race_control=_validate_list(OpenF1RaceControl, raw_payload["race_control"]),
-            )
+            context = _context_from_raw(raw_payload)
             response_hash = _hash_payload(raw_payload)
             return ConnectorResult(
                 source=OPENF1_SOURCE,
@@ -120,7 +206,7 @@ class OpenF1Connector:
                 source=OPENF1_SOURCE,
                 fetched_at=fetched_at,
                 raw_snapshot_id=_snapshot_id(meeting_key, response_hash),
-                data=OpenF1SessionContext(meetings=[], sessions=[], weather=[], race_control=[]),
+                data=_context_from_raw(raw_payload),
                 status=_degraded_status(str(exc), self.connector_version),
                 request_paths=request_paths,
                 response_hash=response_hash,
@@ -167,6 +253,37 @@ def _validate_list[ModelT: BaseModel](
     if not isinstance(payload, list):
         raise OpenF1ConnectorError("OpenF1 normalized payload must be a list")
     return [model.model_validate(item) for item in payload]
+
+
+def _context_from_raw(raw_payload: dict[str, object]) -> OpenF1SessionContext:
+    return OpenF1SessionContext(
+        meetings=_validate_list(OpenF1Meeting, raw_payload.get("meetings", [])),
+        sessions=_validate_list(OpenF1Session, raw_payload.get("sessions", [])),
+        weather=_validate_list(OpenF1Weather, raw_payload.get("weather", [])),
+        race_control=_validate_list(OpenF1RaceControl, raw_payload.get("race_control", [])),
+        drivers=_dict_items(raw_payload.get("drivers")),
+        session_result=_dict_items(raw_payload.get("session_result")),
+        starting_grid=_dict_items(raw_payload.get("starting_grid")),
+        laps=_dict_items(raw_payload.get("laps")),
+        intervals=_dict_items(raw_payload.get("intervals")),
+        pit=_dict_items(raw_payload.get("pit")),
+        position=_dict_items(raw_payload.get("position")),
+        stints=_dict_items(raw_payload.get("stints")),
+        overtakes=_dict_items(raw_payload.get("overtakes")),
+        car_data=_dict_items(raw_payload.get("car_data")),
+    )
+
+
+def _dict_items(payload: object) -> list[dict[str, Any]]:
+    if not isinstance(payload, list):
+        return []
+    return [item for item in payload if isinstance(item, dict)]
+
+
+def _preset_endpoints(preset: str) -> list[str]:
+    if preset not in OPENF1_SYNC_PRESETS:
+        raise OpenF1ConnectorError(f"Unsupported OpenF1 sync preset: {preset}")
+    return OPENF1_SYNC_PRESETS[preset]
 
 
 def _ok_status(fetched_at: datetime, connector_version: str) -> DataSourceStatus:
