@@ -138,6 +138,12 @@ Completed on local branch `codex/raceweek-strategist-v1`.
   - `cd apps/api && uvx pip-audit`: passed with no known vulnerabilities.
   - `make check`: passed; API collected 74 tests and Playwright passed 9 tests with 1 intentional mobile-only skip.
   - `apps/api/tests/test_official_provider_adapters.py`: verifies OpenAI Responses API, Anthropic Messages API, Gemini `generate_content`, Mistral chat completion, and Ollama local chat adapters through injected fake clients with no live provider calls.
+- Product acceptance reconciliation slice, completed on June 5, 2026:
+  - `pnpm --filter web lint`: passed.
+  - `pnpm --filter web typecheck`: passed.
+  - `pnpm --filter web e2e`: passed; Playwright passed 15 tests with 1 intentional mobile-only skip.
+  - `apps/web/tests/e2e/raceweek-strategist.spec.ts`: verifies setup demo mode, setup manual team import, dashboard next-event/team/data-health states, market filtering/sorting/lock/asset comparison controls, optimizer constraints and comparison drawer, race-week session/weather/race-control/news/stale-data states, league catch-up plan, settings provider test/import/export controls, fake AI provider response, and provider failure fallback across desktop/mobile projects.
+  - Local live-provider smoke: `ollama pull smollm2:135m` completed, then `provider_registry().test_provider("ollama", model="smollm2:135m")` returned `{"ok":true,"providerName":"ollama","message":"Ollama local responded with smollm2:135m.","latencyMs":null}`.
 
 Earlier local demo slice:
 
@@ -160,5 +166,4 @@ Earlier local demo slice:
 - Playwright runs with one worker because the demo API mutates shared local state during reset/import/failure flows.
 - Python 3.12 is supported locally; the upstream spec's Python 3.13 target remains a release baseline.
 - A FastAPI/TestClient deprecation warning is present from Starlette/httpx compatibility; it does not fail tests.
-- Official SDK provider adapters and external connector hardening remain follow-up work beyond the current mocked/local slices.
-- Full live connector, official provider SDK, projection hardening, UI-state, and release gates remain open beyond the local demo and completed connector/backtest/optimizer/chip/provider slices.
+- Live cloud AI-provider smoke requires user-owned credentials. Local Ollama smoke passed with `smollm2:135m`, and official SDK adapter behavior is covered by injected-client tests.

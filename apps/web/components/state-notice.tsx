@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type NoticeTone = "empty" | "error" | "loading";
+type NoticeTone = "empty" | "error" | "info" | "loading";
 
 export function StateNotice({
   tone,

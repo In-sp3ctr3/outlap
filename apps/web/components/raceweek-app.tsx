@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import type { DashboardData, RecommendationOption, RecommendationRun } from "@/lib/api";
-import { loadDashboard, resetDemo, runRecommendation } from "@/lib/api";
+import { importTeam, loadDashboard, resetDemo, runRecommendation } from "@/lib/api";
 
 import { SetupWizard } from "./setup-wizard";
 import { Sidebar, type View } from "./sidebar";
@@ -47,10 +47,13 @@ export function RaceweekApp({ initialView }: { initialView: View }) {
     }
   }
 
-  async function completeSetup() {
+  async function completeSetup(teamPayload?: unknown) {
+    await resetDemo();
+    if (teamPayload) {
+      await importTeam(teamPayload);
+    }
     window.localStorage.setItem("raceweek-setup-complete", "true");
     setSetupComplete(true);
-    await resetDemo();
     await refresh();
   }
 

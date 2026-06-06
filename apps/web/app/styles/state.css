@@ -1,5 +1,6 @@
 .empty,
 .error,
+.info,
 .loading {
   border: 1px dashed var(--line);
   border-radius: 8px;
@@ -13,11 +14,18 @@
   color: #fecdd3;
 }
 
+.info {
+  border-color: rgba(45, 212, 191, 0.38);
+  color: #ccfbf1;
+}
+
 .panel > .empty,
 .panel > .error,
+.panel > .info,
 .panel > .loading,
 .content > .empty,
 .content > .error,
+.content > .info,
 .content > .loading {
   margin-top: 14px;
 }

@@ -28,7 +28,11 @@ This project follows Semantic Versioning once the first public release is tagged
 - Added UI-state and accessibility polish for loading/empty/error states, skip navigation, dynamic AI provider selection, and working market/optimizer controls.
 - Added release-gate verification for setup/dev/check commands, dependency audits, and CI workflow health.
 - Added official SDK provider adapters for OpenAI, Anthropic, Gemini, Mistral, and Ollama with mocked client tests.
+- Added product acceptance coverage for setup manual import, dashboard health, market sorting/locks/comparison, race-week race-control/news/stale states, league analysis, and settings provider/import/export controls.
+- Verified live configured-provider smoke against local Ollama using `smollm2:135m`.
+- Added README badges, a generated project header asset, and a CodeQL workflow.
 
 ### Security
 
 - Forced the workspace to the patched `postcss@8.5.15` release through pnpm overrides.
+- Added CodeQL static analysis for Python and JavaScript/TypeScript.
