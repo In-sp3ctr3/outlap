@@ -61,6 +61,7 @@ Use this as the release gate for v1.0.0.
 - [x] `make dev` starts app.
 - [x] `make check` passes.
 - [x] CI runs lint/typecheck/tests/e2e.
+- [x] CodeQL workflow is configured.
 - [x] Lockfiles committed.
 - [x] Dependency audit reviewed.
 - [x] Docs updated.
@@ -92,3 +93,4 @@ Use this as the release gate for v1.0.0.
 - [x] Official SDK adapter pass covers OpenAI, Anthropic, Gemini, Mistral, and Ollama with mocked SDK-client tests.
 - [x] Product acceptance pass covers setup demo/manual import, dashboard, market sort/filter/lock/compare, race-week session/weather/race-control/news/stale data, league, settings provider test/import/export controls, and fake/failing AI provider browser flows.
 - [x] Live configured-provider smoke completed against local Ollama with `smollm2:135m`.
+- [x] OSS presentation pass covers README badges, generated header asset, and CodeQL static analysis workflow.
