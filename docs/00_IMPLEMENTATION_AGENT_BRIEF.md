@@ -2,7 +2,7 @@
 
 ## Product summary
 
-**RaceWeek Strategist** is an open-source, local-first, AI-assisted fantasy motorsport strategy platform. It helps users make informed fantasy lineup decisions by combining fantasy asset prices and scores, user team state, transfer/chip rules, race results, session data, weather, news, projections, and deterministic optimization.
+**Outlap** is an open-source, local-first, AI-assisted fantasy motorsport strategy platform. It helps users make informed fantasy lineup decisions by combining fantasy asset prices and scores, user team state, transfer/chip rules, race results, session data, weather, news, projections, and deterministic optimization.
 
 The product is not merely a dashboard and not merely a chatbot. It is a **strategy system**:
 

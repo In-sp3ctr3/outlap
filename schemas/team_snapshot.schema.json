@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raceweek-strategist.local/schemas/team_snapshot.schema.json",
+  "$id": "https://outlap.local/schemas/team_snapshot.schema.json",
   "title": "FantasyTeamSnapshot",
   "type": "object",
   "required": [

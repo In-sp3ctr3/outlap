@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raceweek-strategist.local/schemas/projection.schema.json",
+  "$id": "https://outlap.local/schemas/projection.schema.json",
   "title": "Projection",
   "type": "object",
   "required": [

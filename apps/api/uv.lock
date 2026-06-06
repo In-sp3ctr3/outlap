@@ -1021,7 +1021,7 @@ wheels = [
 ]
 
 [[package]]
-name = "raceweek-strategist-api"
+name = "outlap-api"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [

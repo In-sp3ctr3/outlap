@@ -2,9 +2,9 @@
 
 ## 1. Product name
 
-Working/public name: **RaceWeek Strategist**.
+Working/public name: **Outlap**.
 
-Repository slug: `raceweek-strategist`.
+Repository slug: `outlap`.
 
 Product description: an unofficial, open-source fantasy motorsport strategy assistant for fans who want a data-driven, AI-explained way to manage race-week fantasy lineups.
 

@@ -34,7 +34,7 @@ Use a hexagonal/ports-and-adapters architecture.
 ## Monorepo structure
 
 ```text
-raceweek-strategist/
+outlap/
   apps/
     api/
       src/raceweek/

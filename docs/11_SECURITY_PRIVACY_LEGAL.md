@@ -2,7 +2,7 @@
 
 ## Product posture
 
-RaceWeek Strategist is an unofficial fan-made analytics tool. It must not imply official status or use protected branding as product identity.
+Outlap is an unofficial fan-made analytics tool. It must not imply official status or use protected branding as product identity.
 
 ## Legal constraints to design around
 
@@ -204,7 +204,7 @@ Settings must include:
 Use this in README, UI footer, and About page:
 
 ```text
-RaceWeek Strategist is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1, Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.
+Outlap is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1, Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.
 ```
 
 ## Maintainer checklist before public release

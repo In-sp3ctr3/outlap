@@ -130,7 +130,7 @@ export function SettingsView({ data }: { data: DashboardData }) {
         <section className="panel">
           <h2>About</h2>
           <p className="legal">
-            RaceWeek Strategist is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1,
+            Outlap is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1,
             Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.
           </p>
         </section>

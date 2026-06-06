@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "RaceWeek Strategist",
+  title: "Outlap",
   description: "Unofficial local-first fantasy motorsport strategy dashboard.",
 };
 

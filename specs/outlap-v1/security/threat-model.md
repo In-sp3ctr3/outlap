@@ -2,7 +2,7 @@
 
 ## Risk Classification
 
-RaceWeek Strategist v1 is local-first and demo-safe by default. The sensitive surfaces are provider API keys, optional future read-only fantasy connector tokens, imported fantasy team data, league data, external connector payloads, and AI prompts that include strategy context.
+Outlap v1 is local-first and demo-safe by default. The sensitive surfaces are provider API keys, optional future read-only fantasy connector tokens, imported fantasy team data, league data, external connector payloads, and AI prompts that include strategy context.
 
 Verification target: Level 1 for the current local demo slice, with Level 2 requirements documented for future account/hosted/live-connector work.
 

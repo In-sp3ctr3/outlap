@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: RaceWeek Strategist API
+  title: Outlap API
   version: 1.0.0
   description: Local-first API for fantasy motorsport strategy recommendations.
 servers:

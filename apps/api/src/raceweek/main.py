@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from raceweek.api.routes import router
 
 app = FastAPI(
-    title="RaceWeek Strategist API",
+    title="Outlap API",
     version="1.0.0",
     description="Local-first API for fantasy motorsport strategy recommendations.",
 )

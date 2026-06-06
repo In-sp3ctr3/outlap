@@ -33,7 +33,7 @@ export function Sidebar({ active }: { active: View }) {
           <Gauge size={20} aria-hidden="true" />
         </span>
         <span>
-          <span className="brand-title">RaceWeek Strategist</span>
+          <span className="brand-title">Outlap</span>
           <span className="brand-subtitle">Unofficial local cockpit</span>
         </span>
       </Link>

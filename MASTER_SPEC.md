@@ -1,4 +1,4 @@
-# RaceWeek Strategist v1 — Master Specification
+# Outlap v1 — Master Specification
 
 This is a concatenated copy of the multi-file documentation package. Prefer the individual files for implementation.
 
@@ -7,11 +7,11 @@ This is a concatenated copy of the multi-file documentation package. Prefer the 
 
 <!-- BEGIN README.md -->
 
-# RaceWeek Strategist v1 Documentation Package
+# Outlap v1 Documentation Package
 
 This package is a build-ready specification for an open-source, local-first, bring-your-own-AI fantasy motorsport strategy dashboard.
 
-The project deliberately avoids official Formula 1 branding in its name and UI. The recommended public product name is **RaceWeek Strategist**. The product may describe itself as an unofficial fantasy motorsport analytics tool, but must not imply affiliation, endorsement, sponsorship, or official status.
+The project deliberately avoids official Formula 1 branding in its name and UI. The recommended public product name is **Outlap**. The product may describe itself as an unofficial fantasy motorsport analytics tool, but must not imply affiliation, endorsement, sponsorship, or official status.
 
 ## How to use this package
 
@@ -50,7 +50,7 @@ Give this entire folder to the implementation agent. The agent should read the f
 
 ## Repository name suggestion
 
-Recommended repository name: `raceweek-strategist`.
+Recommended repository name: `outlap`.
 
 Avoid names that imply official affiliation, such as `official-f1-fantasy-ai`, `f1-official-strategist`, or names using Formula 1 trademarks as branding.
 
@@ -64,7 +64,7 @@ Avoid names that imply official affiliation, such as `official-f1-fantasy-ai`, `
 
 # Implementation Agent Instructions
 
-You are implementing RaceWeek Strategist v1.
+You are implementing Outlap v1.
 
 ## Read-before-build checklist
 
@@ -147,7 +147,7 @@ A feature is done only when:
 
 ## Product summary
 
-**RaceWeek Strategist** is an open-source, local-first, AI-assisted fantasy motorsport strategy platform. It helps users make informed fantasy lineup decisions by combining fantasy asset prices and scores, user team state, transfer/chip rules, race results, session data, weather, news, projections, and deterministic optimization.
+**Outlap** is an open-source, local-first, AI-assisted fantasy motorsport strategy platform. It helps users make informed fantasy lineup decisions by combining fantasy asset prices and scores, user team state, transfer/chip rules, race results, session data, weather, news, projections, and deterministic optimization.
 
 The product is not merely a dashboard and not merely a chatbot. It is a **strategy system**:
 
@@ -259,9 +259,9 @@ The implementation agent should produce:
 
 ## 1. Product name
 
-Working/public name: **RaceWeek Strategist**.
+Working/public name: **Outlap**.
 
-Repository slug: `raceweek-strategist`.
+Repository slug: `outlap`.
 
 Product description: an unofficial, open-source fantasy motorsport strategy assistant for fans who want a data-driven, AI-explained way to manage race-week fantasy lineups.
 
@@ -847,7 +847,7 @@ Use a hexagonal/ports-and-adapters architecture.
 ## Monorepo structure
 
 ```text
-raceweek-strategist/
+outlap/
   apps/
     api/
       src/raceweek/
@@ -2809,7 +2809,7 @@ Use direct, helpful language:
 Footer/about page must include:
 
 ```text
-RaceWeek Strategist is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1, Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.
+Outlap is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1, Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.
 ```
 
 
@@ -2824,7 +2824,7 @@ RaceWeek Strategist is an unofficial fan-made fantasy analytics tool. It is not 
 
 ## Product posture
 
-RaceWeek Strategist is an unofficial fan-made analytics tool. It must not imply official status or use protected branding as product identity.
+Outlap is an unofficial fan-made analytics tool. It must not imply official status or use protected branding as product identity.
 
 ## Legal constraints to design around
 
@@ -3026,7 +3026,7 @@ Settings must include:
 Use this in README, UI footer, and About page:
 
 ```text
-RaceWeek Strategist is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1, Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.
+Outlap is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1, Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.
 ```
 
 ## Maintainer checklist before public release

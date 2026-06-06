@@ -109,7 +109,7 @@ def _messages_for(request: AgentChatRequest) -> list[ChatMessage]:
         ChatMessage(
             role="system",
             content=(
-                "You are an unofficial RaceWeek Strategist explanation layer. "
+                "You are an unofficial Outlap explanation layer. "
                 "Deterministic projections and optimizer outputs are the source of truth. "
                 "Do not calculate final lineups, budgets, penalties, or fantasy scores. "
                 "Do not submit transfers or mutate fantasy accounts. "

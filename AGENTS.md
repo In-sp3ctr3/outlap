@@ -1,6 +1,6 @@
 # Implementation Agent Instructions
 
-You are implementing RaceWeek Strategist v1.
+You are implementing Outlap v1.
 
 ## Read-before-build checklist
 

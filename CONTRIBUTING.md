@@ -1,4 +1,4 @@
-# Contributing to RaceWeek Strategist
+# Contributing to Outlap
 
 Thanks for contributing. This project is an unofficial fan-made fantasy motorsport analytics tool. Do not add official Formula 1 logos, team logos, driver photos, broadcast graphics, proprietary media, secrets, or real user data.
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raceweek-strategist.local/schemas/provider_config.schema.json",
+  "$id": "https://outlap.local/schemas/provider_config.schema.json",
   "title": "ProviderConfig",
   "type": "object",
   "required": [

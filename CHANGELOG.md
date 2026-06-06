@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to RaceWeek Strategist will be documented here.
+All notable changes to Outlap will be documented here.
 
 This project follows Semantic Versioning once the first public release is tagged.
 
@@ -34,6 +34,7 @@ This project follows Semantic Versioning once the first public release is tagged
 
 ### Changed
 
+- Renamed public product branding, documentation, repository metadata, and the README header asset to Outlap.
 - Switched the project license decision and repository metadata to MIT.
 - Added a scoped pnpm release-age exception for the reviewed `@types/node@25.9.2` and `@types/react@19.2.17` Dependabot update.
 

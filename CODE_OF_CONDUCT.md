@@ -2,7 +2,7 @@
 
 ## Our Standard
 
-RaceWeek Strategist should be a useful, respectful project for contributors and users. We expect participants to:
+Outlap should be a useful, respectful project for contributors and users. We expect participants to:
 
 - be kind and direct;
 - assume good intent while addressing impact;

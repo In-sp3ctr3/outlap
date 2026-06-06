@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/brand/raceweek-strategist-header.png" alt="RaceWeek Strategist header" width="100%">
+  <img src="docs/assets/brand/outlap-header.png" alt="Outlap header" width="100%">
 </p>
 
 <p align="center">
@@ -11,9 +11,9 @@
   <img alt="Local first" src="https://img.shields.io/badge/local--first-privacy%20by%20default-14b8a6">
 </p>
 
-# RaceWeek Strategist
+# Outlap
 
-RaceWeek Strategist is an unofficial, local-first fantasy motorsport strategy dashboard. It combines synthetic or user-imported fantasy team data, race-week context, deterministic projections, legal lineup optimization, and optional bring-your-own AI explanations.
+Outlap is an unofficial, local-first fantasy motorsport strategy dashboard. It combines synthetic or user-imported fantasy team data, race-week context, deterministic projections, legal lineup optimization, and optional bring-your-own AI explanations.
 
 The project deliberately avoids official motorsport branding, logos, team marks, driver imagery, broadcast assets, and any suggestion of affiliation or endorsement.
 
@@ -32,7 +32,7 @@ The v1 local demo is implemented and covered by CI. The current product includes
 
 ## Product Promise
 
-Given a fantasy team, budget, transfer allowance, chip state, race-week context, prices, projections, and risk appetite, RaceWeek Strategist recommends legal moves and explains the tradeoffs.
+Given a fantasy team, budget, transfer allowance, chip state, race-week context, prices, projections, and risk appetite, Outlap recommends legal moves and explains the tradeoffs.
 
 The AI layer never calculates final scores, transfer penalties, budgets, or optimized lineups. It can only explain deterministic outputs and use read-only tools.
 
@@ -122,4 +122,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Legal Notice
 
-RaceWeek Strategist is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1, Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.
+Outlap is an unofficial fan-made fantasy analytics tool. It is not affiliated with, endorsed by, or sponsored by Formula 1, Formula One Management, or any team/constructor. Users are responsible for complying with the terms of the services they connect.

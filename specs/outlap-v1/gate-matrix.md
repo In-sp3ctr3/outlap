@@ -1,4 +1,4 @@
-# RaceWeek Strategist v1 Gate Matrix
+# Outlap v1 Gate Matrix
 
 | Harness | Phase | Required Artifact | Acceptance Criteria | Evidence | Status |
 |---|---|---|---|---|---|
@@ -18,7 +18,7 @@
 | Engineering | Chip simulation slice | Pure chip score simulator and optimizer constraints | Regular boosts, 3x Boost, Autopilot, No Negative, Wildcard, Limitless, and Final Fix have deterministic optimizer tests; Final Fix filters invalid non-driver or multi-change lineups | `apps/api/src/raceweek/core/chip_simulator.py`, `apps/api/src/raceweek/core/optimizer_options.py`, `apps/api/tests/test_optimizer_chips.py`, `apps/api/tests/test_rules.py` | complete |
 | Engineering | Provider and agent guardrail slice | Provider registry, official SDK adapters, OpenAI-compatible adapter, fake providers, agent post-processing | Required providers are registered, browser config exposes only key presence, mocked OpenAI-compatible and official SDK calls work, mutation requests are refused, transfer advice cites recommendation IDs, provider failures fall back without AI, and secret-like provider output is redacted | `apps/api/src/raceweek/providers/*`, `apps/api/src/raceweek/agents.py`, `apps/api/tests/test_providers.py`, `apps/api/tests/test_official_provider_adapters.py`, `apps/api/tests/test_agent_guardrails.py` | complete |
 | Engineering | Remaining v1 slices | Unit/API/web/e2e tests per milestone | Product checklist reconciliation is complete for repo-owned local/demo flows; live-provider smoke passed with local Ollama | `docs/14_IMPLEMENTATION_PLAN.md`, `docs/20_IMPLEMENTATION_CHECKLIST.md`, `apps/web/tests/e2e/raceweek-strategist.spec.ts` | complete |
-| Security | Local-first guardrails | Threat model, requirements, test plan, audit | Secrets stay server-side; no auto-transfer path | `specs/raceweek-strategist-v1/security/*`, API/provider tests, UI disclaimer | complete |
+| Security | Local-first guardrails | Threat model, requirements, test plan, audit | Secrets stay server-side; no auto-transfer path | `specs/outlap-v1/security/*`, API/provider tests, UI disclaimer | complete |
 | Frontend | Product cockpit UI | Responsive pages and shared components | Primary routes and required states exist | Playwright demo/manual/failure flows | complete |
 | Frontend | UI-state and accessibility slice | State notices, skip link, working local controls, dynamic provider selection | Loading/empty/error states are announced, keyboard skip path exists, market Lock/Ban controls and optimizer constraints are interactive, all implemented chip options are selectable, provider choices come from API config, and desktop/mobile Playwright flows pass | `apps/web/components/state-notice.tsx`, `apps/web/components/raceweek-app.tsx`, `apps/web/components/views/*`, `apps/web/tests/e2e/raceweek-strategist.spec.ts` | complete |
 | SEO | Public app basics | Metadata and disclaimer | App has descriptive metadata and legal text | `apps/web/app/layout.tsx` | complete |

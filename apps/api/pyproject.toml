@@ -1,7 +1,7 @@
 [project]
-name = "raceweek-strategist-api"
+name = "outlap-api"
 version = "1.0.0"
-description = "Local-first API for RaceWeek Strategist."
+description = "Local-first API for Outlap."
 readme = "../../README.md"
 license = "MIT"
 requires-python = ">=3.12,<3.14"
