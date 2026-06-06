@@ -3,6 +3,7 @@ name = "raceweek-strategist-api"
 version = "1.0.0"
 description = "Local-first API for RaceWeek Strategist."
 readme = "../../README.md"
+license = "MIT"
 requires-python = ">=3.12,<3.14"
 dependencies = [
   "fastapi==0.136.3",

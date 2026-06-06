@@ -2,16 +2,15 @@
 
 ## License
 
-Recommended v1 license: Apache-2.0.
+Selected v1 license: MIT.
 
 Reasoning:
 
 - permissive and familiar;
 - friendly to contributors and downstream users;
-- includes patent grant;
 - avoids friction for a new community project.
 
-If maintainers want to prevent closed hosted forks, evaluate AGPL-3.0 before first public release. Do not change license casually after accepting contributions.
+Do not change license casually after accepting contributions.
 
 ## Contribution areas
 

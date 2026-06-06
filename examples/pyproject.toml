@@ -2,6 +2,7 @@
 name = "raceweek-strategist-api"
 version = "1.0.0"
 description = "Local-first API for RaceWeek Strategist"
+license = "MIT"
 requires-python = "==3.13.*"
 dependencies = [
   "fastapi==0.136.3",

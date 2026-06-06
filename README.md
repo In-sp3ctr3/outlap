@@ -118,7 +118,7 @@ See [SECURITY.md](SECURITY.md). Do not report vulnerabilities through public iss
 
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
 ## Legal Notice
 

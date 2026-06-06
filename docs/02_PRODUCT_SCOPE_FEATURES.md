@@ -115,4 +115,4 @@ All features listed in this document are in v1 unless explicitly marked as exclu
 | Release process | Required | Versioned docs/changelog |
 | Contributor guide | Required | Plugin patterns |
 | Security policy | Required | Vulnerability reporting |
-| License | Required | Apache-2.0 recommended |
+| License | Required | MIT selected |

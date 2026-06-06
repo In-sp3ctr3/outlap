@@ -1,6 +1,7 @@
 {
   "name": "raceweek-strategist",
   "private": true,
+  "license": "MIT",
   "packageManager": "pnpm@11.5.2",
   "engines": {
     "node": "24.16.0",
